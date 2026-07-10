@@ -4,6 +4,7 @@ import Gallery from "@/components/properties/Gallery";
 import PropertyCard from "@/components/properties/PropertyCard";
 import SchedulingForm from "@/components/forms/SchedulingForm";
 import PropertiesMap from "@/components/maps/PropertiesMap";
+import { PROPERTY_MEDIA_ALL, PROPERTY_MEDIA_FIELDS } from "@/lib/properties/queries";
 import { Bed, Bath, Car, Square, MapPin, Check, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { Metadata } from "next";
@@ -31,7 +32,7 @@ export default async function PropertyDetailsPage({ params }: { params: { slug: 
       *,
       property_types (name),
       neighborhoods (name, cities (name, state)),
-      property_media (*),
+      ${PROPERTY_MEDIA_ALL},
       property_features (features (name))
     `)
     .eq("slug", params.slug)
@@ -49,7 +50,7 @@ export default async function PropertyDetailsPage({ params }: { params: { slug: 
       id, title, slug, price, purpose, status, total_area, bedrooms, suites, bathrooms, parking_spaces,
       property_types (name),
       neighborhoods (name, cities (name)),
-      property_media (public_url, is_cover)
+      ${PROPERTY_MEDIA_FIELDS}
     `)
     .in("status", ["published", "sold", "rented"])
     .eq("property_type_id", property.property_type_id)

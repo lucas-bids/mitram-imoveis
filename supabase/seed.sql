@@ -46,8 +46,26 @@ VALUES
 ('dddd3333-dddd-3333-dddd-3333dddd3333', 'MIT-0003', 'Sobrado no Guaíra', 'sobrado-no-guaira', 'sale', '33333333-3333-3333-3333-333333333333', 'published', 499000.00, 'Sobrado amplo', 'aaaa1111-aaaa-1111-aaaa-1111aaaa1111', 'bbbb3333-bbbb-3333-bbbb-3333bbbb3333', 3, 2, 2, 120, true),
 ('dddd4444-dddd-4444-dddd-4444dddd4444', 'MIT-0004', 'Apartamento no Bigorrilho', 'apartamento-no-bigorrilho', 'rent', '22222222-2222-2222-2222-222222222222', 'published', 4490.00, 'Excelente apartamento para alugar', 'aaaa1111-aaaa-1111-aaaa-1111aaaa1111', 'bbbb4444-bbbb-4444-bbbb-4444bbbb4444', 2, 1, 1, 65, true),
 ('dddd5555-dddd-5555-dddd-5555dddd5555', 'MIT-0005', 'Casa em condomínio fechado Pilarzinho', 'casa-em-condominio-fechado-pilarzinho', 'sale', '66666666-6666-6666-6666-666666666666', 'published', 1795000.00, 'Casa alto padrão', 'aaaa1111-aaaa-1111-aaaa-1111aaaa1111', 'bbbb5555-bbbb-5555-bbbb-5555bbbb5555', 4, 4, 3, 400, true),
-('dddd6666-dddd-6666-dddd-6666dddd6666', 'MIT-0006', 'Terreno no Abranches', 'terreno-no-abranches', 'sale', '44444444-4444-4444-4444-444444444444', 'published', 730000.00, 'Excelente terreno para construção', 'aaaa1111-aaaa-1111-aaaa-1111aaaa1111', 'bbbb6666-bbbb-6666-bbbb-6666bbbb6666', 0, 0, 0, 800, true)
+('dddd6666-dddd-6666-dddd-6666dddd6666', 'MIT-0006', 'Terreno no Abranches', 'terreno-no-abranches', 'sale', '44444444-4444-4444-4444-444444444444', 'published', 730000.00, 'Excelente terreno para construção', 'aaaa1111-aaaa-1111-aaaa-1111aaaa1111', 'bbbb6666-bbbb-6666-bbbb-6666bbbb6666', 0, 0, 0, 800, true),
+('dddd7777-dddd-7777-dddd-7777dddd7777', 'MIT-0007', 'Apartamento vendido no Hauer', 'apartamento-vendido-no-hauer', 'sale', '22222222-2222-2222-2222-222222222222', 'sold', 420000.00, 'Imóvel vendido recentemente', 'aaaa1111-aaaa-1111-aaaa-1111aaaa1111', 'bbbb1111-bbbb-1111-bbbb-1111bbbb1111', 2, 1, 1, 70, false),
+('dddd8888-dddd-8888-dddd-8888dddd8888', 'MIT-0008', 'Casa alugada em Santa Felicidade', 'casa-alugada-em-santa-felicidade', 'rent', '11111111-1111-1111-1111-111111111111', 'rented', 3500.00, 'Imóvel alugado', 'aaaa1111-aaaa-1111-aaaa-1111aaaa1111', 'bbbb2222-bbbb-2222-bbbb-2222bbbb2222', 3, 2, 2, 150, false),
+('dddd9999-dddd-9999-dddd-9999dddd9999', 'MIT-0009', 'Rascunho de imóvel', 'rascunho-de-imovel', 'sale', '33333333-3333-3333-3333-333333333333', 'draft', 550000.00, 'Imóvel em rascunho para testes administrativos', 'aaaa1111-aaaa-1111-aaaa-1111aaaa1111', 'bbbb3333-bbbb-3333-bbbb-3333bbbb3333', 3, 2, 1, 110, false)
 ON CONFLICT (internal_code) DO NOTHING;
+
+-- Sync internal code sequence after fixed seed codes (only if migration 00001 was applied)
+DO $$
+BEGIN
+  IF to_regclass('public.property_internal_code_seq') IS NOT NULL THEN
+    PERFORM setval(
+      'property_internal_code_seq',
+      GREATEST(
+        (SELECT COALESCE(MAX(CAST(SUBSTRING(internal_code FROM 5) AS integer)), 0) FROM properties),
+        1
+      ),
+      true
+    );
+  END IF;
+END $$;
 
 -- Property Features
 INSERT INTO property_features (property_id, feature_id) VALUES

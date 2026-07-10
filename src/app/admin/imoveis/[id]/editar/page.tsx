@@ -1,5 +1,6 @@
 import PropertyForm from "@/components/admin/PropertyForm";
 import { createClient } from "@/lib/supabase/server";
+import { PROPERTY_MEDIA_ALL } from "@/lib/properties/queries";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { notFound } from "next/navigation";
@@ -11,7 +12,7 @@ export default async function EditPropertyPage({ params }: { params: { id: strin
     .from("properties")
     .select(`
       *,
-      property_media (*)
+      ${PROPERTY_MEDIA_ALL}
     `)
     .eq("id", params.id)
     .single();

@@ -144,50 +144,59 @@ ALTER TABLE property_features ENABLE ROW LEVEL SECURITY;
 ALTER TABLE property_media ENABLE ROW LEVEL SECURITY;
 
 -- Helper to check if user is admin
-CREATE OR REPLACE FUNCTION is_admin() RETURNS boolean AS $$
-BEGIN
-  RETURN EXISTS (
-    SELECT 1 FROM profiles
-    WHERE id = auth.uid() AND role = 'admin'
+CREATE OR REPLACE FUNCTION public.is_admin()
+RETURNS boolean
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
+STABLE
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.profiles
+    WHERE id = auth.uid()
+      AND role = 'admin'
   );
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$;
 
--- Profiles: Admin can read/write their own
-CREATE POLICY "Admins can view profiles" ON profiles FOR SELECT USING (is_admin());
-CREATE POLICY "Admins can update profiles" ON profiles FOR UPDATE USING (is_admin());
+-- Profiles: users read own row; admins manage all
+CREATE POLICY "Users can view own profile" ON profiles FOR SELECT USING (auth.uid() = id);
+CREATE POLICY "Users can update own profile" ON profiles FOR UPDATE USING (auth.uid() = id) WITH CHECK (auth.uid() = id);
+CREATE POLICY "Admins can view profiles" ON profiles FOR SELECT USING (public.is_admin());
+CREATE POLICY "Admins can update profiles" ON profiles FOR UPDATE USING (public.is_admin());
+CREATE POLICY "Admins can insert profiles" ON profiles FOR INSERT WITH CHECK (public.is_admin());
 
 -- Property Types: Public can read active. Admin can read/write all.
 CREATE POLICY "Public can read active property types" ON property_types FOR SELECT USING (active = true);
-CREATE POLICY "Admins can manage property types" ON property_types FOR ALL USING (is_admin());
+CREATE POLICY "Admins can manage property types" ON property_types FOR ALL USING (public.is_admin());
 
 -- Cities: Public can read active. Admin can read/write all.
 CREATE POLICY "Public can read active cities" ON cities FOR SELECT USING (active = true);
-CREATE POLICY "Admins can manage cities" ON cities FOR ALL USING (is_admin());
+CREATE POLICY "Admins can manage cities" ON cities FOR ALL USING (public.is_admin());
 
 -- Neighborhoods: Public can read active. Admin can read/write all.
 CREATE POLICY "Public can read active neighborhoods" ON neighborhoods FOR SELECT USING (active = true);
-CREATE POLICY "Admins can manage neighborhoods" ON neighborhoods FOR ALL USING (is_admin());
+CREATE POLICY "Admins can manage neighborhoods" ON neighborhoods FOR ALL USING (public.is_admin());
 
 -- Features: Public can read active. Admin can read/write all.
 CREATE POLICY "Public can read active features" ON features FOR SELECT USING (active = true);
-CREATE POLICY "Admins can manage features" ON features FOR ALL USING (is_admin());
+CREATE POLICY "Admins can manage features" ON features FOR ALL USING (public.is_admin());
 
 -- Properties: Public can read published, sold, rented. Admin can read/write all.
 CREATE POLICY "Public can read public properties" ON properties FOR SELECT USING (status IN ('published', 'sold', 'rented'));
-CREATE POLICY "Admins can manage properties" ON properties FOR ALL USING (is_admin());
+CREATE POLICY "Admins can manage properties" ON properties FOR ALL USING (public.is_admin());
 
 -- Property Features: Public can read if property is public. Admin can read/write all.
 CREATE POLICY "Public can read property features" ON property_features FOR SELECT USING (
   EXISTS (SELECT 1 FROM properties WHERE id = property_id AND status IN ('published', 'sold', 'rented'))
 );
-CREATE POLICY "Admins can manage property features" ON property_features FOR ALL USING (is_admin());
+CREATE POLICY "Admins can manage property features" ON property_features FOR ALL USING (public.is_admin());
 
 -- Property Media: Public can read if property is public. Admin can read/write all.
 CREATE POLICY "Public can read property media" ON property_media FOR SELECT USING (
   EXISTS (SELECT 1 FROM properties WHERE id = property_id AND status IN ('published', 'sold', 'rented'))
 );
-CREATE POLICY "Admins can manage property media" ON property_media FOR ALL USING (is_admin());
+CREATE POLICY "Admins can manage property media" ON property_media FOR ALL USING (public.is_admin());
 
 -- Storage policies (assuming buckets 'property-images' and 'property-floorplans' exist)
 -- We will create them via seed or documentation.

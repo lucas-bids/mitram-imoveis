@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import PropertyCard from "@/components/properties/PropertyCard";
 import AdvancedFilters from "@/components/public/AdvancedFilters";
 import PropertiesMap from "@/components/maps/PropertiesMap";
+import { PROPERTY_MEDIA_FIELDS } from "@/lib/properties/queries";
 import { Suspense } from "react";
 
 export const dynamic = "force-dynamic";
@@ -45,7 +46,7 @@ export default async function ImoveisPage({
       longitude,
       property_types (name),
       neighborhoods (name, cities (name)),
-      property_media (public_url, is_cover)
+      ${PROPERTY_MEDIA_FIELDS}
     `)
     .in("status", ["published", "sold", "rented"]);
 

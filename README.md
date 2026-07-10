@@ -23,27 +23,13 @@ Projeto do novo website da Mitram Imóveis, desenvolvido com Next.js (App Router
 
 ## Configuração do Supabase
 
-### 1. Migrations e Seed
+Consulte o guia detalhado em [`supabase/README.md`](supabase/README.md).
 
-As tabelas do banco de dados são versionadas usando SQL no diretório `supabase/migrations`.
-Como a execução remota via script exige acesso direto ao Postgres, execute o código de `supabase/migrations/20240101000000_initial_schema.sql` diretamente no painel **SQL Editor** do Supabase.
+Resumo:
 
-Após criar as tabelas, execute o script `supabase/seed.sql` da mesma forma no SQL Editor para popular o banco de dados com tipos de imóveis, cidades, bairros, características e imóveis fictícios.
-
-### 2. Storage
-
-No painel do Supabase, acesse **Storage** e crie os seguintes buckets:
-- `property-images` (Público)
-- `property-floorplans` (Público ou Privado, dependendo da necessidade)
-
-### 3. Autenticação (Admin)
-
-O painel administrativo é restrito a usuários com a role `admin`.
-1. Crie o usuário inicial através do painel do Supabase em **Authentication > Users**.
-2. Após criar o usuário, vá ao **SQL Editor** e atualize a role desse usuário na tabela `profiles`:
-   ```sql
-   UPDATE profiles SET role = 'admin' WHERE id = 'ID_DO_USUARIO_CRIADO';
-   ```
+1. Execute `supabase/setup-complete.sql` no SQL Editor **ou** `npm run db:apply` com `DATABASE_URL`.
+2. Crie o usuário admin no Auth e execute `supabase/promote-admin.sql`.
+3. Configure URLs de redirect no Supabase Auth.
 
 ## Google Maps
 

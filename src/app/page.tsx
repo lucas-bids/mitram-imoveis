@@ -3,6 +3,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import PropertyCard from "@/components/properties/PropertyCard";
 import QuickSearch from "@/components/public/QuickSearch";
+import { PROPERTY_MEDIA_FIELDS } from "@/lib/properties/queries";
 
 export const revalidate = 3600; // revalidate every hour
 
@@ -26,7 +27,7 @@ export default async function Home() {
       parking_spaces,
       property_types (name),
       neighborhoods (name, cities (name)),
-      property_media (public_url, is_cover)
+      ${PROPERTY_MEDIA_FIELDS}
     `)
     .in("status", ["published", "sold", "rented"])
     .eq("featured", true)
