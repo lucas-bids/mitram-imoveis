@@ -1,39 +1,58 @@
 "use client";
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { useState, useEffect } from "react";
-import { Map, List, SlidersHorizontal, X } from "lucide-react";
+import { useState } from "react";
+import { List, Map } from "lucide-react";
 
-interface AdvancedFiltersProps {
-  types: any[];
-  cities: any[];
-  neighborhoods: any[];
+interface FilterOption {
+  id: string;
+  name: string;
 }
 
-export default function AdvancedFilters({ types, cities, neighborhoods }: AdvancedFiltersProps) {
+interface NeighborhoodOption extends FilterOption {
+  city_id: string;
+}
+
+interface AdvancedFiltersProps {
+  types: FilterOption[];
+  cities: FilterOption[];
+  neighborhoods: NeighborhoodOption[];
+  features: FilterOption[];
+}
+
+const minimumQuantityOptions = [1, 2, 3, 4, 5];
+
+export default function AdvancedFilters({
+  types,
+  cities,
+  neighborhoods,
+  features,
+}: AdvancedFiltersProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  
-  const [isOpen, setIsOpen] = useState(false);
 
-  // Parse state from URL
   const [filters, setFilters] = useState({
     type: searchParams.get("type") || "",
     purpose: searchParams.get("purpose") || "",
     city: searchParams.get("city") || "",
     neighborhood: searchParams.get("neighborhood") || "",
     bedrooms: searchParams.get("bedrooms") || "",
+    suites: searchParams.get("suites") || "",
+    parking_spaces: searchParams.get("parking_spaces") || "",
+    features: searchParams.get("features") || "",
     min_price: searchParams.get("min_price") || "",
     max_price: searchParams.get("max_price") || "",
+    min_area: searchParams.get("min_area") || "",
+    max_area: searchParams.get("max_area") || "",
     order: searchParams.get("order") || "recentes",
   });
 
   const isMapView = searchParams.get("view") === "map";
 
   const handleChange = (key: string, value: string) => {
-    setFilters(prev => {
-      const newFilters = { ...prev, [key]: value };
+    setFilters((previousFilters) => {
+      const newFilters = { ...previousFilters, [key]: value };
       if (key === "city") {
         newFilters.neighborhood = "";
       }
@@ -41,10 +60,10 @@ export default function AdvancedFilters({ types, cities, neighborhoods }: Advanc
     });
   };
 
-  const handleApply = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleApply = (event: React.FormEvent) => {
+    event.preventDefault();
     const params = new URLSearchParams(searchParams.toString());
-    
+
     Object.entries(filters).forEach(([key, value]) => {
       if (value) {
         params.set(key, value);
@@ -54,26 +73,6 @@ export default function AdvancedFilters({ types, cities, neighborhoods }: Advanc
     });
 
     router.push(`${pathname}?${params.toString()}`);
-    setIsOpen(false);
-  };
-
-  const handleClear = () => {
-    const defaultFilters = {
-      type: "",
-      purpose: "",
-      city: "",
-      neighborhood: "",
-      bedrooms: "",
-      min_price: "",
-      max_price: "",
-      order: "recentes",
-    };
-    setFilters(defaultFilters);
-    
-    const params = new URLSearchParams();
-    if (isMapView) params.set("view", "map");
-    router.push(`${pathname}?${params.toString()}`);
-    setIsOpen(false);
   };
 
   const toggleView = () => {
@@ -86,129 +85,235 @@ export default function AdvancedFilters({ types, cities, neighborhoods }: Advanc
     router.push(`${pathname}?${params.toString()}`);
   };
 
-  const filteredNeighborhoods = neighborhoods.filter(n => !filters.city || n.city_id === filters.city);
+  const filteredNeighborhoods = neighborhoods.filter(
+    (neighborhood) => !filters.city || neighborhood.city_id === filters.city,
+  );
+
+  const selectClassName =
+    "w-full rounded border-gray-300 bg-white px-3 py-2 text-sm text-mitram-dark";
+  const inputClassName =
+    "min-w-0 w-full rounded border-gray-300 bg-white px-3 py-2 text-sm text-mitram-dark";
+  const labelClassName = "mb-1 block text-xs font-medium text-gray-600";
 
   return (
     <div>
-      <div className="flex justify-between items-center flex-wrap gap-4">
-        {/* Quick horizontal filters for desktop */}
-        <div className="hidden lg:flex items-center gap-4 flex-1">
-          <select 
-            value={filters.purpose}
-            onChange={(e) => handleChange("purpose", e.target.value)}
-            className="border-gray-300 rounded text-sm py-2 px-3 bg-white"
-          >
-            <option value="">Finalidade</option>
-            <option value="sale">Comprar</option>
-            <option value="rent">Alugar</option>
-          </select>
-
-          <select 
+      <form
+        onSubmit={handleApply}
+        className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5"
+      >
+        <div>
+          <label htmlFor="property-type" className={labelClassName}>
+            Tipo
+          </label>
+          <select
+            id="property-type"
             value={filters.type}
-            onChange={(e) => handleChange("type", e.target.value)}
-            className="border-gray-300 rounded text-sm py-2 px-3 bg-white"
+            onChange={(event) => handleChange("type", event.target.value)}
+            className={selectClassName}
           >
-            <option value="">Tipo de Imóvel</option>
-            {types.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+            <option value="">Todos</option>
+            {types.map((type) => (
+              <option key={type.id} value={type.id}>
+                {type.name}
+              </option>
+            ))}
           </select>
+        </div>
 
-          <select 
+        <div>
+          <label htmlFor="city" className={labelClassName}>
+            Cidade
+          </label>
+          <select
+            id="city"
             value={filters.city}
-            onChange={(e) => handleChange("city", e.target.value)}
-            className="border-gray-300 rounded text-sm py-2 px-3 bg-white"
+            onChange={(event) => handleChange("city", event.target.value)}
+            className={selectClassName}
           >
-            <option value="">Cidade</option>
-            {cities.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+            <option value="">Todas</option>
+            {cities.map((city) => (
+              <option key={city.id} value={city.id}>
+                {city.name}
+              </option>
+            ))}
           </select>
+        </div>
 
-          <button 
-            onClick={(e) => handleApply(e as unknown as React.FormEvent)}
-            className="bg-mitram-gold text-mitram-dark font-medium px-4 py-2 rounded text-sm hover:bg-yellow-500"
+        <div>
+          <label htmlFor="neighborhood" className={labelClassName}>
+            Bairro
+          </label>
+          <select
+            id="neighborhood"
+            value={filters.neighborhood}
+            onChange={(event) => handleChange("neighborhood", event.target.value)}
+            className={selectClassName}
+            disabled={!filters.city}
+          >
+            <option value="">Todos</option>
+            {filteredNeighborhoods.map((neighborhood) => (
+              <option key={neighborhood.id} value={neighborhood.id}>
+                {neighborhood.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label htmlFor="bedrooms" className={labelClassName}>
+            Quartos
+          </label>
+          <select
+            id="bedrooms"
+            value={filters.bedrooms}
+            onChange={(event) => handleChange("bedrooms", event.target.value)}
+            className={selectClassName}
+          >
+            <option value="">Qualquer</option>
+            {minimumQuantityOptions.map((quantity) => (
+              <option key={quantity} value={quantity}>
+                {quantity}+
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label htmlFor="suites" className={labelClassName}>
+            Suítes
+          </label>
+          <select
+            id="suites"
+            value={filters.suites}
+            onChange={(event) => handleChange("suites", event.target.value)}
+            className={selectClassName}
+          >
+            <option value="">Qualquer</option>
+            {minimumQuantityOptions.map((quantity) => (
+              <option key={quantity} value={quantity}>
+                {quantity}+
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label htmlFor="parking-spaces" className={labelClassName}>
+            Vagas de garagem
+          </label>
+          <select
+            id="parking-spaces"
+            value={filters.parking_spaces}
+            onChange={(event) => handleChange("parking_spaces", event.target.value)}
+            className={selectClassName}
+          >
+            <option value="">Qualquer</option>
+            {minimumQuantityOptions.map((quantity) => (
+              <option key={quantity} value={quantity}>
+                {quantity}+
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label htmlFor="features" className={labelClassName}>
+            Características
+          </label>
+          <select
+            id="features"
+            value={filters.features}
+            onChange={(event) => handleChange("features", event.target.value)}
+            className={selectClassName}
+          >
+            <option value="">Todas</option>
+            {features.map((feature) => (
+              <option key={feature.id} value={feature.id}>
+                {feature.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <fieldset>
+          <legend className={labelClassName}>Preço (Reais)</legend>
+          <div className="flex gap-2">
+            <input
+              type="number"
+              min="0"
+              step="any"
+              value={filters.min_price}
+              onChange={(event) => handleChange("min_price", event.target.value)}
+              className={inputClassName}
+              placeholder="Mínimo"
+              aria-label="Preço mínimo em reais"
+            />
+            <input
+              type="number"
+              min="0"
+              step="any"
+              value={filters.max_price}
+              onChange={(event) => handleChange("max_price", event.target.value)}
+              className={inputClassName}
+              placeholder="Máximo"
+              aria-label="Preço máximo em reais"
+            />
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend className={labelClassName}>Área (m²)</legend>
+          <div className="flex gap-2">
+            <input
+              type="number"
+              min="0"
+              step="any"
+              value={filters.min_area}
+              onChange={(event) => handleChange("min_area", event.target.value)}
+              className={inputClassName}
+              placeholder="Mínima"
+              aria-label="Área mínima em metros quadrados"
+            />
+            <input
+              type="number"
+              min="0"
+              step="any"
+              value={filters.max_area}
+              onChange={(event) => handleChange("max_area", event.target.value)}
+              className={inputClassName}
+              placeholder="Máxima"
+              aria-label="Área máxima em metros quadrados"
+            />
+          </div>
+        </fieldset>
+
+        <div className="flex items-end">
+          <button
+            type="submit"
+            className="w-full rounded bg-mitram-gold px-6 py-2 text-sm font-semibold text-mitram-dark hover:bg-yellow-500"
           >
             Buscar
           </button>
         </div>
+      </form>
 
-        <div className="flex items-center gap-3 w-full lg:w-auto">
-          <button 
-            onClick={() => setIsOpen(!isOpen)}
-            className="flex-1 lg:flex-none flex items-center justify-center gap-2 border border-gray-300 rounded px-4 py-2 text-sm bg-white hover:bg-gray-50"
-          >
-            <SlidersHorizontal size={16} /> Filtros Avançados
-          </button>
-          
-          <button 
-            onClick={toggleView}
-            className="flex-1 lg:flex-none flex items-center justify-center gap-2 border border-gray-300 rounded px-4 py-2 text-sm bg-white hover:bg-gray-50"
-          >
-            {isMapView ? <><List size={16} /> Lista</> : <><Map size={16} /> Mapa</>}
-          </button>
-        </div>
+      <div className="mt-4 flex justify-end border-t border-gray-100 pt-4">
+        <button
+          type="button"
+          onClick={toggleView}
+          className="flex items-center justify-center gap-2 rounded border border-gray-300 bg-white px-4 py-2 text-sm hover:bg-gray-50"
+        >
+          {isMapView ? (
+            <>
+              <List size={16} /> Lista
+            </>
+          ) : (
+            <>
+              <Map size={16} /> Mapa
+            </>
+          )}
+        </button>
       </div>
-
-      {/* Advanced Filters Panel */}
-      {isOpen && (
-        <div className="mt-4 p-4 border rounded-lg bg-gray-50 shadow-inner">
-          <div className="flex justify-between items-center mb-4 border-b pb-2">
-            <h3 className="font-semibold text-mitram-dark">Filtros Avançados</h3>
-            <button onClick={() => setIsOpen(false)} className="text-gray-500 hover:text-gray-800">
-              <X size={20} />
-            </button>
-          </div>
-          <form onSubmit={handleApply} className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-xs text-gray-500 mb-1">Finalidade</label>
-              <select value={filters.purpose} onChange={(e) => handleChange("purpose", e.target.value)} className="w-full border-gray-300 rounded py-2 px-3">
-                <option value="">Qualquer</option>
-                <option value="sale">Comprar</option>
-                <option value="rent">Alugar</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs text-gray-500 mb-1">Tipo</label>
-              <select value={filters.type} onChange={(e) => handleChange("type", e.target.value)} className="w-full border-gray-300 rounded py-2 px-3">
-                <option value="">Qualquer</option>
-                {types.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs text-gray-500 mb-1">Cidade</label>
-              <select value={filters.city} onChange={(e) => handleChange("city", e.target.value)} className="w-full border-gray-300 rounded py-2 px-3">
-                <option value="">Qualquer</option>
-                {cities.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs text-gray-500 mb-1">Bairro</label>
-              <select value={filters.neighborhood} onChange={(e) => handleChange("neighborhood", e.target.value)} className="w-full border-gray-300 rounded py-2 px-3" disabled={!filters.city}>
-                <option value="">Qualquer</option>
-                {filteredNeighborhoods.map(n => <option key={n.id} value={n.id}>{n.name}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs text-gray-500 mb-1">Quartos Mínimo</label>
-              <input type="number" value={filters.bedrooms} onChange={(e) => handleChange("bedrooms", e.target.value)} min={0} className="w-full border-gray-300 rounded py-2 px-3" placeholder="Ex: 2" />
-            </div>
-            <div>
-              <label className="block text-xs text-gray-500 mb-1">Ordenação</label>
-              <select value={filters.order} onChange={(e) => handleChange("order", e.target.value)} className="w-full border-gray-300 rounded py-2 px-3">
-                <option value="recentes">Mais recentes</option>
-                <option value="menor_preco">Menor preço</option>
-                <option value="maior_preco">Maior preço</option>
-                <option value="maior_area">Maior área</option>
-              </select>
-            </div>
-            <div className="md:col-span-3 flex justify-end gap-3 pt-4 border-t mt-2">
-              <button type="button" onClick={handleClear} className="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded hover:bg-gray-100">
-                Limpar Filtros
-              </button>
-              <button type="submit" className="px-6 py-2 text-sm bg-mitram-dark text-white rounded hover:bg-black font-medium">
-                Aplicar Filtros
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
     </div>
   );
 }

@@ -19,13 +19,31 @@ export default async function ImoveisPage({
     { data: propertyTypes },
     { data: cities },
     { data: neighborhoods },
-    { data: features }
+    { data: features },
   ] = await Promise.all([
     supabase.from("property_types").select("id, name").eq("active", true),
     supabase.from("cities").select("id, name").eq("active", true),
     supabase.from("neighborhoods").select("id, city_id, name").eq("active", true),
-    supabase.from("features").select("id, name").eq("active", true)
+    supabase.from("features").select("id, name").eq("active", true),
   ]);
+
+  const selectedFeatureIds = searchParams.features
+    ? (Array.isArray(searchParams.features)
+        ? searchParams.features
+        : searchParams.features.split(","))
+    : [];
+
+  let propertyIdsWithSelectedFeatures: string[] | null = null;
+  if (selectedFeatureIds.length > 0) {
+    const { data: matchingFeatures } = await supabase
+      .from("property_features")
+      .select("property_id")
+      .in("feature_id", selectedFeatureIds);
+
+    propertyIdsWithSelectedFeatures = Array.from(
+      new Set((matchingFeatures || []).map(({ property_id }) => property_id)),
+    );
+  }
 
   // Build Query based on searchParams
   let query = supabase
@@ -68,6 +86,9 @@ export default async function ImoveisPage({
   if (searchParams.bedrooms) {
     query = query.gte("bedrooms", parseInt(searchParams.bedrooms as string));
   }
+  if (searchParams.suites) {
+    query = query.gte("suites", parseInt(searchParams.suites as string));
+  }
   if (searchParams.parking_spaces) {
     query = query.gte("parking_spaces", parseInt(searchParams.parking_spaces as string));
   }
@@ -76,6 +97,20 @@ export default async function ImoveisPage({
   }
   if (searchParams.max_price) {
     query = query.lte("price", parseFloat(searchParams.max_price as string));
+  }
+  if (searchParams.min_area) {
+    query = query.gte("total_area", parseFloat(searchParams.min_area as string));
+  }
+  if (searchParams.max_area) {
+    query = query.lte("total_area", parseFloat(searchParams.max_area as string));
+  }
+  if (propertyIdsWithSelectedFeatures) {
+    query = query.in(
+      "id",
+      propertyIdsWithSelectedFeatures.length > 0
+        ? propertyIdsWithSelectedFeatures
+        : ["00000000-0000-0000-0000-000000000000"],
+    );
   }
 
   // Order
@@ -114,7 +149,8 @@ export default async function ImoveisPage({
             <AdvancedFilters 
               types={propertyTypes || []} 
               cities={cities || []} 
-              neighborhoods={neighborhoods || []} 
+              neighborhoods={neighborhoods || []}
+              features={features || []}
             />
           </Suspense>
         </div>
