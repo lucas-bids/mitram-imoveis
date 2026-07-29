@@ -48,7 +48,7 @@ export default function PropertiesMap({ properties }: PropertiesMapProps) {
           <div className="absolute bottom-4 left-4 bg-white p-3 rounded-lg shadow-lg w-64 border border-gray-200 z-10 flex gap-3">
             <div className="relative w-20 h-20 bg-gray-100 flex-shrink-0 rounded overflow-hidden">
               <Image 
-                src={selectedProperty.property_media?.find((m: any) => m.is_cover)?.public_url || "/images/placeholder.jpg"}
+                src={selectedProperty.property_media?.find((m: any) => m.is_cover)?.public_url || "/images/keys-on-table.jpg"}
                 alt={selectedProperty.title}
                 fill
                 className="object-cover"

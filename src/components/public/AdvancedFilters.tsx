@@ -90,10 +90,10 @@ export default function AdvancedFilters({
   );
 
   const selectClassName =
-    "w-full rounded border-gray-300 bg-white px-3 py-2 text-sm text-mitram-dark";
+    "w-full rounded-xl border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-mitram-dark focus:ring-2 focus:ring-mitram-gold focus:border-mitram-gold transition-colors outline-none";
   const inputClassName =
-    "min-w-0 w-full rounded border-gray-300 bg-white px-3 py-2 text-sm text-mitram-dark";
-  const labelClassName = "mb-1 block text-xs font-medium text-gray-600";
+    "min-w-0 w-full rounded-xl border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-mitram-dark focus:ring-2 focus:ring-mitram-gold focus:border-mitram-gold transition-colors outline-none";
+  const labelClassName = "mb-1.5 block text-xs font-semibold text-gray-600 uppercase tracking-wider";
 
   return (
     <div>
@@ -290,7 +290,7 @@ export default function AdvancedFilters({
         <div className="flex items-end">
           <button
             type="submit"
-            className="w-full rounded bg-mitram-gold px-6 py-2 text-sm font-semibold text-mitram-dark hover:bg-yellow-500"
+            className="w-full rounded-xl bg-mitram-dark px-6 py-2.5 text-sm font-bold text-white hover:bg-black transition-colors"
           >
             Buscar
           </button>
@@ -301,7 +301,7 @@ export default function AdvancedFilters({
         <button
           type="button"
           onClick={toggleView}
-          className="flex items-center justify-center gap-2 rounded border border-gray-300 bg-white px-4 py-2 text-sm hover:bg-gray-50"
+          className="flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-5 py-2.5 text-sm font-semibold hover:bg-gray-50 transition-colors shadow-sm"
         >
           {isMapView ? (
             <>

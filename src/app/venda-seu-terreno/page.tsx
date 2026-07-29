@@ -94,7 +94,7 @@ export default function SellLandPage() {
 
           <div className="md:w-1/2 relative h-[400px] md:h-auto min-h-[400px]">
             <Image 
-              src="/images/placeholder.jpg" 
+              src="/images/garden-garage-entrance.png" 
               alt="Terreno Mitram" 
               fill 
               className="object-cover"
