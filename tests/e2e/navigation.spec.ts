@@ -14,3 +14,11 @@ test('has title and can navigate', async ({ page }) => {
   await imoveisLink.click();
   await expect(page).toHaveURL(/.*\/imoveis/);
 });
+
+test('footer links to the admin login', async ({ page }) => {
+  await page.goto('/');
+
+  const adminLink = page.locator('footer a:has-text("Área administrativa")');
+  await expect(adminLink).toBeVisible();
+  await expect(adminLink).toHaveAttribute('href', '/admin/login');
+});

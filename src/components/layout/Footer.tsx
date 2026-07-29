@@ -39,6 +39,15 @@ export default function Footer() {
           </ul>
         </div>
       </div>
+
+      <div className="container mx-auto px-4 mt-8 pt-6 border-t border-mitram-grayLight/20 text-right">
+        <Link
+          href="/admin/login"
+          className="text-xs text-mitram-grayLight/70 hover:text-mitram-gold transition-colors"
+        >
+          Área administrativa
+        </Link>
+      </div>
     </footer>
   );
 }
