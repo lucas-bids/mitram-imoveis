@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import PropertyCard from "@/components/properties/PropertyCard";
+import FeaturedPropertiesCarousel from "@/components/properties/FeaturedPropertiesCarousel";
 import QuickSearch from "@/components/public/QuickSearch";
 import { PROPERTY_MEDIA_FIELDS } from "@/lib/properties/queries";
 import { CheckCircle2, ShieldCheck, Headset, Sparkles, ArrowRight } from "lucide-react";
@@ -93,6 +93,26 @@ export default async function Home() {
       <div className="relative z-30 -mt-32 md:-mt-[10.5rem] container mx-auto px-4 mb-20">
         <QuickSearch types={propertyTypes || []} cities={cities || []} neighborhoods={neighborhoods || []} />
       </div>
+
+      {/* Featured Properties */}
+      {featuredProperties && featuredProperties.length > 0 && (
+        <section className="bg-white pb-24">
+          <div className="container mx-auto px-4">
+            <div className="flex flex-col md:flex-row justify-between items-end md:items-center mb-10 gap-4">
+              <div>
+                <h2 className="text-3xl md:text-4xl font-bold text-mitram-dark">Imóveis em Destaque</h2>
+                <p className="text-gray-500 mt-2">Confira as melhores opções selecionadas para você</p>
+              </div>
+              <Link href="/imoveis" className="group flex items-center gap-2 text-mitram-dark font-semibold hover:text-mitram-gold transition-colors">
+                Ver Todos
+                <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
+
+            <FeaturedPropertiesCarousel properties={featuredProperties} />
+          </div>
+        </section>
+      )}
 
       {/* Value Propositions */}
       <section className="container mx-auto px-4 mb-24">
@@ -187,30 +207,6 @@ export default async function Home() {
           </div>
         </div>
       </section>
-
-      {/* Featured Properties */}
-      {featuredProperties && featuredProperties.length > 0 && (
-        <section className="bg-mitram-grayLight py-24">
-          <div className="container mx-auto px-4">
-            <div className="flex flex-col md:flex-row justify-between items-end md:items-center mb-10 gap-4">
-              <div>
-                <h2 className="text-3xl md:text-4xl font-bold text-mitram-dark">Imóveis em Destaque</h2>
-                <p className="text-gray-500 mt-2">Confira as melhores opções selecionadas para você</p>
-              </div>
-              <Link href="/imoveis" className="group flex items-center gap-2 text-mitram-dark font-semibold hover:text-mitram-gold transition-colors">
-                Ver Todos
-                <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-              </Link>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {featuredProperties.map((prop) => (
-                <PropertyCard key={prop.id} property={prop} />
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* Avaliação CTA */}
       <section id="avaliacao" className="py-24 relative overflow-hidden">
