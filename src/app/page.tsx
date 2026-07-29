@@ -90,7 +90,7 @@ export default async function Home() {
       </section>
 
       {/* Quick Search */}
-      <div className="relative z-30 -mt-32 md:-mt-36 container mx-auto px-4 mb-20">
+      <div className="relative z-30 -mt-32 md:-mt-[10.5rem] container mx-auto px-4 mb-20">
         <QuickSearch types={propertyTypes || []} cities={cities || []} neighborhoods={neighborhoods || []} />
       </div>
 
