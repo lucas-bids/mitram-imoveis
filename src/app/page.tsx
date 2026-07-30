@@ -3,8 +3,42 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import FeaturedPropertiesCarousel from "@/components/properties/FeaturedPropertiesCarousel";
 import QuickSearch from "@/components/public/QuickSearch";
+import TestimonialsCarousel from "@/components/public/TestimonialsCarousel";
 import { PROPERTY_MEDIA_FIELDS } from "@/lib/properties/queries";
 import { CheckCircle2, ShieldCheck, Headset, Sparkles, ArrowRight } from "lucide-react";
+
+const TESTIMONIALS = [
+  {
+    text: "Hoje estamos realizados com o apartamento dos sonhos e isso com o suporte dos profissionais que nos atenderam e souberam escutar nossas necessidades e entender quais nossas expectativas.",
+    author: "Isabely & Jean",
+    type: "Apartamento comprado",
+    image: "/images/testimonials/jean-300x297-1.png",
+  },
+  {
+    text: "Estou muito satisfeita com minha compra através da Cansei de Aluguel, fui atendida por uma equipe muito atenciosa e prestativa que me ajudaram em todos os detalhes do processo, eu super indico essa Imobiliária!",
+    author: "Cristiane",
+    type: "Apartamento comprado",
+    image: "/images/testimonials/cristiane-300x291-1.jpeg",
+  },
+  {
+    text: "Desde o início a equipe foi super atenciosa e me auxiliou no processo de avaliação da Caixa e na escolha do imóvel. O Marcos, corretor que me atendeu, estava sempre de prontidão e manteve a negociação sempre transparente! Nota 10!",
+    author: "Lucas Vidal",
+    type: "Casa comprada",
+    image: "/images/testimonials/lucas.jpg",
+  },
+  {
+    text: "Além de uma experiência incrível por ser uma conquista pessoal. Eles fizeram ser algo ainda mais legal, porque me atenderam super bem, sempre muito atenciosos e cuidadosos. Não posso deixar de falar que o café deles é ótimo! Foi uma experiência lindaaa! Obrigada!",
+    author: "Suelym",
+    type: "Casa comprada",
+    image: "/images/testimonials/suelyn-300x300-1.png",
+  },
+  {
+    text: "Agradeço imensamente à dedicação e paciência do Guima e do Bruno, que sonharam comigo, e me ajudaram nessa grande conquista de ter meu apartamento.",
+    author: "Daiane",
+    type: "Apartamento comprado",
+    image: "/images/testimonials/daiane-300x300-1.jpeg",
+  },
+];
 
 export const revalidate = 3600; // revalidate every hour
 
@@ -209,89 +243,159 @@ export default async function Home() {
       </section>
 
       {/* Avaliação CTA */}
-      <section id="avaliacao" className="py-24 relative overflow-hidden">
-        <div className="absolute inset-0 bg-mitram-dark z-0"></div>
-        <div className="absolute top-0 right-0 w-1/2 h-full bg-mitram-gold/10 blur-3xl rounded-full translate-x-1/2 -translate-y-1/4"></div>
-        
+      <section id="avaliacao" className="py-24 relative overflow-hidden bg-mitram-grayLight">
         <div className="container mx-auto px-4 relative z-10">
-          <div className="bg-white rounded-[2rem] p-8 md:p-16 shadow-2xl max-w-5xl mx-auto flex flex-col md:flex-row items-center gap-12">
-            <div className="flex-1 space-y-6">
-              <span className="text-mitram-gold font-bold uppercase tracking-wider text-sm">AVALIAÇÃO GRATUITA</span>
-              <h2 className="text-3xl md:text-4xl font-bold text-mitram-dark leading-tight">
-                Venda seu imóvel com a expertise da Mitram
-              </h2>
-              <p className="text-gray-600 text-lg">
-                Deixe que nossa equipe entre em contato para uma avaliação sem compromisso do seu imóvel ou terreno.
-              </p>
+          <div className="flex flex-col-reverse lg:flex-row items-center gap-16">
+            
+            {/* Left Side: Image Grid */}
+            <div className="flex-1 w-full">
+              <div className="relative w-full">
+                
+                <div className="grid grid-cols-3 gap-4 md:gap-6">
+                  {/* Top wide image */}
+                  <div className="col-span-3 relative h-48 md:h-64 rounded-3xl overflow-hidden shadow-lg">
+                    <Image 
+                      src="/images/aerial-view-curitiba.jpg" 
+                      fill 
+                      className="object-cover" 
+                      alt="Avaliação Mitram - Vista" 
+                    />
+                  </div>
+                  
+                  {/* Bottom left image (~1/3) */}
+                  <div className="col-span-1 relative h-40 md:h-52 rounded-3xl overflow-hidden shadow-lg">
+                    <Image 
+                      src="/images/keys-on-table.jpg" 
+                      fill 
+                      className="object-cover" 
+                      alt="Avaliação Mitram - Chaves" 
+                    />
+                  </div>
+                  
+                  {/* Bottom right image (~2/3, taller) */}
+                  <div className="col-span-2 relative h-56 md:h-72 rounded-3xl overflow-hidden shadow-lg">
+                    <Image 
+                      src="/images/hero-image.jpg" 
+                      fill 
+                      className="object-cover" 
+                      alt="Avaliação Mitram - Interior" 
+                    />
+                  </div>
+                </div>
+                
+                {/* Center Badge */}
+                <div className="absolute top-1/2 left-[30%] -translate-x-[30%] -translate-y-1/2 w-28 h-28 md:w-32 md:h-32 bg-mitram-gold rounded-full flex items-center justify-center text-white shadow-2xl z-20">
+                  <div className="absolute inset-0">
+                    <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible">
+                      <path id="badgePath" d="M 50, 12 A 38,38 0 1,1 49.9,12" fill="none" />
+                      <text fill="currentColor" className="text-[10.5px] font-bold uppercase tracking-[0.24em]">
+                        <textPath href="#badgePath" startOffset="0%">• AVALIAÇÃO GRATUITA MITRAM</textPath>
+                      </text>
+                    </svg>
+                  </div>
+                  {/* Inner Icon */}
+                  <div className="relative z-10 text-white transform -rotate-45">
+                    <ArrowRight size={24} strokeWidth={3} />
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            {/* Right Side: Text & Form */}
+            <div className="flex-1 w-full space-y-10">
+              <div className="space-y-6">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-mitram-gold/10 text-mitram-gold font-bold text-xs uppercase tracking-widest border border-mitram-gold/20">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-mitram-gold opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-mitram-gold"></span>
+                  </span>
+                  Avaliação Gratuita
+                </div>
+                
+                <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-mitram-dark leading-[1.15]">
+                  Descubra o valor <br className="hidden lg:block"/>
+                  <span className="text-mitram-gold">real</span> do seu imóvel
+                </h2>
+                
+                <p className="text-gray-600 text-lg md:text-xl leading-relaxed max-w-lg">
+                  Nossos especialistas preparam uma análise de mercado precisa para o seu patrimônio. <strong>É rápido, seguro e sem compromisso.</strong>
+                </p>
+              </div>
+
+
+              {/* Form Integrated */}
+              <div className="max-w-lg pt-6">
+                <form className="space-y-5">
+                  <div className="relative">
+                    <input 
+                      type="text" 
+                      id="name" 
+                      placeholder=" " 
+                      required 
+                      className="block w-full px-5 pb-3 pt-6 rounded-xl border-2 border-transparent shadow-sm bg-white text-mitram-dark focus:ring-2 focus:ring-mitram-gold/20 focus:border-mitram-gold transition-all outline-none peer" 
+                    />
+                    <label 
+                      htmlFor="name" 
+                      className="absolute text-sm text-gray-500 duration-300 transform -translate-y-3 scale-75 top-4 z-10 origin-[0] left-5 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-3 pointer-events-none"
+                    >
+                      Nome completo
+                    </label>
+                  </div>
+
+                  <div className="relative">
+                    <input 
+                      type="tel" 
+                      id="phone" 
+                      placeholder=" " 
+                      required 
+                      className="block w-full px-5 pb-3 pt-6 rounded-xl border-2 border-transparent shadow-sm bg-white text-mitram-dark focus:ring-2 focus:ring-mitram-gold/20 focus:border-mitram-gold transition-all outline-none peer" 
+                    />
+                    <label 
+                      htmlFor="phone" 
+                      className="absolute text-sm text-gray-500 duration-300 transform -translate-y-3 scale-75 top-4 z-10 origin-[0] left-5 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-3 pointer-events-none"
+                    >
+                      WhatsApp ou Telefone
+                    </label>
+                  </div>
+
+                  <div className="flex items-start gap-3 pt-2">
+                    <div className="flex items-center h-5 mt-0.5">
+                      <input 
+                        type="checkbox" 
+                        id="lgpd-home" 
+                        required 
+                        className="w-4 h-4 text-mitram-gold border-gray-300 rounded focus:ring-mitram-gold focus:ring-2 accent-mitram-gold cursor-pointer" 
+                      />
+                    </div>
+                    <label htmlFor="lgpd-home" className="text-xs text-gray-500 leading-relaxed cursor-pointer select-none">
+                      Concordo que a Mitram utilize meus dados para entrar em contato referente a esta solicitação.
+                    </label>
+                  </div>
+
+                  <button 
+                    type="submit" 
+                    className="w-full py-4 bg-mitram-dark text-white rounded-xl font-bold text-lg hover:bg-mitram-gold hover:text-mitram-dark transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center gap-2 group mt-2"
+                  >
+                    Quero minha avaliação
+                    <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                  </button>
+                </form>
+              </div>
             </div>
             
-            <div className="flex-1 w-full bg-mitram-grayLight p-8 rounded-2xl">
-              <form className="space-y-4">
-                <div>
-                  <input type="text" placeholder="Seu nome completo" required className="w-full px-5 py-4 rounded-xl border-0 shadow-sm focus:ring-2 focus:ring-mitram-gold bg-white" />
-                </div>
-                <div>
-                  <input type="tel" placeholder="Seu telefone/WhatsApp" required className="w-full px-5 py-4 rounded-xl border-0 shadow-sm focus:ring-2 focus:ring-mitram-gold bg-white" />
-                </div>
-                <div className="flex items-start gap-3 pt-2">
-                  <input type="checkbox" id="lgpd-home" required className="mt-1.5 w-4 h-4 text-mitram-gold border-gray-300 rounded focus:ring-mitram-gold" />
-                  <label htmlFor="lgpd-home" className="text-sm text-gray-600 leading-relaxed">
-                    Concordo que meus dados sejam utilizados pela Mitram para retornar esta solicitação.
-                  </label>
-                </div>
-                <button type="submit" className="w-full py-4 mt-2 bg-mitram-gold text-mitram-dark rounded-xl font-bold text-lg hover:bg-yellow-500 transition-colors shadow-md">
-                  Solicitar Avaliação
-                </button>
-              </form>
-            </div>
           </div>
         </div>
       </section>
 
       {/* Testimonials */}
       <section className="py-24 container mx-auto px-4">
-        <div className="text-center max-w-2xl mx-auto mb-16 space-y-4">
+        <div className="text-center max-w-2xl mx-auto mb-12 space-y-4">
           <span className="text-mitram-gold font-bold uppercase tracking-wider text-sm">DEPOIMENTOS</span>
           <h2 className="text-3xl md:text-4xl font-bold text-mitram-dark">O que nossos clientes dizem</h2>
         </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {[
-            {
-              text: "Hoje estamos realizados com o apartamento dos sonhos e isso com o suporte dos profissionais que nos atenderam e souberam escutar nossas necessidades e entender quais nossas expectativas.",
-              author: "Inácio & Jean",
-              type: "Apartamento comprado"
-            },
-            {
-              text: "Estou muito satisfeita com minha compra através da Corretora Mitram, fui atendida por uma equipe muito atenciosa e prestativa que me ajudaram em todos os detalhes do processo, eu super indico esta imobiliária!",
-              author: "Cristiane",
-              type: "Apartamento comprado"
-            },
-            {
-              text: "Desde o início a equipe foi super atenciosa e me auxiliou no processo da avaliação da Caixa e na escolha do imóvel. O Marcos, corretor que me atendeu, esteve sempre de prontidão e manteve a negociação sempre transparente! Nota 10!",
-              author: "Lucas Melo",
-              type: "Casa comprada"
-            }
-          ].map((t, i) => (
-            <div key={i} className="bg-mitram-grayLight p-8 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-between hover:shadow-md transition-shadow relative">
-              <div className="absolute top-8 right-8 text-mitram-gold/20">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M14.017 18L14.017 10.609C14.017 4.905 17.748 1.039 23 0L23.995 2.151C21.563 3.068 20 5.789 20 8H24V18H14.017ZM0 18V10.609C0 4.905 3.748 1.038 9 0L9.996 2.151C7.563 3.068 6 5.789 6 8H9.983L9.983 18L0 18Z" />
-                </svg>
-              </div>
-              <p className="text-gray-600 text-lg leading-relaxed mb-8 relative z-10">&quot;{t.text}&quot;</p>
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-mitram-gold/20 flex items-center justify-center text-mitram-gold font-bold text-lg">
-                  {t.author.charAt(0)}
-                </div>
-                <div>
-                  <p className="font-bold text-mitram-dark">{t.author}</p>
-                  <p className="text-sm text-mitram-gold">{t.type}</p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+
+        <TestimonialsCarousel testimonials={TESTIMONIALS} />
       </section>
 
     </div>
