@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { RefreshCw, Trash2, ArrowLeft } from "lucide-react";
 import { revalidatePath } from "next/cache";
+import ConfirmSubmitButton from "@/components/admin/ConfirmSubmitButton";
 
 export const dynamic = "force-dynamic";
 
@@ -66,12 +67,13 @@ export default async function LixeiraPage() {
                         await sb.from('properties').delete().eq('id', prop.id);
                         revalidatePath('/admin/imoveis/lixeira');
                       }}>
-                        <button type="submit" className="text-red-600 hover:text-red-900 flex items-center gap-1" title="Excluir Permanentemente" onClick={(e) => {
-                           // Using native confirmation is tricky in server actions, 
-                           // In MVP we assume the user is careful, or we use a client component wrapper.
-                        }}>
+                        <ConfirmSubmitButton
+                          className="text-red-600 hover:text-red-900 flex items-center gap-1"
+                          title="Excluir Permanentemente"
+                          confirmMessage={`Excluir permanentemente o imóvel ${prop.internal_code}? Esta ação não pode ser desfeita.`}
+                        >
                           <Trash2 size={16} /> Excluir
-                        </button>
+                        </ConfirmSubmitButton>
                       </form>
                     </td>
                   </tr>
