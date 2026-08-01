@@ -54,7 +54,8 @@ export default function TestimonialsCarousel({
   const paint = useCallback((pos: number) => {
     if (!trackRef.current || slideWidth === 0) return;
 
-    const centerOffset = itemsPerView === 3 ? 1 : 0;
+    // Center offset is 0 so the active card is the first one on the left
+    const centerOffset = 0;
     const translateX = -(pos - centerOffset) * slideWidth;
     
     trackRef.current.style.transform = `translate3d(${translateX}px, 0, 0)`;
