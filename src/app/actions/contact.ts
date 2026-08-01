@@ -39,6 +39,7 @@ export async function submitContactForm(formData: FormData) {
     const email = formData.get("email") as string;
     const message = formData.get("message") as string;
     const consent = formData.get("consent");
+    const interests = formData.getAll("interests") as string[];
 
     if (!name || (!phone && !email) || !consent) {
       return { success: false, error: "Preencha todos os campos obrigatórios e aceite os termos." };
@@ -61,6 +62,9 @@ export async function submitContactForm(formData: FormData) {
       htmlContent += `<p><strong>Interesse:</strong> Venda de Terreno</p>`;
     } else if (type === "contact") {
       subject = "[Contato] Mensagem pelo site";
+      if (interests && interests.length > 0) {
+        htmlContent += `<p><strong>Interesses:</strong> ${interests.join(', ')}</p>`;
+      }
       if (message) htmlContent += `<p><strong>Mensagem:</strong><br/>${message.replace(/\n/g, '<br/>')}</p>`;
     }
 

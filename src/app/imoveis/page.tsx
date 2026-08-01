@@ -142,9 +142,18 @@ export default async function ImoveisPage({
   const isMapView = searchParams.view === 'map';
 
   return (
-    <div className="flex flex-col min-h-screen bg-mitram-grayLight">
-      <div className="bg-white shadow-sm sticky top-[72px] z-40 border-t">
-        <div className="container mx-auto px-4 py-4">
+    <div className="flex flex-col min-h-screen bg-white">
+      <div className="container mx-auto px-4 pt-8 pb-4">
+        {/* Breadcrumb & Title */}
+        <div className="mb-8">
+          <div className="text-sm text-gray-500 mb-2">Home page &gt; Imóveis</div>
+          <h1 className="text-4xl md:text-5xl font-bold text-mitram-dark tracking-tight">
+            Encontre a sua próxima casa
+          </h1>
+        </div>
+
+        {/* Filters */}
+        <div className="mb-10">
           <Suspense fallback={<div>Carregando filtros...</div>}>
             <AdvancedFilters 
               types={propertyTypes || []} 
@@ -156,11 +165,11 @@ export default async function ImoveisPage({
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8 flex-grow">
+      <div className="container mx-auto px-4 pb-16 flex-grow">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-mitram-dark">
+          <h2 className="text-xl font-bold text-mitram-dark">
             {properties ? properties.length : 0} imóveis encontrados
-          </h1>
+          </h2>
         </div>
 
         {isMapView ? (

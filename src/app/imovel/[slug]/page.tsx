@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
+import Image from "next/image";
 import Gallery from "@/components/properties/Gallery";
 import PropertyCard from "@/components/properties/PropertyCard";
 import SchedulingForm from "@/components/forms/SchedulingForm";
@@ -89,38 +90,35 @@ export default async function PropertyDetailsPage({ params }: { params: { slug: 
       />
 
       <div className="container mx-auto px-4 py-8">
-        <div className="mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="bg-mitram-dark text-white text-xs font-semibold px-2 py-1 rounded">
-                {property.purpose === 'sale' ? 'Venda' : 'Aluguel'}
-              </span>
-              <span className="bg-gray-200 text-gray-800 text-xs font-semibold px-2 py-1 rounded">
-                {property.property_types?.name}
-              </span>
-              {property.status === 'sold' && <span className="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded">VENDIDO</span>}
-              {property.status === 'rented' && <span className="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded">ALUGADO</span>}
-            </div>
-            <h1 className="text-3xl font-bold text-mitram-dark mb-2">{property.title}</h1>
-            <p className="text-gray-600 flex items-center gap-1">
-              <MapPin size={18} />
-              {property.street && `${property.street}, `}
-              {property.number && `${property.number} - `}
-              {property.neighborhoods?.name}, {property.neighborhoods?.cities?.name} - {property.neighborhoods?.cities?.state}
-            </p>
-          </div>
-          <div className="text-left md:text-right">
-            <p className="text-3xl font-bold text-mitram-gold">{priceFormatted}</p>
-            {property.condominium_fee && <p className="text-sm text-gray-500">Condomínio: R$ {property.condominium_fee}</p>}
-            {property.iptu && <p className="text-sm text-gray-500">IPTU: R$ {property.iptu}</p>}
-          </div>
+        {/* Gallery at the top */}
+        <div className="mb-8">
+          <Gallery media={property.property_media?.sort((a: any, b: any) => a.sort_order - b.sort_order) || []} />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-8">
-            <Gallery media={property.property_media?.sort((a: any, b: any) => a.sort_order - b.sort_order) || []} />
+            {/* Title and Location */}
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <span className="bg-mitram-dark text-white text-xs font-semibold px-2 py-1 rounded">
+                  {property.purpose === 'sale' ? 'Venda' : 'Aluguel'}
+                </span>
+                <span className="bg-gray-200 text-gray-800 text-xs font-semibold px-2 py-1 rounded">
+                  {property.property_types?.name}
+                </span>
+                {property.status === 'sold' && <span className="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded">VENDIDO</span>}
+                {property.status === 'rented' && <span className="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded">ALUGADO</span>}
+              </div>
+              <h1 className="text-3xl font-bold text-mitram-dark mb-2">{property.title}</h1>
+              <p className="text-gray-600 flex items-center gap-1">
+                <MapPin size={18} />
+                {property.street && `${property.street}, `}
+                {property.number && `${property.number} - `}
+                {property.neighborhoods?.name}, {property.neighborhoods?.cities?.name} - {property.neighborhoods?.cities?.state}
+              </p>
+            </div>
 
-            <div className="bg-white p-6 rounded-lg shadow-sm">
+            <div className="bg-white p-6 rounded-xl shadow-sm">
               <h2 className="text-xl font-bold text-mitram-dark mb-4">Resumo</h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {property.total_area && (
@@ -227,6 +225,23 @@ export default async function PropertyDetailsPage({ params }: { params: { slug: 
 
           <div className="lg:col-span-1">
             <div className="sticky top-24 space-y-6">
+              {/* Price Card */}
+              <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                <p className="text-sm text-gray-500 mb-1">Preço Total</p>
+                <p className="text-3xl font-bold text-mitram-dark mb-4">{priceFormatted}</p>
+                {property.condominium_fee && <p className="text-sm text-gray-500">Condomínio: R$ {property.condominium_fee}</p>}
+                {property.iptu && <p className="text-sm text-gray-500 mb-4">IPTU: R$ {property.iptu}</p>}
+                
+                <a 
+                  href={whatsappLink} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="w-full bg-mitram-dark text-white py-3 px-4 rounded-lg flex items-center justify-center gap-2 font-bold hover:bg-black transition-colors"
+                >
+                  Agendar Visita
+                </a>
+              </div>
+
               <a 
                 href={whatsappLink} 
                 target="_blank" 
@@ -254,6 +269,31 @@ export default async function PropertyDetailsPage({ params }: { params: { slug: 
             </div>
           </div>
         )}
+
+        {/* CTA Section */}
+        <section className="mt-20 mb-8">
+          <div className="relative w-full rounded-[2.5rem] overflow-hidden">
+            <Image 
+              src="/images/bicicleta-parque.jpg" 
+              alt="Encontre o Imóvel Perfeito" 
+              fill 
+              className="object-cover"
+            />
+            <div className="absolute inset-0 bg-mitram-dark/50 z-10" />
+            
+            <div className="relative z-20 flex flex-col items-center justify-center px-4 py-24 md:py-32 text-center">
+              <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
+                Encontre o Imóvel Perfeito com a Mitram
+              </h2>
+              <p className="text-lg text-gray-200 max-w-2xl mb-8">
+                Procurando a casa dos seus sonhos? A Mitram torna a busca por imóveis fácil e sem estresse! Com nossa plataforma amigável e corretores especialistas.
+              </p>
+              <Link href="/imoveis" className="bg-white text-mitram-dark font-bold py-3 px-8 rounded-full hover:bg-gray-100 transition-colors">
+                Comece sua Busca
+              </Link>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   );
