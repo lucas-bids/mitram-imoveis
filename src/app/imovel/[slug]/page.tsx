@@ -272,16 +272,16 @@ export default async function PropertyDetailsPage({ params }: { params: { slug: 
 
         {/* CTA Section */}
         <section className="mt-20 mb-8">
-          <div className="relative h-[400px] w-full rounded-[2.5rem] overflow-hidden">
+          <div className="relative w-full rounded-[2.5rem] overflow-hidden">
             <Image 
-              src="/images/hero-image.jpg" 
+              src="/images/bicicleta-parque.jpg" 
               alt="Encontre o Imóvel Perfeito" 
               fill 
               className="object-cover"
             />
-            <div className="absolute inset-0 bg-mitram-dark/80 z-10" />
+            <div className="absolute inset-0 bg-mitram-dark/50 z-10" />
             
-            <div className="absolute inset-0 z-20 flex flex-col items-center justify-center px-4 text-center">
+            <div className="relative z-20 flex flex-col items-center justify-center px-4 py-24 md:py-32 text-center">
               <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
                 Encontre o Imóvel Perfeito com a Mitram
               </h2>

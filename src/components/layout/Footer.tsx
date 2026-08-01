@@ -27,7 +27,6 @@ export default function Footer() {
           <ul className="space-y-4 text-[15px] text-gray-400">
             <li><Link href="/" className="hover:text-mitram-goldLight hover:translate-x-1 inline-block transition-all">Início</Link></li>
             <li><Link href="/imoveis" className="hover:text-mitram-goldLight hover:translate-x-1 inline-block transition-all">Imóveis</Link></li>
-            <li><Link href="/venda-seu-terreno" className="hover:text-mitram-goldLight hover:translate-x-1 inline-block transition-all">Venda seu terreno</Link></li>
             <li><Link href="/contato" className="hover:text-mitram-goldLight hover:translate-x-1 inline-block transition-all">Contato</Link></li>
           </ul>
         </div>

@@ -320,8 +320,8 @@ export default async function Home() {
                 </div>
                 
                 <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-mitram-dark leading-[1.15]">
-                  Descubra o valor <br className="hidden lg:block"/>
-                  real do seu imóvel
+                  Venda sua casa ou terreno <br className="hidden lg:block"/>
+                  com a Mitram
                 </h2>
                 
                 <p className="text-gray-600 text-lg md:text-xl leading-relaxed max-w-lg">

@@ -22,9 +22,6 @@ export default function Header() {
           <Link href="/imoveis" className="hover:text-mitram-gold transition-colors">
             Imóveis
           </Link>
-          <Link href="/venda-seu-terreno" className="hover:text-mitram-gold transition-colors">
-            Venda seu terreno
-          </Link>
           <Link href="/#avaliacao" className="hover:text-mitram-gold transition-colors">
             Avalie
           </Link>
