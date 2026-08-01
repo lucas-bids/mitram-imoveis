@@ -195,7 +195,13 @@ export default async function Home() {
         <div className="flex flex-col lg:flex-row items-center gap-16">
           <div className="flex-1 space-y-8">
             <div>
-              <span className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-2 block">POR QUE ESCOLHER A MITRAM</span>
+              <div className="inline-flex items-center gap-2 px-4 py-2 mb-2 rounded-full bg-mitram-gold/10 text-mitram-gold font-bold text-xs uppercase tracking-widest border border-mitram-gold/20">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-mitram-gold opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-mitram-gold"></span>
+                </span>
+                POR QUE ESCOLHER A MITRAM
+              </div>
               <h2 className="text-4xl md:text-5xl font-bold text-mitram-dark leading-tight">
                 Muito mais que<br />um imóvel
               </h2>
@@ -315,7 +321,7 @@ export default async function Home() {
                 
                 <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-mitram-dark leading-[1.15]">
                   Descubra o valor <br className="hidden lg:block"/>
-                  <span className="text-mitram-gold">real</span> do seu imóvel
+                  real do seu imóvel
                 </h2>
                 
                 <p className="text-gray-600 text-lg md:text-xl leading-relaxed max-w-lg">
