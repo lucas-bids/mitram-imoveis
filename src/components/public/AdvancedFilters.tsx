@@ -93,6 +93,10 @@ export default function AdvancedFilters({
 
   // Derivar pílulas ativas
   const activePills = [];
+  if (filters.purpose) {
+    const label = filters.purpose === 'sale' ? 'Comprar' : 'Alugar';
+    activePills.push({ key: 'purpose', label: `Negócio: ${label}` });
+  }
   if (filters.type) {
     const name = types.find(t => t.id === filters.type)?.name;
     if (name) activePills.push({ key: 'type', label: `Tipo: ${name}` });
@@ -131,6 +135,7 @@ export default function AdvancedFilters({
   const clearAllFilters = () => {
     const newFilters = {
       ...filters,
+      purpose: "",
       type: "",
       city: "",
       neighborhood: "",
@@ -146,23 +151,23 @@ export default function AdvancedFilters({
     setFilters(newFilters);
 
     const params = new URLSearchParams(searchParams.toString());
-    const keysToRemove = ["type", "city", "neighborhood", "bedrooms", "suites", "parking_spaces", "features", "min_price", "max_price", "min_area", "max_area"];
+    const keysToRemove = ["purpose", "type", "city", "neighborhood", "bedrooms", "suites", "parking_spaces", "features", "min_price", "max_price", "min_area", "max_area"];
     keysToRemove.forEach(k => params.delete(k));
     router.push(`${pathname}?${params.toString()}`);
   };
 
   return (
-    <div className="bg-[#F4F4F5] rounded-[2rem] p-6 md:p-8">
+    <div className="bg-[#FAFAFA] rounded-[2rem] p-6 md:p-8 border border-gray-100 shadow-sm">
       <form onSubmit={handleApply} className="space-y-6">
         {/* Top Row: Toggle Comprar / Alugar */}
         <div className="flex">
-          <div className="bg-white rounded-full p-1.5 flex shadow-sm">
+          <div className="bg-white rounded-full p-1.5 flex shadow-sm border border-gray-100">
             <button
               type="button"
               onClick={() => handleChange("purpose", "rent")}
               className={`px-6 py-2 rounded-full text-sm font-semibold transition-colors ${
                 filters.purpose === "rent"
-                  ? "bg-mitram-dark text-white"
+                  ? "bg-mitram-gold text-white"
                   : "text-gray-600 hover:bg-gray-50"
               }`}
             >
@@ -173,7 +178,7 @@ export default function AdvancedFilters({
               onClick={() => handleChange("purpose", "sale")}
               className={`px-6 py-2 rounded-full text-sm font-semibold transition-colors ${
                 filters.purpose === "sale"
-                  ? "bg-mitram-dark text-white"
+                  ? "bg-mitram-gold text-white"
                   : "text-gray-600 hover:bg-gray-50"
               }`}
             >
@@ -189,7 +194,7 @@ export default function AdvancedFilters({
             <select
               value={filters.type}
               onChange={(e) => handleChange("type", e.target.value)}
-              className={`w-full bg-white rounded-2xl px-4 py-3.5 text-mitram-dark outline-none focus:ring-2 focus:ring-mitram-gold shadow-sm appearance-none cursor-pointer transition-all ${filters.type ? 'ring-2 ring-mitram-gold' : ''}`}
+              className={`w-full bg-white rounded-2xl px-4 py-3.5 text-mitram-dark outline-none focus:ring-2 focus:ring-mitram-gold border border-gray-100 shadow-sm appearance-none cursor-pointer transition-all ${filters.type ? 'ring-2 ring-mitram-gold border-transparent' : ''}`}
               style={{ backgroundImage: selectBg, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem top 50%', backgroundSize: '0.65rem auto' }}
             >
               <option value="">Tipo de Imóvel</option>
@@ -207,7 +212,7 @@ export default function AdvancedFilters({
               <select
                 value={filters.city}
                 onChange={(e) => handleChange("city", e.target.value)}
-                className={`w-1/2 bg-white rounded-2xl px-4 py-3.5 text-mitram-dark outline-none focus:ring-2 focus:ring-mitram-gold shadow-sm appearance-none cursor-pointer text-sm transition-all ${filters.city ? 'ring-2 ring-mitram-gold' : ''}`}
+                className={`w-1/2 bg-white rounded-2xl px-4 py-3.5 text-mitram-dark outline-none focus:ring-2 focus:ring-mitram-gold border border-gray-100 shadow-sm appearance-none cursor-pointer text-sm transition-all ${filters.city ? 'ring-2 ring-mitram-gold border-transparent' : ''}`}
                 style={{ backgroundImage: selectBg, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem top 50%', backgroundSize: '0.65rem auto' }}
               >
                 <option value="">Cidade</option>
@@ -221,7 +226,7 @@ export default function AdvancedFilters({
                 value={filters.neighborhood}
                 onChange={(e) => handleChange("neighborhood", e.target.value)}
                 disabled={!filters.city}
-                className={`w-1/2 bg-white rounded-2xl px-4 py-3.5 text-mitram-dark outline-none focus:ring-2 focus:ring-mitram-gold shadow-sm appearance-none cursor-pointer text-sm disabled:opacity-50 transition-all ${filters.neighborhood ? 'ring-2 ring-mitram-gold' : ''}`}
+                className={`w-1/2 bg-white rounded-2xl px-4 py-3.5 text-mitram-dark outline-none focus:ring-2 focus:ring-mitram-gold border border-gray-100 shadow-sm appearance-none cursor-pointer text-sm disabled:opacity-50 transition-all ${filters.neighborhood ? 'ring-2 ring-mitram-gold border-transparent' : ''}`}
                 style={{ backgroundImage: selectBg, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem top 50%', backgroundSize: '0.65rem auto' }}
               >
                 <option value="">Bairro</option>
@@ -236,11 +241,11 @@ export default function AdvancedFilters({
 
           {/* 3. Preço */}
           <div>
-            <div className={`flex items-center bg-white rounded-2xl shadow-sm px-2 overflow-hidden transition-all focus-within:ring-2 focus-within:ring-mitram-gold ${(filters.min_price || filters.max_price) ? 'ring-2 ring-mitram-gold' : ''}`}>
+            <div className={`flex items-center bg-white rounded-2xl shadow-sm border border-gray-100 px-2 overflow-hidden transition-all focus-within:ring-2 focus-within:ring-mitram-gold focus-within:border-transparent ${(filters.min_price || filters.max_price) ? 'ring-2 ring-mitram-gold border-transparent' : ''}`}>
               <input
                 type="number"
                 min="0"
-                placeholder="Mínimo"
+                placeholder="R$ Mínimo"
                 value={filters.min_price}
                 onChange={(e) => handleChange("min_price", e.target.value)}
                 className="w-full bg-transparent px-3 py-3.5 outline-none text-mitram-dark text-sm"
@@ -249,7 +254,7 @@ export default function AdvancedFilters({
               <input
                 type="number"
                 min="0"
-                placeholder="Máximo"
+                placeholder="R$ Máximo"
                 value={filters.max_price}
                 onChange={(e) => handleChange("max_price", e.target.value)}
                 className="w-full bg-transparent px-3 py-3.5 outline-none text-mitram-dark text-sm"
@@ -259,11 +264,11 @@ export default function AdvancedFilters({
 
           {/* 4. Área */}
           <div>
-            <div className={`flex items-center bg-white rounded-2xl shadow-sm px-2 overflow-hidden transition-all focus-within:ring-2 focus-within:ring-mitram-gold ${(filters.min_area || filters.max_area) ? 'ring-2 ring-mitram-gold' : ''}`}>
+            <div className={`flex items-center bg-white rounded-2xl shadow-sm border border-gray-100 px-2 overflow-hidden transition-all focus-within:ring-2 focus-within:ring-mitram-gold focus-within:border-transparent ${(filters.min_area || filters.max_area) ? 'ring-2 ring-mitram-gold border-transparent' : ''}`}>
               <input
                 type="number"
                 min="0"
-                placeholder="Mínima"
+                placeholder="Mínima m²"
                 value={filters.min_area}
                 onChange={(e) => handleChange("min_area", e.target.value)}
                 className="w-full bg-transparent px-3 py-3.5 outline-none text-mitram-dark text-sm"
@@ -272,7 +277,7 @@ export default function AdvancedFilters({
               <input
                 type="number"
                 min="0"
-                placeholder="Máxima"
+                placeholder="Máxima m²"
                 value={filters.max_area}
                 onChange={(e) => handleChange("max_area", e.target.value)}
                 className="w-full bg-transparent px-3 py-3.5 outline-none text-mitram-dark text-sm"
@@ -288,12 +293,12 @@ export default function AdvancedFilters({
             <select
               value={filters.bedrooms}
               onChange={(e) => handleChange("bedrooms", e.target.value)}
-              className={`w-full bg-white rounded-2xl px-4 py-3.5 text-mitram-dark outline-none focus:ring-2 focus:ring-mitram-gold shadow-sm appearance-none cursor-pointer transition-all ${filters.bedrooms ? 'ring-2 ring-mitram-gold' : ''}`}
+              className={`w-full bg-white rounded-2xl px-4 py-3.5 text-mitram-dark outline-none focus:ring-2 focus:ring-mitram-gold border border-gray-100 shadow-sm appearance-none cursor-pointer transition-all ${filters.bedrooms ? 'ring-2 ring-mitram-gold border-transparent' : ''}`}
               style={{ backgroundImage: selectBg, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem top 50%', backgroundSize: '0.65rem auto' }}
             >
               <option value="">Quartos</option>
               {minimumQuantityOptions.map((q) => (
-                <option key={q} value={q}>{q}+</option>
+                <option key={q} value={q}>{q}+ Quartos</option>
               ))}
             </select>
           </div>
@@ -303,12 +308,12 @@ export default function AdvancedFilters({
             <select
               value={filters.suites}
               onChange={(e) => handleChange("suites", e.target.value)}
-              className={`w-full bg-white rounded-2xl px-4 py-3.5 text-mitram-dark outline-none focus:ring-2 focus:ring-mitram-gold shadow-sm appearance-none cursor-pointer transition-all ${filters.suites ? 'ring-2 ring-mitram-gold' : ''}`}
+              className={`w-full bg-white rounded-2xl px-4 py-3.5 text-mitram-dark outline-none focus:ring-2 focus:ring-mitram-gold border border-gray-100 shadow-sm appearance-none cursor-pointer transition-all ${filters.suites ? 'ring-2 ring-mitram-gold border-transparent' : ''}`}
               style={{ backgroundImage: selectBg, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem top 50%', backgroundSize: '0.65rem auto' }}
             >
               <option value="">Suítes</option>
               {minimumQuantityOptions.map((q) => (
-                <option key={q} value={q}>{q}+</option>
+                <option key={q} value={q}>{q}+ Suítes</option>
               ))}
             </select>
           </div>
@@ -318,12 +323,12 @@ export default function AdvancedFilters({
             <select
               value={filters.parking_spaces}
               onChange={(e) => handleChange("parking_spaces", e.target.value)}
-              className={`w-full bg-white rounded-2xl px-4 py-3.5 text-mitram-dark outline-none focus:ring-2 focus:ring-mitram-gold shadow-sm appearance-none cursor-pointer transition-all ${filters.parking_spaces ? 'ring-2 ring-mitram-gold' : ''}`}
+              className={`w-full bg-white rounded-2xl px-4 py-3.5 text-mitram-dark outline-none focus:ring-2 focus:ring-mitram-gold border border-gray-100 shadow-sm appearance-none cursor-pointer transition-all ${filters.parking_spaces ? 'ring-2 ring-mitram-gold border-transparent' : ''}`}
               style={{ backgroundImage: selectBg, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem top 50%', backgroundSize: '0.65rem auto' }}
             >
               <option value="">Vagas</option>
               {minimumQuantityOptions.map((q) => (
-                <option key={q} value={q}>{q}+</option>
+                <option key={q} value={q}>{q}+ Vagas</option>
               ))}
             </select>
           </div>
@@ -333,7 +338,7 @@ export default function AdvancedFilters({
             <select
               value={filters.features}
               onChange={(e) => handleChange("features", e.target.value)}
-              className={`w-full bg-white rounded-2xl px-4 py-3.5 text-mitram-dark outline-none focus:ring-2 focus:ring-mitram-gold shadow-sm appearance-none cursor-pointer transition-all ${filters.features ? 'ring-2 ring-mitram-gold' : ''}`}
+              className={`w-full bg-white rounded-2xl px-4 py-3.5 text-mitram-dark outline-none focus:ring-2 focus:ring-mitram-gold border border-gray-100 shadow-sm appearance-none cursor-pointer transition-all ${filters.features ? 'ring-2 ring-mitram-gold border-transparent' : ''}`}
               style={{ backgroundImage: selectBg, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem top 50%', backgroundSize: '0.65rem auto' }}
             >
               <option value="">Características</option>
@@ -349,12 +354,12 @@ export default function AdvancedFilters({
           {/* Active Pills (Bottom Left) */}
           <div className="flex flex-wrap items-center gap-2 flex-1">
             {activePills.map(pill => (
-              <div key={pill.key} className="flex items-center gap-1.5 bg-mitram-gold/20 text-mitram-dark px-3 py-1.5 rounded-full text-xs font-semibold border border-mitram-gold/30">
+              <div key={pill.key} className="flex items-center gap-1.5 bg-mitram-gold/10 text-[#A6851D] px-3 py-1.5 rounded-full text-xs font-bold border border-mitram-gold/30">
                 <span>{pill.label}</span>
                 <button 
                   type="button" 
                   onClick={() => removeFilter(pill.key)}
-                  className="hover:bg-mitram-gold/40 rounded-full p-0.5 transition-colors"
+                  className="hover:bg-mitram-gold/20 rounded-full p-0.5 transition-colors"
                 >
                   <X size={14} />
                 </button>
@@ -377,7 +382,7 @@ export default function AdvancedFilters({
             <button
               type="button"
               onClick={toggleView}
-              className="flex items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-semibold hover:bg-gray-50 transition-colors shadow-sm text-mitram-dark"
+              className="flex items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-semibold hover:bg-gray-50 transition-colors shadow-sm text-mitram-dark border border-gray-100"
             >
               {isMapView ? (
                 <>
@@ -392,7 +397,7 @@ export default function AdvancedFilters({
 
             <button
               type="submit"
-              className="flex items-center justify-center gap-2 rounded-xl bg-mitram-gold px-8 py-3 text-sm font-bold text-mitram-dark hover:brightness-105 transition-all shadow-sm"
+              className="flex items-center justify-center gap-2 rounded-xl bg-mitram-dark px-8 py-3 text-sm font-bold text-white hover:bg-mitram-gold hover:text-mitram-dark transition-all duration-300 shadow-md"
             >
               Buscar <Filter size={16} />
             </button>
