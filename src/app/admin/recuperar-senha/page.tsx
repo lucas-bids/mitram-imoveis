@@ -4,6 +4,9 @@ import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import Image from "next/image";
 import Link from "next/link";
+import { Mail } from "lucide-react";
+import { buttonClasses } from "@/components/ui/buttonStyles";
+import { FormField, fieldClasses } from "@/components/ui/FormField";
 
 export default function RecoverPasswordPage() {
   const [email, setEmail] = useState("");
@@ -58,25 +61,20 @@ export default function RecoverPasswordPage() {
         )}
         
         <form onSubmit={handleRecover} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-mitram-grayDark mb-1" htmlFor="email">
-              E-mail cadastrado
-            </label>
+          <FormField label="E-mail cadastrado">
             <input
               id="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-mitram-gold"
+              placeholder=" "
+              className={fieldClasses()}
             />
-          </div>
-          
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-mitram-dark text-white py-2 px-4 rounded hover:bg-black transition-colors disabled:opacity-50"
-          >
+          </FormField>
+
+          <button type="submit" disabled={loading} className={buttonClasses("primary", "md", "w-full")}>
+            <Mail size={18} />
             {loading ? "Enviando..." : "Enviar instruções"}
           </button>
         </form>

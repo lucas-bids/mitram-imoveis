@@ -14,6 +14,7 @@ const config: Config = {
         mitram: {
           white: "#ffffff",
           gold: "#D4AF37", // Aprox. logo
+          goldDark: "#B3922E", // Hover dos botões dourados
           goldLight: "#F0E68C",
           dark: "#1A1A1A",
           grayLight: "#F5F5F5",

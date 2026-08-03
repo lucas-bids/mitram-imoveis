@@ -1,5 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
+import { MessageCircle } from "lucide-react";
+import { buttonClasses } from "@/components/ui/buttonStyles";
 
 export default function Header() {
   return (
@@ -31,10 +33,8 @@ export default function Header() {
         </nav>
         
         <div className="hidden md:flex">
-          <Link 
-            href="/contato" 
-            className="bg-mitram-dark hover:bg-black text-white px-6 py-2.5 rounded-full text-[15px] font-semibold transition-all shadow-sm hover:shadow-md"
-          >
+          <Link href="/contato" className={buttonClasses("primary", "md")}>
+            <MessageCircle size={18} />
             Falar com Especialista
           </Link>
         </div>

@@ -7,6 +7,15 @@ import { propertySchema, PropertyFormValues } from "@/lib/validation/property";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import ImageUpload, { PropertyMedia } from "./ImageUpload";
+import { Plus, Save, X } from "lucide-react";
+import { buttonClasses } from "@/components/ui/buttonStyles";
+import {
+  CHECKBOX_CLASSES,
+  FormField,
+  SELECT_ARROW_STYLE,
+  SELECT_EXTRA,
+  fieldClasses,
+} from "@/components/ui/FormField";
 
 interface PropertyFormProps {
   initialData?: any;
@@ -30,19 +39,9 @@ const autoResizeTextarea = (element: HTMLTextAreaElement) => {
 const sectionNumber = (id: string) =>
   String(SECTIONS.findIndex((section) => section.id === id) + 1).padStart(2, "0");
 
-const FIELD_BASE =
-  "peer h-12 w-full border-0 border-b-2 bg-transparent px-0 py-3 font-medium leading-normal text-mitram-dark transition-colors focus:outline-none focus:ring-0";
-const FIELD_NORMAL = "border-gray-300 focus:border-mitram-dark";
-const FIELD_ERROR = "border-red-400 focus:border-red-500";
 // Os spinners nativos colidem com os sufixos (R$ / m²) exibidos dentro do campo.
 const FIELD_NUMBER =
   "[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none";
-
-const fieldClass = (hasError?: boolean, extra?: string) =>
-  [FIELD_BASE, hasError ? FIELD_ERROR : FIELD_NORMAL, extra].filter(Boolean).join(" ");
-
-const CHECKBOX_INPUT =
-  "h-5 w-5 cursor-pointer rounded border-2 border-gray-300 accent-mitram-dark transition-colors";
 
 function Section({
   id,
@@ -60,52 +59,12 @@ function Section({
       <div className="mb-10">
         <div className="flex items-baseline gap-3">
           <span className="text-sm font-bold tracking-wider text-gray-300">{sectionNumber(id)}</span>
-          <h2 className="text-2xl font-bold text-mitram-dark">{title}</h2>
+          <h2 className="text-xl font-bold text-mitram-dark">{title}</h2>
         </div>
         <p className="mt-2 text-gray-500">{description}</p>
       </div>
       {children}
     </section>
-  );
-}
-
-// O rótulo ocupa o lugar do placeholder enquanto o campo está vazio e sobe ao receber foco
-// ou valor. Selects não têm :placeholder-shown, por isso o rótulo fica sempre no alto.
-function Field({
-  label,
-  error,
-  affix,
-  alwaysFloat,
-  className,
-  children,
-}: {
-  label: string;
-  error?: string;
-  affix?: string;
-  alwaysFloat?: boolean;
-  className?: string;
-  children: React.ReactNode;
-}) {
-  const restingLabel =
-    "peer-placeholder-shown:top-8 peer-placeholder-shown:text-base peer-focus:top-0 peer-focus:text-xs";
-
-  return (
-    <label className={`relative block pt-5 ${className ?? ""}`}>
-      {children}
-      <span
-        className={`pointer-events-none absolute left-0 top-0 text-xs font-medium transition-all duration-150 ${
-          error ? "text-red-500" : "text-gray-500"
-        } ${alwaysFloat ? "" : restingLabel}`}
-      >
-        {label}
-      </span>
-      {affix && (
-        <span className="pointer-events-none absolute right-0 top-5 py-3 font-medium text-gray-400">
-          {affix}
-        </span>
-      )}
-      {error && <span className="mt-1.5 block text-xs text-red-600">{error}</span>}
-    </label>
   );
 }
 
@@ -304,29 +263,34 @@ export default function PropertyForm({ initialData, isEdit = false }: PropertyFo
           description="Como o imóvel será identificado no site e no painel."
         >
           <div className="grid grid-cols-1 gap-x-8 gap-y-6 md:grid-cols-2">
-            <Field label="Título do anúncio" error={errors.title?.message} className="md:col-span-2">
-              <input {...register("title")} placeholder=" " className={fieldClass(!!errors.title)} />
-            </Field>
-            <Field label="Tipo de imóvel" error={errors.property_type_id?.message} alwaysFloat>
+            <FormField label="Título do anúncio" error={errors.title?.message} className="md:col-span-2">
+              <input {...register("title")} placeholder=" " className={fieldClasses(!!errors.title)} />
+            </FormField>
+            <FormField label="Tipo de imóvel" error={errors.property_type_id?.message} alwaysFloat>
               <select
                 {...register("property_type_id")}
-                className={fieldClass(!!errors.property_type_id)}
+                className={fieldClasses(!!errors.property_type_id, SELECT_EXTRA)}
+                style={SELECT_ARROW_STYLE}
               >
                 <option value="">Selecione...</option>
                 {types.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
               </select>
-            </Field>
-            <Field label="Status" error={errors.status?.message} alwaysFloat>
-              <select {...register("status")} className={fieldClass(!!errors.status)}>
+            </FormField>
+            <FormField label="Status" error={errors.status?.message} alwaysFloat>
+              <select
+                {...register("status")}
+                className={fieldClasses(!!errors.status, SELECT_EXTRA)}
+                style={SELECT_ARROW_STYLE}
+              >
                 <option value="draft">Rascunho</option>
                 <option value="published">Publicado</option>
                 <option value="archived">Arquivado</option>
                 <option value="sold">Vendido</option>
                 <option value="rented">Alugado</option>
               </select>
-            </Field>
+            </FormField>
             <label className="group flex cursor-pointer items-center gap-3 md:col-span-2">
-              <input type="checkbox" {...register("featured")} className={CHECKBOX_INPUT} />
+              <input type="checkbox" {...register("featured")} className={CHECKBOX_CLASSES} />
               <span className="text-sm font-medium text-gray-700 transition-colors group-hover:text-mitram-dark">
                 Destaque na página inicial
               </span>
@@ -340,39 +304,43 @@ export default function PropertyForm({ initialData, isEdit = false }: PropertyFo
           description="Valores exibidos no anúncio. Deixe em branco os que não se aplicam."
         >
           <div className="grid grid-cols-1 gap-x-8 gap-y-6 md:grid-cols-2">
-            <Field label="Finalidade" error={errors.purpose?.message} alwaysFloat>
-              <select {...register("purpose")} className={fieldClass(!!errors.purpose)}>
+            <FormField label="Finalidade" error={errors.purpose?.message} alwaysFloat>
+              <select
+                {...register("purpose")}
+                className={fieldClasses(!!errors.purpose, SELECT_EXTRA)}
+                style={SELECT_ARROW_STYLE}
+              >
                 <option value="sale">Venda</option>
                 <option value="rent">Aluguel</option>
               </select>
-            </Field>
-            <Field label="Preço" error={errors.price?.message} affix="R$">
+            </FormField>
+            <FormField label="Preço" error={errors.price?.message} affix="R$">
               <input
                 type="number"
                 step="0.01"
                 placeholder=" "
                 {...register("price")}
-                className={`${fieldClass(!!errors.price, FIELD_NUMBER)} pr-10`}
+                className={`${fieldClasses(!!errors.price, FIELD_NUMBER)} pr-12`}
               />
-            </Field>
-            <Field label="Condomínio" error={errors.condominium_fee?.message} affix="R$">
+            </FormField>
+            <FormField label="Condomínio" error={errors.condominium_fee?.message} affix="R$">
               <input
                 type="number"
                 step="0.01"
                 placeholder=" "
                 {...register("condominium_fee")}
-                className={`${fieldClass(!!errors.condominium_fee, FIELD_NUMBER)} pr-10`}
+                className={`${fieldClasses(!!errors.condominium_fee, FIELD_NUMBER)} pr-12`}
               />
-            </Field>
-            <Field label="IPTU" error={errors.iptu?.message} affix="R$">
+            </FormField>
+            <FormField label="IPTU" error={errors.iptu?.message} affix="R$">
               <input
                 type="number"
                 step="0.01"
                 placeholder=" "
                 {...register("iptu")}
-                className={`${fieldClass(!!errors.iptu, FIELD_NUMBER)} pr-10`}
+                className={`${fieldClasses(!!errors.iptu, FIELD_NUMBER)} pr-12`}
               />
-            </Field>
+            </FormField>
           </div>
         </Section>
 
@@ -382,66 +350,66 @@ export default function PropertyForm({ initialData, isEdit = false }: PropertyFo
           description="Metragem e comodidades usadas nos filtros de busca."
         >
           <div className="grid grid-cols-2 gap-x-8 gap-y-6 md:grid-cols-4">
-            <Field label="Área total" error={errors.total_area?.message} affix="m²">
+            <FormField label="Área total" error={errors.total_area?.message} affix="m²">
               <input
                 type="number"
                 step="0.01"
                 placeholder=" "
                 {...register("total_area")}
-                className={`${fieldClass(!!errors.total_area, FIELD_NUMBER)} pr-10`}
+                className={`${fieldClasses(!!errors.total_area, FIELD_NUMBER)} pr-12`}
               />
-            </Field>
-            <Field label="Área privativa" error={errors.private_area?.message} affix="m²">
+            </FormField>
+            <FormField label="Área privativa" error={errors.private_area?.message} affix="m²">
               <input
                 type="number"
                 step="0.01"
                 placeholder=" "
                 {...register("private_area")}
-                className={`${fieldClass(!!errors.private_area, FIELD_NUMBER)} pr-10`}
+                className={`${fieldClasses(!!errors.private_area, FIELD_NUMBER)} pr-12`}
               />
-            </Field>
-            <Field label="Quartos" error={errors.bedrooms?.message}>
+            </FormField>
+            <FormField label="Quartos" error={errors.bedrooms?.message}>
               <input
                 type="number"
                 placeholder=" "
                 {...register("bedrooms")}
-                className={fieldClass(!!errors.bedrooms, FIELD_NUMBER)}
+                className={fieldClasses(!!errors.bedrooms, FIELD_NUMBER)}
               />
-            </Field>
-            <Field label="Suítes" error={errors.suites?.message}>
+            </FormField>
+            <FormField label="Suítes" error={errors.suites?.message}>
               <input
                 type="number"
                 placeholder=" "
                 {...register("suites")}
-                className={fieldClass(!!errors.suites, FIELD_NUMBER)}
+                className={fieldClasses(!!errors.suites, FIELD_NUMBER)}
               />
-            </Field>
-            <Field label="Banheiros" error={errors.bathrooms?.message}>
+            </FormField>
+            <FormField label="Banheiros" error={errors.bathrooms?.message}>
               <input
                 type="number"
                 placeholder=" "
                 {...register("bathrooms")}
-                className={fieldClass(!!errors.bathrooms, FIELD_NUMBER)}
+                className={fieldClasses(!!errors.bathrooms, FIELD_NUMBER)}
               />
-            </Field>
-            <Field label="Vagas" error={errors.parking_spaces?.message}>
+            </FormField>
+            <FormField label="Vagas" error={errors.parking_spaces?.message}>
               <input
                 type="number"
                 placeholder=" "
                 {...register("parking_spaces")}
-                className={fieldClass(!!errors.parking_spaces, FIELD_NUMBER)}
+                className={fieldClasses(!!errors.parking_spaces, FIELD_NUMBER)}
               />
-            </Field>
-            <Field label="Andar" error={errors.floor?.message}>
+            </FormField>
+            <FormField label="Andar" error={errors.floor?.message}>
               <input
                 type="number"
                 placeholder=" "
                 {...register("floor")}
-                className={fieldClass(!!errors.floor, FIELD_NUMBER)}
+                className={fieldClasses(!!errors.floor, FIELD_NUMBER)}
               />
-            </Field>
+            </FormField>
             <label className="group flex cursor-pointer items-center gap-3 self-end pb-3">
-              <input type="checkbox" {...register("furnished")} className={CHECKBOX_INPUT} />
+              <input type="checkbox" {...register("furnished")} className={CHECKBOX_CLASSES} />
               <span className="text-sm font-medium text-gray-700 transition-colors group-hover:text-mitram-dark">
                 Mobiliado
               </span>
@@ -455,13 +423,17 @@ export default function PropertyForm({ initialData, isEdit = false }: PropertyFo
           description="A cidade e o bairro definem onde o imóvel aparece nas buscas."
         >
           <div className="grid grid-cols-1 gap-x-8 gap-y-6 md:grid-cols-3">
-            <Field label="Cidade" error={errors.city_id?.message} alwaysFloat>
-              <select {...register("city_id")} className={fieldClass(!!errors.city_id)}>
+            <FormField label="Cidade" error={errors.city_id?.message} alwaysFloat>
+              <select
+                {...register("city_id")}
+                className={fieldClasses(!!errors.city_id, SELECT_EXTRA)}
+                style={SELECT_ARROW_STYLE}
+              >
                 <option value="">Selecione...</option>
                 {cities.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
-            </Field>
-            <Field
+            </FormField>
+            <FormField
               label="Bairro"
               error={errors.neighborhood_id?.message}
               alwaysFloat
@@ -470,18 +442,22 @@ export default function PropertyForm({ initialData, isEdit = false }: PropertyFo
               <select
                 {...register("neighborhood_id")}
                 disabled={!watchCity}
-                className={`${fieldClass(!!errors.neighborhood_id)} disabled:cursor-not-allowed disabled:border-gray-200 disabled:text-gray-400`}
+                className={fieldClasses(
+                  !!errors.neighborhood_id,
+                  `${SELECT_EXTRA} disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-400`,
+                )}
+                style={SELECT_ARROW_STYLE}
               >
                 <option value="">{watchCity ? "Selecione..." : "Selecione a cidade primeiro"}</option>
                 {neighborhoods.map(n => <option key={n.id} value={n.id}>{n.name}</option>)}
               </select>
-            </Field>
-            <Field label="Rua" error={errors.street?.message} className="md:col-span-2">
-              <input placeholder=" " {...register("street")} className={fieldClass(!!errors.street)} />
-            </Field>
-            <Field label="Número" error={errors.number?.message}>
-              <input placeholder=" " {...register("number")} className={fieldClass(!!errors.number)} />
-            </Field>
+            </FormField>
+            <FormField label="Rua" error={errors.street?.message} className="md:col-span-2">
+              <input placeholder=" " {...register("street")} className={fieldClasses(!!errors.street)} />
+            </FormField>
+            <FormField label="Número" error={errors.number?.message}>
+              <input placeholder=" " {...register("number")} className={fieldClasses(!!errors.number)} />
+            </FormField>
           </div>
         </Section>
 
@@ -491,7 +467,7 @@ export default function PropertyForm({ initialData, isEdit = false }: PropertyFo
           description="Texto do anúncio e links de vídeo ou tour virtual."
         >
           <div className="space-y-6">
-            <Field label="Descrição do imóvel" error={errors.description?.message}>
+            <FormField label="Descrição do imóvel" error={errors.description?.message}>
               <textarea
                 rows={1}
                 placeholder=" "
@@ -501,26 +477,26 @@ export default function PropertyForm({ initialData, isEdit = false }: PropertyFo
                   descriptionRef.current = element;
                 }}
                 onInput={(event) => autoResizeTextarea(event.currentTarget)}
-                className={`${fieldClass(!!errors.description)} resize-none`}
+                className={`${fieldClasses(!!errors.description)} resize-none`}
               />
-            </Field>
+            </FormField>
             <div className="grid grid-cols-1 gap-x-8 gap-y-6 md:grid-cols-2">
-              <Field label="URL do YouTube" error={errors.youtube_url?.message}>
+              <FormField label="URL do YouTube" error={errors.youtube_url?.message}>
                 <input
                   type="url"
                   placeholder=" "
                   {...register("youtube_url")}
-                  className={fieldClass(!!errors.youtube_url)}
+                  className={fieldClasses(!!errors.youtube_url)}
                 />
-              </Field>
-              <Field label="Tour virtual (URL)" error={errors.virtual_tour_url?.message}>
+              </FormField>
+              <FormField label="Tour virtual (URL)" error={errors.virtual_tour_url?.message}>
                 <input
                   type="url"
                   placeholder=" "
                   {...register("virtual_tour_url")}
-                  className={fieldClass(!!errors.virtual_tour_url)}
+                  className={fieldClasses(!!errors.virtual_tour_url)}
                 />
-              </Field>
+              </FormField>
             </div>
           </div>
         </Section>
@@ -544,18 +520,12 @@ export default function PropertyForm({ initialData, isEdit = false }: PropertyFo
         </Section>
 
         <div className="sticky bottom-0 z-10 flex items-center justify-end gap-3 rounded-b-lg bg-white/95 px-6 py-4 backdrop-blur md:px-10">
-          <button
-            type="button"
-            onClick={() => router.back()}
-            className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
-          >
+          <button type="button" onClick={() => router.back()} className={buttonClasses("secondary", "sm")}>
+            <X size={16} />
             Cancelar
           </button>
-          <button
-            type="submit"
-            disabled={loading}
-            className="rounded-md bg-mitram-dark px-6 py-2 text-sm font-medium text-white transition-colors hover:bg-black disabled:opacity-50"
-          >
+          <button type="submit" disabled={loading} className={buttonClasses("primary", "sm")}>
+            {isEdit ? <Save size={16} /> : <Plus size={16} />}
             {loading ? "Salvando..." : isEdit ? "Salvar alterações" : "Criar Imóvel"}
           </button>
         </div>

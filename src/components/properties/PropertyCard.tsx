@@ -27,7 +27,7 @@ export default function PropertyCard({ property }: { property: any }) {
         />
         
         <div className="absolute top-4 left-4 flex flex-col gap-2 z-20">
-          <span className="bg-mitram-gold/90 text-mitram-dark text-xs font-bold px-3 py-1.5 rounded-full backdrop-blur-md shadow-sm uppercase tracking-wide">
+          <span className="bg-mitram-gold/90 text-white text-xs font-bold px-3 py-1.5 rounded-full backdrop-blur-md shadow-sm uppercase tracking-wide">
             {property.purpose === 'sale' ? 'Venda' : 'Aluguel'}
           </span>
           {property.status === 'sold' && (

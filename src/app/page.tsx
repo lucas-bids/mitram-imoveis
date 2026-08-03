@@ -6,6 +6,8 @@ import QuickSearch from "@/components/public/QuickSearch";
 import TestimonialsCarousel from "@/components/public/TestimonialsCarousel";
 import { PROPERTY_MEDIA_FIELDS } from "@/lib/properties/queries";
 import { CheckCircle2, ShieldCheck, Headset, Sparkles, ArrowRight } from "lucide-react";
+import { buttonClasses } from "@/components/ui/buttonStyles";
+import { CHECKBOX_CLASSES, FormField, fieldClasses } from "@/components/ui/FormField";
 
 const TESTIMONIALS = [
   {
@@ -134,7 +136,7 @@ export default async function Home() {
           <div className="container mx-auto px-4">
             <div className="flex flex-col md:flex-row justify-between items-end md:items-center mb-10 gap-4">
               <div>
-                <h2 className="text-3xl md:text-4xl font-bold text-mitram-dark">Imóveis em Destaque</h2>
+                <h2 className="text-2xl md:text-3xl font-bold text-mitram-dark">Imóveis em Destaque</h2>
                 <p className="text-gray-500 mt-2">Confira as melhores opções selecionadas para você</p>
               </div>
               <Link href="/imoveis" className="group flex items-center gap-2 text-mitram-dark font-semibold hover:text-mitram-gold transition-colors">
@@ -151,7 +153,7 @@ export default async function Home() {
       {/* Value Propositions */}
       <section className="container mx-auto px-4 mb-24">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="bg-mitram-grayLight p-6 rounded-2xl flex items-start gap-4 hover:shadow-md transition-shadow">
+          <div className="bg-white border border-gray-200 p-6 rounded-2xl flex items-start gap-4">
             <div className="bg-purple-100 text-purple-600 p-3 rounded-xl">
               <CheckCircle2 size={24} />
             </div>
@@ -160,7 +162,7 @@ export default async function Home() {
               <p className="text-sm text-gray-500 leading-relaxed">Todos os imóveis são verificados para sua paz de espírito.</p>
             </div>
           </div>
-          <div className="bg-mitram-grayLight p-6 rounded-2xl flex items-start gap-4 hover:shadow-md transition-shadow">
+          <div className="bg-white border border-gray-200 p-6 rounded-2xl flex items-start gap-4">
             <div className="bg-blue-100 text-blue-600 p-3 rounded-xl">
               <ShieldCheck size={24} />
             </div>
@@ -169,7 +171,7 @@ export default async function Home() {
               <p className="text-sm text-gray-500 leading-relaxed">Sua segurança é nossa prioridade em cada transação.</p>
             </div>
           </div>
-          <div className="bg-mitram-grayLight p-6 rounded-2xl flex items-start gap-4 hover:shadow-md transition-shadow">
+          <div className="bg-white border border-gray-200 p-6 rounded-2xl flex items-start gap-4">
             <div className="bg-green-100 text-green-600 p-3 rounded-xl">
               <Headset size={24} />
             </div>
@@ -178,7 +180,7 @@ export default async function Home() {
               <p className="text-sm text-gray-500 leading-relaxed">Nossa equipe está aqui para ajudar você a qualquer momento.</p>
             </div>
           </div>
-          <div className="bg-mitram-grayLight p-6 rounded-2xl flex items-start gap-4 hover:shadow-md transition-shadow">
+          <div className="bg-white border border-gray-200 p-6 rounded-2xl flex items-start gap-4">
             <div className="bg-red-100 text-red-600 p-3 rounded-xl">
               <Sparkles size={24} />
             </div>
@@ -202,7 +204,7 @@ export default async function Home() {
                 </span>
                 POR QUE ESCOLHER A MITRAM
               </div>
-              <h2 className="text-4xl md:text-5xl font-bold text-mitram-dark leading-tight">
+              <h2 className="text-3xl md:text-4xl font-bold text-mitram-dark leading-tight">
                 Muito mais que<br />um imóvel
               </h2>
             </div>
@@ -228,7 +230,7 @@ export default async function Home() {
             </ul>
 
             <div className="pt-4">
-              <Link href="/contato" className="inline-flex items-center gap-2 px-8 py-4 bg-mitram-dark text-white rounded-full font-semibold hover:bg-black transition-colors shadow-md">
+              <Link href="/contato" className={buttonClasses("primary", "lg")}>
                 Saiba Mais
                 <ArrowRight size={18} />
               </Link>
@@ -319,7 +321,7 @@ export default async function Home() {
                   Avaliação Gratuita
                 </div>
                 
-                <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-mitram-dark leading-[1.15]">
+                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-mitram-dark leading-[1.15]">
                   Venda sua casa ou terreno <br className="hidden lg:block"/>
                   com a Mitram
                 </h2>
@@ -333,58 +335,24 @@ export default async function Home() {
               {/* Form Integrated */}
               <div className="max-w-lg pt-6">
                 <form className="space-y-5">
-                  <div className="relative">
-                    <input 
-                      type="text" 
-                      id="name" 
-                      placeholder=" " 
-                      required 
-                      className="block w-full px-5 pb-3 pt-6 rounded-xl border-2 border-transparent shadow-sm bg-white text-mitram-dark focus:ring-2 focus:ring-mitram-gold/20 focus:border-mitram-gold transition-all outline-none peer" 
-                    />
-                    <label 
-                      htmlFor="name" 
-                      className="absolute text-sm text-gray-500 duration-300 transform -translate-y-3 scale-75 top-4 z-10 origin-[0] left-5 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-3 pointer-events-none"
-                    >
-                      Nome completo
-                    </label>
-                  </div>
+                  <FormField label="Nome completo">
+                    <input type="text" id="name" placeholder=" " required className={fieldClasses()} />
+                  </FormField>
 
-                  <div className="relative">
-                    <input 
-                      type="tel" 
-                      id="phone" 
-                      placeholder=" " 
-                      required 
-                      className="block w-full px-5 pb-3 pt-6 rounded-xl border-2 border-transparent shadow-sm bg-white text-mitram-dark focus:ring-2 focus:ring-mitram-gold/20 focus:border-mitram-gold transition-all outline-none peer" 
-                    />
-                    <label 
-                      htmlFor="phone" 
-                      className="absolute text-sm text-gray-500 duration-300 transform -translate-y-3 scale-75 top-4 z-10 origin-[0] left-5 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-3 pointer-events-none"
-                    >
-                      WhatsApp ou Telefone
-                    </label>
-                  </div>
+                  <FormField label="WhatsApp ou Telefone">
+                    <input type="tel" id="phone" placeholder=" " required className={fieldClasses()} />
+                  </FormField>
 
                   <div className="flex items-start gap-3 pt-2">
-                    <div className="flex items-center h-5 mt-0.5">
-                      <input 
-                        type="checkbox" 
-                        id="lgpd-home" 
-                        required 
-                        className="w-4 h-4 text-mitram-gold border-gray-300 rounded focus:ring-mitram-gold focus:ring-2 accent-mitram-gold cursor-pointer" 
-                      />
-                    </div>
+                    <input type="checkbox" id="lgpd-home" required className={`mt-0.5 ${CHECKBOX_CLASSES}`} />
                     <label htmlFor="lgpd-home" className="text-xs text-gray-500 leading-relaxed cursor-pointer select-none">
                       Concordo que a Mitram utilize meus dados para entrar em contato referente a esta solicitação.
                     </label>
                   </div>
 
-                  <button 
-                    type="submit" 
-                    className="w-full py-4 bg-mitram-dark text-white rounded-xl font-bold text-lg hover:bg-mitram-gold hover:text-mitram-dark transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center gap-2 group mt-2"
-                  >
+                  <button type="submit" className={buttonClasses("primary", "lg", "w-full")}>
                     Quero minha avaliação
-                    <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                    <ArrowRight size={20} />
                   </button>
                 </form>
               </div>
@@ -404,7 +372,7 @@ export default async function Home() {
             </span>
             Depoimentos
           </div>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-mitram-dark">O que nossos clientes dizem</h2>
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-mitram-dark">O que nossos clientes dizem</h2>
           <p className="text-gray-600 text-lg md:text-xl max-w-2xl">
             Veja as histórias reais de quem confiou na Mitram para encontrar o lar perfeito ou realizar um excelente negócio.
           </p>

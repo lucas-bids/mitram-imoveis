@@ -5,6 +5,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import Image from "next/image";
 import Link from "next/link";
+import { LogIn } from "lucide-react";
+import { buttonClasses } from "@/components/ui/buttonStyles";
+import { FormField, fieldClasses } from "@/components/ui/FormField";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
@@ -77,33 +80,29 @@ export default function LoginForm() {
         )}
 
         <form onSubmit={handleLogin} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-mitram-grayDark mb-1" htmlFor="email">
-              E-mail
-            </label>
+          <FormField label="E-mail">
             <input
               id="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-mitram-gold"
+              placeholder=" "
+              className={fieldClasses()}
             />
-          </div>
+          </FormField>
 
-          <div>
-            <label className="block text-sm font-medium text-mitram-grayDark mb-1" htmlFor="password">
-              Senha
-            </label>
+          <FormField label="Senha">
             <input
               id="password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-mitram-gold"
+              placeholder=" "
+              className={fieldClasses()}
             />
-          </div>
+          </FormField>
 
           <div className="flex justify-end">
             <Link href="/admin/recuperar-senha" className="text-sm text-mitram-gold hover:underline">
@@ -111,11 +110,8 @@ export default function LoginForm() {
             </Link>
           </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-mitram-dark text-white py-2 px-4 rounded hover:bg-black transition-colors disabled:opacity-50"
-          >
+          <button type="submit" disabled={loading} className={buttonClasses("primary", "md", "w-full")}>
+            <LogIn size={18} />
             {loading ? "Entrando..." : "Entrar"}
           </button>
         </form>
