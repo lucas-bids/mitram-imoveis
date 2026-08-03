@@ -167,7 +167,7 @@ export default async function ImoveisPage({
 
       <div className="container mx-auto px-4 pb-16 flex-grow">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-bold text-mitram-dark">
+          <h2 className="text-lg font-bold text-mitram-dark">
             {properties ? properties.length : 0} imóveis encontrados
           </h2>
         </div>

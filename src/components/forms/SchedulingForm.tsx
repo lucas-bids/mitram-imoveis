@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import { submitContactForm } from "@/app/actions/contact";
+import { Send } from "lucide-react";
+import { buttonClasses } from "@/components/ui/buttonStyles";
+import { CHECKBOX_CLASSES, FormField, fieldClasses } from "@/components/ui/FormField";
 
 interface SchedulingFormProps {
   propertyTitle: string;
@@ -60,28 +63,23 @@ export default function SchedulingForm({ propertyTitle, propertyUrl }: Schedulin
       {/* Honeypot field for basic spam protection */}
       <input type="text" name="address_field" className="hidden" tabIndex={-1} autoComplete="off" />
 
-      <div>
-        <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Nome completo *</label>
-        <input type="text" id="name" name="name" required className="w-full px-3 py-2 border rounded focus:ring-mitram-gold focus:border-mitram-gold" />
-      </div>
-      
-      <div>
-        <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">Telefone / WhatsApp *</label>
-        <input type="tel" id="phone" name="phone" required className="w-full px-3 py-2 border rounded focus:ring-mitram-gold focus:border-mitram-gold" />
-      </div>
+      <FormField label="Nome completo *">
+        <input type="text" id="name" name="name" required placeholder=" " className={fieldClasses()} />
+      </FormField>
 
-      <div className="flex items-start gap-2 pt-2">
-        <input type="checkbox" id="lgpd-scheduling" name="consent" required className="mt-1" />
+      <FormField label="Telefone / WhatsApp *">
+        <input type="tel" id="phone" name="phone" required placeholder=" " className={fieldClasses()} />
+      </FormField>
+
+      <div className="flex items-start gap-3 pt-2">
+        <input type="checkbox" id="lgpd-scheduling" name="consent" required className={`mt-0.5 ${CHECKBOX_CLASSES}`} />
         <label htmlFor="lgpd-scheduling" className="text-xs text-gray-600 leading-tight">
           Concordo que meus dados sejam utilizados pela Mitram Imóveis para responder a esta solicitação.
         </label>
       </div>
 
-      <button 
-        type="submit" 
-        disabled={loading}
-        className="w-full py-3 bg-mitram-dark text-white rounded font-medium hover:bg-black transition-colors disabled:opacity-50 mt-2"
-      >
+      <button type="submit" disabled={loading} className={buttonClasses("primary", "md", "mt-2 w-full")}>
+        <Send size={18} />
         {loading ? "Enviando..." : "Enviar Mensagem"}
       </button>
     </form>

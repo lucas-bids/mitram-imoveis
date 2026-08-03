@@ -4,8 +4,9 @@ import { useState } from "react";
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
 import imageCompression from "browser-image-compression";
 import { createClient } from "@/lib/supabase/client";
-import { X, GripVertical, Star } from "lucide-react";
+import { X, GripVertical, Star, ImagePlus } from "lucide-react";
 import Image from "next/image";
+import { buttonClasses } from "@/components/ui/buttonStyles";
 
 export interface PropertyMedia {
   id: string;
@@ -183,10 +184,8 @@ export default function ImageUpload({ propertyId, initialMedia, onMediaUpdate }:
           disabled={uploading}
           className="hidden"
         />
-        <label
-          htmlFor="images"
-          className="cursor-pointer bg-mitram-dark text-white px-4 py-2 rounded hover:bg-black transition-colors"
-        >
+        <label htmlFor="images" className={buttonClasses("primary", "md", "cursor-pointer")}>
+          <ImagePlus size={18} />
           {uploading ? "Enviando..." : "Selecionar imagens"}
         </label>
         <p className="text-xs text-gray-500 mt-2">JPG, PNG ou WEBP. Máx 30 imagens.</p>

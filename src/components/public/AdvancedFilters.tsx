@@ -3,6 +3,8 @@
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useState } from "react";
 import { List, Map, Filter, X } from "lucide-react";
+import { buttonClasses } from "@/components/ui/buttonStyles";
+import { FormField, SELECT_ARROW_STYLE, SELECT_EXTRA, fieldClasses } from "@/components/ui/FormField";
 
 interface FilterOption {
   id: string;
@@ -89,7 +91,16 @@ export default function AdvancedFilters({
     (neighborhood) => !filters.city || neighborhood.city_id === filters.city,
   );
 
-  const selectBg = 'url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23131313%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E")';
+  // O campo ganha borda dourada quando o filtro está preenchido.
+  const filterSelectClasses = (isActive: boolean, extra?: string) =>
+    fieldClasses(false, [SELECT_EXTRA, isActive ? "border-mitram-gold" : "", extra].filter(Boolean).join(" "));
+
+  const rangeBoxClasses = (isActive: boolean) =>
+    `relative flex items-center rounded-xl border-2 bg-white px-2 pb-3 pt-6 shadow-sm transition-all focus-within:border-mitram-gold focus-within:ring-2 focus-within:ring-mitram-gold/20 ${
+      isActive ? "border-mitram-gold" : "border-gray-200"
+    }`;
+
+  const rangeInputClasses = "w-full bg-transparent px-3 text-sm text-mitram-dark outline-none";
 
   // Derivar pílulas ativas
   const activePills = [];
@@ -187,68 +198,70 @@ export default function AdvancedFilters({
           </div>
         </div>
 
-        {/* Middle Row: Main Filters */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+        {/* Filtros */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           {/* 1. Tipo */}
-          <div>
+          <FormField label="Tipo de Imóvel" alwaysFloat>
             <select
               value={filters.type}
               onChange={(e) => handleChange("type", e.target.value)}
-              className={`w-full bg-white rounded-2xl px-4 py-3.5 text-mitram-dark outline-none focus:ring-2 focus:ring-mitram-gold border border-gray-100 shadow-sm appearance-none cursor-pointer transition-all ${filters.type ? 'ring-2 ring-mitram-gold border-transparent' : ''}`}
-              style={{ backgroundImage: selectBg, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem top 50%', backgroundSize: '0.65rem auto' }}
+              className={filterSelectClasses(!!filters.type)}
+              style={SELECT_ARROW_STYLE}
             >
-              <option value="">Tipo de Imóvel</option>
+              <option value="">Qualquer</option>
               {types.map((type) => (
                 <option key={type.id} value={type.id}>
                   {type.name}
                 </option>
               ))}
             </select>
-          </div>
+          </FormField>
 
-          {/* 2. Localização */}
-          <div>
-            <div className="flex gap-2">
-              <select
-                value={filters.city}
-                onChange={(e) => handleChange("city", e.target.value)}
-                className={`w-1/2 bg-white rounded-2xl px-4 py-3.5 text-mitram-dark outline-none focus:ring-2 focus:ring-mitram-gold border border-gray-100 shadow-sm appearance-none cursor-pointer text-sm transition-all ${filters.city ? 'ring-2 ring-mitram-gold border-transparent' : ''}`}
-                style={{ backgroundImage: selectBg, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem top 50%', backgroundSize: '0.65rem auto' }}
-              >
-                <option value="">Cidade</option>
-                {cities.map((city) => (
-                  <option key={city.id} value={city.id}>
-                    {city.name}
-                  </option>
-                ))}
-              </select>
-              <select
-                value={filters.neighborhood}
-                onChange={(e) => handleChange("neighborhood", e.target.value)}
-                disabled={!filters.city}
-                className={`w-1/2 bg-white rounded-2xl px-4 py-3.5 text-mitram-dark outline-none focus:ring-2 focus:ring-mitram-gold border border-gray-100 shadow-sm appearance-none cursor-pointer text-sm disabled:opacity-50 transition-all ${filters.neighborhood ? 'ring-2 ring-mitram-gold border-transparent' : ''}`}
-                style={{ backgroundImage: selectBg, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem top 50%', backgroundSize: '0.65rem auto' }}
-              >
-                <option value="">Bairro</option>
-                {filteredNeighborhoods.map((neighborhood) => (
-                  <option key={neighborhood.id} value={neighborhood.id}>
-                    {neighborhood.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
+          {/* 2. Cidade */}
+          <FormField label="Cidade" alwaysFloat>
+            <select
+              value={filters.city}
+              onChange={(e) => handleChange("city", e.target.value)}
+              className={filterSelectClasses(!!filters.city)}
+              style={SELECT_ARROW_STYLE}
+            >
+              <option value="">Qualquer</option>
+              {cities.map((city) => (
+                <option key={city.id} value={city.id}>
+                  {city.name}
+                </option>
+              ))}
+            </select>
+          </FormField>
 
-          {/* 3. Preço */}
-          <div>
-            <div className={`flex items-center bg-white rounded-2xl shadow-sm border border-gray-100 px-2 overflow-hidden transition-all focus-within:ring-2 focus-within:ring-mitram-gold focus-within:border-transparent ${(filters.min_price || filters.max_price) ? 'ring-2 ring-mitram-gold border-transparent' : ''}`}>
+          {/* 3. Bairro */}
+          <FormField label="Bairro" alwaysFloat>
+            <select
+              value={filters.neighborhood}
+              onChange={(e) => handleChange("neighborhood", e.target.value)}
+              disabled={!filters.city}
+              className={filterSelectClasses(!!filters.neighborhood, "disabled:cursor-not-allowed disabled:opacity-50")}
+              style={SELECT_ARROW_STYLE}
+            >
+              <option value="">Qualquer</option>
+              {filteredNeighborhoods.map((neighborhood) => (
+                <option key={neighborhood.id} value={neighborhood.id}>
+                  {neighborhood.name}
+                </option>
+              ))}
+            </select>
+          </FormField>
+
+          {/* 4. Preço */}
+          <FormField label="Preço" alwaysFloat>
+            <div className={rangeBoxClasses(!!(filters.min_price || filters.max_price))}>
               <input
                 type="number"
                 min="0"
                 placeholder="R$ Mínimo"
                 value={filters.min_price}
                 onChange={(e) => handleChange("min_price", e.target.value)}
-                className="w-full bg-transparent px-3 py-3.5 outline-none text-mitram-dark text-sm"
+                className={rangeInputClasses}
               />
               <span className="text-gray-300">Até</span>
               <input
@@ -257,21 +270,21 @@ export default function AdvancedFilters({
                 placeholder="R$ Máximo"
                 value={filters.max_price}
                 onChange={(e) => handleChange("max_price", e.target.value)}
-                className="w-full bg-transparent px-3 py-3.5 outline-none text-mitram-dark text-sm"
+                className={rangeInputClasses}
               />
             </div>
-          </div>
+          </FormField>
 
-          {/* 4. Área */}
-          <div>
-            <div className={`flex items-center bg-white rounded-2xl shadow-sm border border-gray-100 px-2 overflow-hidden transition-all focus-within:ring-2 focus-within:ring-mitram-gold focus-within:border-transparent ${(filters.min_area || filters.max_area) ? 'ring-2 ring-mitram-gold border-transparent' : ''}`}>
+          {/* 5. Área */}
+          <FormField label="Área" alwaysFloat>
+            <div className={rangeBoxClasses(!!(filters.min_area || filters.max_area))}>
               <input
                 type="number"
                 min="0"
                 placeholder="Mínima m²"
                 value={filters.min_area}
                 onChange={(e) => handleChange("min_area", e.target.value)}
-                className="w-full bg-transparent px-3 py-3.5 outline-none text-mitram-dark text-sm"
+                className={rangeInputClasses}
               />
               <span className="text-gray-300">Até</span>
               <input
@@ -280,73 +293,70 @@ export default function AdvancedFilters({
                 placeholder="Máxima m²"
                 value={filters.max_area}
                 onChange={(e) => handleChange("max_area", e.target.value)}
-                className="w-full bg-transparent px-3 py-3.5 outline-none text-mitram-dark text-sm"
+                className={rangeInputClasses}
               />
             </div>
-          </div>
-        </div>
+          </FormField>
 
-        {/* Bottom Row: Secondary Filters */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-          {/* Quartos */}
-          <div>
+          {/* 6. Quartos */}
+          <FormField label="Quartos" alwaysFloat>
             <select
               value={filters.bedrooms}
               onChange={(e) => handleChange("bedrooms", e.target.value)}
-              className={`w-full bg-white rounded-2xl px-4 py-3.5 text-mitram-dark outline-none focus:ring-2 focus:ring-mitram-gold border border-gray-100 shadow-sm appearance-none cursor-pointer transition-all ${filters.bedrooms ? 'ring-2 ring-mitram-gold border-transparent' : ''}`}
-              style={{ backgroundImage: selectBg, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem top 50%', backgroundSize: '0.65rem auto' }}
+              className={filterSelectClasses(!!filters.bedrooms)}
+              style={SELECT_ARROW_STYLE}
             >
-              <option value="">Quartos</option>
+              <option value="">Qualquer</option>
               {minimumQuantityOptions.map((q) => (
                 <option key={q} value={q}>{q}+ Quartos</option>
               ))}
             </select>
-          </div>
+          </FormField>
 
-          {/* Suítes */}
-          <div>
+          {/* 7. Suítes */}
+          <FormField label="Suítes" alwaysFloat>
             <select
               value={filters.suites}
               onChange={(e) => handleChange("suites", e.target.value)}
-              className={`w-full bg-white rounded-2xl px-4 py-3.5 text-mitram-dark outline-none focus:ring-2 focus:ring-mitram-gold border border-gray-100 shadow-sm appearance-none cursor-pointer transition-all ${filters.suites ? 'ring-2 ring-mitram-gold border-transparent' : ''}`}
-              style={{ backgroundImage: selectBg, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem top 50%', backgroundSize: '0.65rem auto' }}
+              className={filterSelectClasses(!!filters.suites)}
+              style={SELECT_ARROW_STYLE}
             >
-              <option value="">Suítes</option>
+              <option value="">Qualquer</option>
               {minimumQuantityOptions.map((q) => (
                 <option key={q} value={q}>{q}+ Suítes</option>
               ))}
             </select>
-          </div>
+          </FormField>
 
-          {/* Vagas */}
-          <div>
+          {/* 8. Vagas */}
+          <FormField label="Vagas" alwaysFloat>
             <select
               value={filters.parking_spaces}
               onChange={(e) => handleChange("parking_spaces", e.target.value)}
-              className={`w-full bg-white rounded-2xl px-4 py-3.5 text-mitram-dark outline-none focus:ring-2 focus:ring-mitram-gold border border-gray-100 shadow-sm appearance-none cursor-pointer transition-all ${filters.parking_spaces ? 'ring-2 ring-mitram-gold border-transparent' : ''}`}
-              style={{ backgroundImage: selectBg, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem top 50%', backgroundSize: '0.65rem auto' }}
+              className={filterSelectClasses(!!filters.parking_spaces)}
+              style={SELECT_ARROW_STYLE}
             >
-              <option value="">Vagas</option>
+              <option value="">Qualquer</option>
               {minimumQuantityOptions.map((q) => (
                 <option key={q} value={q}>{q}+ Vagas</option>
               ))}
             </select>
-          </div>
+          </FormField>
 
-          {/* Características */}
-          <div>
+          {/* 9. Características */}
+          <FormField label="Características" alwaysFloat>
             <select
               value={filters.features}
               onChange={(e) => handleChange("features", e.target.value)}
-              className={`w-full bg-white rounded-2xl px-4 py-3.5 text-mitram-dark outline-none focus:ring-2 focus:ring-mitram-gold border border-gray-100 shadow-sm appearance-none cursor-pointer transition-all ${filters.features ? 'ring-2 ring-mitram-gold border-transparent' : ''}`}
-              style={{ backgroundImage: selectBg, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem top 50%', backgroundSize: '0.65rem auto' }}
+              className={filterSelectClasses(!!filters.features)}
+              style={SELECT_ARROW_STYLE}
             >
-              <option value="">Características</option>
+              <option value="">Qualquer</option>
               {features.map((f) => (
                 <option key={f.id} value={f.id}>{f.name}</option>
               ))}
             </select>
-          </div>
+          </FormField>
         </div>
 
         {/* Actions Row with Active Pills */}
@@ -379,11 +389,7 @@ export default function AdvancedFilters({
               </button>
             )}
 
-            <button
-              type="button"
-              onClick={toggleView}
-              className="flex items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-semibold hover:bg-gray-50 transition-colors shadow-sm text-mitram-dark border border-gray-100"
-            >
+            <button type="button" onClick={toggleView} className={buttonClasses("secondary", "md")}>
               {isMapView ? (
                 <>
                   <List size={18} /> Lista
@@ -395,10 +401,7 @@ export default function AdvancedFilters({
               )}
             </button>
 
-            <button
-              type="submit"
-              className="flex items-center justify-center gap-2 rounded-xl bg-mitram-dark px-8 py-3 text-sm font-bold text-white hover:bg-mitram-gold hover:text-mitram-dark transition-all duration-300 shadow-md"
-            >
+            <button type="submit" className={buttonClasses("primary", "md")}>
               Buscar <Filter size={16} />
             </button>
           </div>

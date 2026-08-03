@@ -145,7 +145,7 @@ export default function Gallery({ media }: GalleryProps) {
         <div className="fixed inset-0 z-50 bg-white flex flex-col">
           {/* Modal Header */}
           <div className="flex items-center justify-between p-4 border-b bg-white sticky top-0 z-10">
-            <h2 className="text-xl font-bold text-mitram-dark">Galeria de Fotos</h2>
+            <h2 className="text-lg font-bold text-mitram-dark">Galeria de Fotos</h2>
             <button 
               onClick={closeModal}
               className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"

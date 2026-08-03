@@ -6,9 +6,10 @@ import PropertyCard from "@/components/properties/PropertyCard";
 import SchedulingForm from "@/components/forms/SchedulingForm";
 import PropertiesMap from "@/components/maps/PropertiesMap";
 import { PROPERTY_MEDIA_ALL, PROPERTY_MEDIA_FIELDS } from "@/lib/properties/queries";
-import { Bed, Bath, Car, Square, MapPin, Check, ExternalLink } from "lucide-react";
+import { Bed, Bath, Car, Square, MapPin, Check, ExternalLink, CalendarCheck, MessageCircle, Search } from "lucide-react";
 import Link from "next/link";
 import { Metadata } from "next";
+import { buttonClasses, buttonShapeClasses } from "@/components/ui/buttonStyles";
 
 export const dynamic = "force-dynamic";
 
@@ -119,7 +120,7 @@ export default async function PropertyDetailsPage({ params }: { params: { slug: 
             </div>
 
             <div className="bg-white p-6 rounded-xl shadow-sm">
-              <h2 className="text-xl font-bold text-mitram-dark mb-4">Resumo</h2>
+              <h2 className="text-lg font-bold text-mitram-dark mb-4">Resumo</h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {property.total_area && (
                   <div>
@@ -173,7 +174,7 @@ export default async function PropertyDetailsPage({ params }: { params: { slug: 
             </div>
 
             <div className="bg-white p-6 rounded-lg shadow-sm">
-              <h2 className="text-xl font-bold text-mitram-dark mb-4">Descrição</h2>
+              <h2 className="text-lg font-bold text-mitram-dark mb-4">Descrição</h2>
               <div className="text-gray-700 whitespace-pre-wrap leading-relaxed">
                 {property.description}
               </div>
@@ -181,7 +182,7 @@ export default async function PropertyDetailsPage({ params }: { params: { slug: 
 
             {property.property_features && property.property_features.length > 0 && (
               <div className="bg-white p-6 rounded-lg shadow-sm">
-                <h2 className="text-xl font-bold text-mitram-dark mb-4">Características</h2>
+                <h2 className="text-lg font-bold text-mitram-dark mb-4">Características</h2>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-y-3">
                   {property.property_features.map((pf: any, index: number) => (
                     <div key={index} className="flex items-center gap-2 text-gray-700">
@@ -196,15 +197,15 @@ export default async function PropertyDetailsPage({ params }: { params: { slug: 
             {/* Video & Virtual Tour */}
             {(property.youtube_url || property.virtual_tour_url) && (
               <div className="bg-white p-6 rounded-lg shadow-sm">
-                <h2 className="text-xl font-bold text-mitram-dark mb-4">Mídia</h2>
+                <h2 className="text-lg font-bold text-mitram-dark mb-4">Mídia</h2>
                 <div className="flex gap-4 flex-wrap">
                   {property.youtube_url && (
-                    <a href={property.youtube_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded font-medium hover:bg-red-700">
+                    <a href={property.youtube_url} target="_blank" rel="noopener noreferrer" className={buttonShapeClasses("md", "bg-red-600 text-white shadow-md hover:bg-red-700")}>
                       <ExternalLink size={18} /> Ver Vídeo no YouTube
                     </a>
                   )}
                   {property.virtual_tour_url && (
-                    <a href={property.virtual_tour_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-mitram-dark text-white px-4 py-2 rounded font-medium hover:bg-black">
+                    <a href={property.virtual_tour_url} target="_blank" rel="noopener noreferrer" className={buttonClasses("primary", "md")}>
                       <ExternalLink size={18} /> Abrir Tour Virtual
                     </a>
                   )}
@@ -214,7 +215,7 @@ export default async function PropertyDetailsPage({ params }: { params: { slug: 
 
             {property.latitude && property.longitude && (
               <div className="bg-white p-6 rounded-lg shadow-sm">
-                <h2 className="text-xl font-bold text-mitram-dark mb-4">Localização</h2>
+                <h2 className="text-lg font-bold text-mitram-dark mb-4">Localização</h2>
                 <div className="h-[400px] w-full rounded overflow-hidden border">
                   <PropertiesMap properties={[property]} />
                 </div>
@@ -232,22 +233,24 @@ export default async function PropertyDetailsPage({ params }: { params: { slug: 
                 {property.condominium_fee && <p className="text-sm text-gray-500">Condomínio: R$ {property.condominium_fee}</p>}
                 {property.iptu && <p className="text-sm text-gray-500 mb-4">IPTU: R$ {property.iptu}</p>}
                 
-                <a 
-                  href={whatsappLink} 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="w-full bg-mitram-dark text-white py-3 px-4 rounded-lg flex items-center justify-center gap-2 font-bold hover:bg-black transition-colors"
+                <a
+                  href={whatsappLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={buttonClasses("primary", "md", "w-full")}
                 >
+                  <CalendarCheck size={18} />
                   Agendar Visita
                 </a>
               </div>
 
-              <a 
-                href={whatsappLink} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="w-full bg-[#25D366] text-white py-4 rounded-lg flex items-center justify-center gap-2 font-bold text-lg hover:bg-[#128C7E] transition-colors shadow-md"
+              <a
+                href={whatsappLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={buttonShapeClasses("lg", "w-full bg-[#25D366] text-white shadow-md hover:bg-[#128C7E]")}
               >
+                <MessageCircle size={20} />
                 Conversar pelo WhatsApp
               </a>
 
@@ -261,7 +264,7 @@ export default async function PropertyDetailsPage({ params }: { params: { slug: 
 
         {similarProperties && similarProperties.length > 0 && (
           <div className="mt-16">
-            <h2 className="text-2xl font-bold text-mitram-dark mb-6">Imóveis Semelhantes</h2>
+            <h2 className="text-xl font-bold text-mitram-dark mb-6">Imóveis Semelhantes</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {similarProperties.map((prop) => (
                 <PropertyCard key={prop.id} property={prop} />
@@ -282,13 +285,14 @@ export default async function PropertyDetailsPage({ params }: { params: { slug: 
             <div className="absolute inset-0 bg-mitram-dark/50 z-10" />
             
             <div className="relative z-20 flex flex-col items-center justify-center px-4 py-24 md:py-32 text-center">
-              <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
+              <h2 className="text-2xl md:text-4xl font-bold text-white mb-4">
                 Encontre o Imóvel Perfeito com a Mitram
               </h2>
               <p className="text-lg text-gray-200 max-w-2xl mb-8">
                 Procurando a casa dos seus sonhos? A Mitram torna a busca por imóveis fácil e sem estresse! Com nossa plataforma amigável e corretores especialistas.
               </p>
-              <Link href="/imoveis" className="bg-white text-mitram-dark font-bold py-3 px-8 rounded-full hover:bg-gray-100 transition-colors">
+              <Link href="/imoveis" className={buttonClasses("inverse", "lg")}>
+                <Search size={18} />
                 Comece sua Busca
               </Link>
             </div>

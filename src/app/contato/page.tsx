@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import { submitContactForm } from "@/app/actions/contact";
-import { Phone, Mail, Instagram } from "lucide-react";
+import { Phone, Mail, Instagram, Send } from "lucide-react";
+import { buttonClasses } from "@/components/ui/buttonStyles";
+import { CHECKBOX_CLASSES, FormField, fieldClasses } from "@/components/ui/FormField";
 
 export default function ContactPage() {
   const [loading, setLoading] = useState(false);
@@ -31,8 +33,6 @@ export default function ContactPage() {
       setLoading(false);
     }
   };
-
-  const inputClasses = "w-full border-0 border-b-2 border-gray-300 bg-transparent px-0 py-3 text-mitram-dark focus:ring-0 focus:border-mitram-dark transition-colors placeholder:text-gray-500 font-medium";
 
   return (
     <div className="bg-mitram-white min-h-screen py-16 px-4 flex items-center justify-center">
@@ -73,7 +73,7 @@ export default function ContactPage() {
 
         {/* Right Side: Form */}
         <div className="w-full md:w-3/5 bg-mitram-grayLight p-10 md:p-16 rounded-t-[2.5rem] md:rounded-l-none md:rounded-r-[2.5rem]">
-          <h2 className="text-4xl md:text-5xl font-bold text-mitram-dark leading-tight mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-mitram-dark leading-tight mb-4">
             Tem alguma dúvida?<br/>Vamos conversar.
           </h2>
           <p className="text-gray-600 mb-10 text-lg">
@@ -87,46 +87,44 @@ export default function ContactPage() {
               </div>
               <h3 className="text-2xl font-bold text-mitram-dark mb-3">Mensagem enviada!</h3>
               <p className="text-gray-600 mb-8">Obrigado pelo seu contato. Retornaremos em breve.</p>
-              <button 
-                onClick={() => setSuccess(false)}
-                className="text-sm font-bold bg-mitram-dark text-white px-8 py-4 rounded-xl hover:bg-black transition-colors"
-              >
+              <button onClick={() => setSuccess(false)} className={buttonClasses("primary", "md")}>
+                <Send size={18} />
                 Enviar outra mensagem
               </button>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="space-y-10">
+            <form onSubmit={handleSubmit} className="space-y-6">
               {error && <div className="text-red-500 text-sm bg-red-50 p-4 rounded-xl border border-red-100">{error}</div>}
               
               <input type="text" name="address_field" className="hidden" tabIndex={-1} autoComplete="off" />
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div>
-                  <input type="text" id="name" name="name" required placeholder="Seu nome" className={inputClasses} />
-                </div>
-                <div>
-                  <input type="email" id="email" name="email" required placeholder="seu@email.com" className={inputClasses} />
-                </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormField label="Seu nome">
+                  <input type="text" id="name" name="name" required placeholder=" " className={fieldClasses()} />
+                </FormField>
+                <FormField label="Seu e-mail">
+                  <input type="email" id="email" name="email" required placeholder=" " className={fieldClasses()} />
+                </FormField>
               </div>
 
-              <div>
-                <input type="tel" id="phone" name="phone" placeholder="Seu telefone (opcional)" className={inputClasses} />
-              </div>
+              <FormField label="Seu telefone (opcional)">
+                <input type="tel" id="phone" name="phone" placeholder=" " className={fieldClasses()} />
+              </FormField>
 
-              <div>
-                <textarea 
-                  id="message" 
-                  name="message" 
-                  rows={1} 
-                  required 
-                  placeholder="Como podemos ajudar?" 
-                  className={`${inputClasses} resize-none`} 
+              <FormField label="Como podemos ajudar?">
+                <textarea
+                  id="message"
+                  name="message"
+                  rows={1}
+                  required
+                  placeholder=" "
+                  className={fieldClasses(false, "resize-none")}
                   onInput={(e) => {
                     e.currentTarget.style.height = 'auto';
                     e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px';
                   }}
                 ></textarea>
-              </div>
+              </FormField>
 
               <div className="pt-2">
                 <p className="text-sm font-semibold text-gray-500 mb-5 uppercase tracking-wider">Qual é o seu interesse principal?</p>
@@ -134,7 +132,7 @@ export default function ContactPage() {
                   {['Comprar imóvel', 'Vender imóvel', 'Avaliação', 'Outros'].map((option) => (
                     <label key={option} className="flex items-center gap-3 cursor-pointer group">
                       <div className="relative flex items-center">
-                        <input type="checkbox" name="interests" value={option} className="w-5 h-5 border-2 border-gray-300 rounded text-mitram-dark focus:ring-mitram-dark focus:ring-offset-mitram-grayLight transition-colors cursor-pointer" />
+                        <input type="checkbox" name="interests" value={option} className={CHECKBOX_CLASSES} />
                       </div>
                       <span className="text-sm font-medium text-gray-700 group-hover:text-mitram-dark transition-colors">{option}</span>
                     </label>
@@ -143,17 +141,14 @@ export default function ContactPage() {
               </div>
 
               <div className="pt-6">
-                <button 
-                  type="submit" 
-                  disabled={loading}
-                  className="w-full py-4 bg-mitram-dark text-white rounded-xl font-bold text-lg hover:bg-black transition-colors disabled:opacity-50 shadow-md hover:shadow-lg"
-                >
+                <button type="submit" disabled={loading} className={buttonClasses("primary", "lg", "w-full")}>
+                  <Send size={20} />
                   {loading ? "Enviando..." : "Enviar Mensagem"}
                 </button>
               </div>
               
               <div className="flex items-start gap-3">
-                <input type="checkbox" id="lgpd-contact" name="consent" required className="mt-1 w-4 h-4 border-2 border-gray-300 rounded text-mitram-dark focus:ring-mitram-dark focus:ring-offset-mitram-grayLight transition-colors cursor-pointer" />
+                <input type="checkbox" id="lgpd-contact" name="consent" required className={`mt-0.5 ${CHECKBOX_CLASSES}`} />
                 <label htmlFor="lgpd-contact" className="text-xs text-gray-500 leading-relaxed">
                   Concordo que meus dados sejam utilizados pela Mitram Imóveis para responder a esta solicitação de acordo com as leis de privacidade.
                 </label>

@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { Check, Cookie } from "lucide-react";
+import { buttonClasses } from "@/components/ui/buttonStyles";
 
 export default function CookieBanner() {
   const [isVisible, setIsVisible] = useState(false);
@@ -34,16 +36,18 @@ export default function CookieBanner() {
           cookies opcionais para análises e melhorias. Você pode escolher quais cookies deseja permitir.
         </div>
         <div className="flex gap-3 w-full md:w-auto">
-          <button 
+          <button
             onClick={acceptEssential}
-            className="flex-1 md:flex-none px-4 py-2 border border-gray-300 rounded text-sm text-gray-700 hover:bg-gray-50 whitespace-nowrap"
+            className={buttonClasses("secondary", "sm", "flex-1 md:flex-none whitespace-nowrap")}
           >
+            <Cookie size={16} />
             Apenas Essenciais
           </button>
-          <button 
+          <button
             onClick={acceptAll}
-            className="flex-1 md:flex-none px-4 py-2 bg-mitram-dark text-white rounded text-sm hover:bg-black whitespace-nowrap font-medium"
+            className={buttonClasses("primary", "sm", "flex-1 md:flex-none whitespace-nowrap")}
           >
+            <Check size={16} />
             Aceitar Todos
           </button>
         </div>

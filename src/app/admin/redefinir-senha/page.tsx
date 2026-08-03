@@ -5,6 +5,9 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import Image from "next/image";
 import Link from "next/link";
+import { Save } from "lucide-react";
+import { buttonClasses } from "@/components/ui/buttonStyles";
+import { FormField, fieldClasses } from "@/components/ui/FormField";
 
 export default function ResetPasswordPage() {
   const [password, setPassword] = useState("");
@@ -82,10 +85,7 @@ export default function ResetPasswordPage() {
         )}
         
         <form onSubmit={handleReset} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-mitram-grayDark mb-1" htmlFor="password">
-              Nova senha
-            </label>
+          <FormField label="Nova senha">
             <input
               id="password"
               type="password"
@@ -93,14 +93,12 @@ export default function ResetPasswordPage() {
               onChange={(e) => setPassword(e.target.value)}
               required
               minLength={6}
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-mitram-gold"
+              placeholder=" "
+              className={fieldClasses()}
             />
-          </div>
+          </FormField>
 
-          <div>
-            <label className="block text-sm font-medium text-mitram-grayDark mb-1" htmlFor="confirmPassword">
-              Confirmar nova senha
-            </label>
+          <FormField label="Confirmar nova senha">
             <input
               id="confirmPassword"
               type="password"
@@ -108,15 +106,17 @@ export default function ResetPasswordPage() {
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
               minLength={6}
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-mitram-gold"
+              placeholder=" "
+              className={fieldClasses()}
             />
-          </div>
-          
+          </FormField>
+
           <button
             type="submit"
             disabled={loading || !!message}
-            className="w-full bg-mitram-dark text-white py-2 px-4 rounded hover:bg-black transition-colors disabled:opacity-50"
+            className={buttonClasses("primary", "md", "w-full")}
           >
+            <Save size={18} />
             {loading ? "Salvando..." : "Salvar nova senha"}
           </button>
         </form>
