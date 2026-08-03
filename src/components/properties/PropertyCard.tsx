@@ -12,7 +12,7 @@ export default function PropertyCard({ property }: { property: any }) {
     : 'Consulte';
 
   return (
-    <div className="group relative bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-xl transition-all duration-300 flex flex-col">
+    <div className="group relative bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 transition-all duration-300 flex flex-col">
       <Link href={`/imovel/${property.slug}`} className="absolute inset-0 z-10">
         <span className="sr-only">Ver imóvel</span>
       </Link>
