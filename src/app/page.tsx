@@ -5,7 +5,7 @@ import FeaturedPropertiesCarousel from "@/components/properties/FeaturedProperti
 import QuickSearch from "@/components/public/QuickSearch";
 import TestimonialsCarousel from "@/components/public/TestimonialsCarousel";
 import { PROPERTY_MEDIA_FIELDS } from "@/lib/properties/queries";
-import { CheckCircle2, ShieldCheck, Headset, Sparkles, ArrowRight } from "lucide-react";
+import { CheckCircle2, Handshake, Compass, MapPinned, LandPlot, ArrowRight } from "lucide-react";
 import { buttonClasses } from "@/components/ui/buttonStyles";
 import { CHECKBOX_CLASSES, FormField, fieldClasses } from "@/components/ui/FormField";
 
@@ -98,10 +98,10 @@ export default async function Home() {
                   ✨ Encontre seu novo lar
                 </span>
                 <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-tight tracking-tight">
-                  Descubra espaços que parecem um <span className="text-mitram-goldLight">lar</span>
+                <span className="text-mitram-goldLight">Viver bem</span> começa com uma escolha segura.
                 </h1>
                 <p className="text-lg md:text-xl text-gray-200 leading-relaxed max-w-xl">
-                  Encontre imóveis selecionados a dedo que combinam perfeitamente com seu estilo de vida e orçamento.
+                Encontre imóveis de qualidade, escolhidos para combinar com o momento da sua família e seus planos com orientação segura em cada etapa.
                 </p>
               </div>
             </div>
@@ -155,38 +155,38 @@ export default async function Home() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <div className="bg-white border border-gray-200 p-6 rounded-2xl flex items-start gap-4">
             <div className="bg-purple-100 text-purple-600 p-3 rounded-xl">
-              <CheckCircle2 size={24} />
+              <Handshake size={24} />
             </div>
             <div>
-              <h3 className="font-bold text-mitram-dark mb-1">Imóveis Verificados</h3>
-              <p className="text-sm text-gray-500 leading-relaxed">Todos os imóveis são verificados para sua paz de espírito.</p>
+              <h3 className="font-bold text-mitram-dark mb-1">Negociação descomplicada</h3>
+              <p className="text-sm text-gray-500 leading-relaxed">Acompanhamento e suporte em todas as etapas da negociação.</p>
             </div>
           </div>
           <div className="bg-white border border-gray-200 p-6 rounded-2xl flex items-start gap-4">
             <div className="bg-blue-100 text-blue-600 p-3 rounded-xl">
-              <ShieldCheck size={24} />
+              <Compass size={24} />
             </div>
             <div>
-              <h3 className="font-bold text-mitram-dark mb-1">Seguro e Confiável</h3>
-              <p className="text-sm text-gray-500 leading-relaxed">Sua segurança é nossa prioridade em cada transação.</p>
+              <h3 className="font-bold text-mitram-dark mb-1">Apoio em cada escolha</h3>
+              <p className="text-sm text-gray-500 leading-relaxed">Recomendações alinhadas ao seu perfil e orçamento.</p>
             </div>
           </div>
           <div className="bg-white border border-gray-200 p-6 rounded-2xl flex items-start gap-4">
             <div className="bg-green-100 text-green-600 p-3 rounded-xl">
-              <Headset size={24} />
+              <MapPinned size={24} />
             </div>
             <div>
-              <h3 className="font-bold text-mitram-dark mb-1">Suporte Completo</h3>
-              <p className="text-sm text-gray-500 leading-relaxed">Nossa equipe está aqui para ajudar você a qualquer momento.</p>
+              <h3 className="font-bold text-mitram-dark mb-1">Imóveis selecionados</h3>
+              <p className="text-sm text-gray-500 leading-relaxed">Imóveis de qualidade em Curitiba e região.</p>
             </div>
           </div>
           <div className="bg-white border border-gray-200 p-6 rounded-2xl flex items-start gap-4">
             <div className="bg-red-100 text-red-600 p-3 rounded-xl">
-              <Sparkles size={24} />
+              <LandPlot size={24} />
             </div>
             <div>
-              <h3 className="font-bold text-mitram-dark mb-1">Melhores Oportunidades</h3>
-              <p className="text-sm text-gray-500 leading-relaxed">Garanta as melhores condições no mercado imobiliário.</p>
+              <h3 className="font-bold text-mitram-dark mb-1">Compra e venda de terrenos</h3>
+              <p className="text-sm text-gray-500 leading-relaxed">Intermediação segura para comprar ou vender terrenos.</p>
             </div>
           </div>
         </div>
@@ -205,12 +205,11 @@ export default async function Home() {
                 POR QUE ESCOLHER A MITRAM
               </div>
               <h2 className="text-3xl md:text-4xl font-bold text-mitram-dark leading-tight">
-                Muito mais que<br />um imóvel
+                  Onde seus planos <br /> encontram espaço.
               </h2>
             </div>
             <p className="text-gray-600 leading-relaxed text-lg">
-              O Grupo Mitram tem como objetivo englobar diversas vertentes do segmento imobiliário. 
-              Trabalhamos com comercialização de imóveis usados, novos ou na planta, focando na sua necessidade e estilo de vida.
+                Seja para construir uma nova fase em família ou investir no futuro, escolher um imóvel exige confiança. Por isso, ouvimos seus planos e ajudamos você a decidir com clareza e segurança.
             </p>
             
             <ul className="space-y-4">
@@ -321,7 +320,7 @@ export default async function Home() {
                   Avaliação Gratuita
                 </div>
                 
-                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-mitram-dark leading-[1.15]">
+                <h2 className="text-3xl md:text-4xl font-bold text-mitram-dark leading-tight">
                   Venda sua casa ou terreno <br className="hidden lg:block"/>
                   com a Mitram
                 </h2>
@@ -372,7 +371,7 @@ export default async function Home() {
             </span>
             Depoimentos
           </div>
-          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-mitram-dark">O que nossos clientes dizem</h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-mitram-dark leading-tight">O que nossos clientes dizem</h2>
           <p className="text-gray-600 text-lg md:text-xl max-w-2xl">
             Veja as histórias reais de quem confiou na Mitram para encontrar o lar perfeito ou realizar um excelente negócio.
           </p>
