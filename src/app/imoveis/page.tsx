@@ -1,9 +1,9 @@
-import { createClient } from "@/lib/supabase/server";
-import PropertyCard from "@/components/properties/PropertyCard";
-import AdvancedFilters from "@/components/public/AdvancedFilters";
-import PropertiesMap from "@/components/maps/PropertiesMap";
-import { PROPERTY_MEDIA_FIELDS } from "@/lib/properties/queries";
+import PropertyCard from "@/features/properties/components/PropertyCard";
+import AdvancedFilters from "@/features/search/components/AdvancedFilters";
+import PropertiesMap from "@/features/properties/components/PropertiesMap";
 import { Suspense } from "react";
+import { PropertyListItem } from "@/features/properties/types";
+import { getFilterLookups, getPublicProperties } from "@/features/properties/queries";
 
 export const dynamic = "force-dynamic";
 
@@ -12,132 +12,8 @@ export default async function ImoveisPage({
 }: {
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
-  const supabase = createClient();
-
-  // Load locations for Filters
-  const [
-    { data: propertyTypes },
-    { data: cities },
-    { data: neighborhoods },
-    { data: features },
-  ] = await Promise.all([
-    supabase.from("property_types").select("id, name").eq("active", true),
-    supabase.from("cities").select("id, name").eq("active", true),
-    supabase.from("neighborhoods").select("id, city_id, name").eq("active", true),
-    supabase.from("features").select("id, name").eq("active", true),
-  ]);
-
-  const selectedFeatureIds = searchParams.features
-    ? (Array.isArray(searchParams.features)
-        ? searchParams.features
-        : searchParams.features.split(","))
-    : [];
-
-  let propertyIdsWithSelectedFeatures: string[] | null = null;
-  if (selectedFeatureIds.length > 0) {
-    const { data: matchingFeatures } = await supabase
-      .from("property_features")
-      .select("property_id")
-      .in("feature_id", selectedFeatureIds);
-
-    propertyIdsWithSelectedFeatures = Array.from(
-      new Set((matchingFeatures || []).map(({ property_id }) => property_id)),
-    );
-  }
-
-  // Build Query based on searchParams
-  let query = supabase
-    .from("properties")
-    .select(`
-      id,
-      title,
-      slug,
-      price,
-      purpose,
-      status,
-      total_area,
-      bedrooms,
-      suites,
-      bathrooms,
-      parking_spaces,
-      latitude,
-      longitude,
-      property_types (name),
-      neighborhoods (name, cities (name)),
-      ${PROPERTY_MEDIA_FIELDS}
-    `)
-    .in("status", ["published", "sold", "rented"]);
-
-  if (searchParams.type) {
-    const types = Array.isArray(searchParams.type) ? searchParams.type : searchParams.type.split(',');
-    query = query.in("property_type_id", types);
-  }
-  if (searchParams.city) {
-    const cityIds = Array.isArray(searchParams.city) ? searchParams.city : searchParams.city.split(',');
-    query = query.in("city_id", cityIds);
-  }
-  if (searchParams.neighborhood) {
-    const neighborhoodIds = Array.isArray(searchParams.neighborhood) ? searchParams.neighborhood : searchParams.neighborhood.split(',');
-    query = query.in("neighborhood_id", neighborhoodIds);
-  }
-  if (searchParams.purpose) {
-    query = query.eq("purpose", searchParams.purpose);
-  }
-  if (searchParams.bedrooms) {
-    query = query.gte("bedrooms", parseInt(searchParams.bedrooms as string));
-  }
-  if (searchParams.suites) {
-    query = query.gte("suites", parseInt(searchParams.suites as string));
-  }
-  if (searchParams.parking_spaces) {
-    query = query.gte("parking_spaces", parseInt(searchParams.parking_spaces as string));
-  }
-  if (searchParams.min_price) {
-    query = query.gte("price", parseFloat(searchParams.min_price as string));
-  }
-  if (searchParams.max_price) {
-    query = query.lte("price", parseFloat(searchParams.max_price as string));
-  }
-  if (searchParams.min_area) {
-    query = query.gte("total_area", parseFloat(searchParams.min_area as string));
-  }
-  if (searchParams.max_area) {
-    query = query.lte("total_area", parseFloat(searchParams.max_area as string));
-  }
-  if (propertyIdsWithSelectedFeatures) {
-    query = query.in(
-      "id",
-      propertyIdsWithSelectedFeatures.length > 0
-        ? propertyIdsWithSelectedFeatures
-        : ["00000000-0000-0000-0000-000000000000"],
-    );
-  }
-
-  // Order
-  const order = (searchParams.order as string) || "recentes";
-  switch (order) {
-    case "menor_preco":
-      query = query.order("price", { ascending: true, nullsFirst: false });
-      break;
-    case "maior_preco":
-      query = query.order("price", { ascending: false, nullsFirst: false });
-      break;
-    case "maior_area":
-      query = query.order("total_area", { ascending: false, nullsFirst: false });
-      break;
-    default:
-      query = query.order("created_at", { ascending: false });
-      break;
-  }
-
-  // Limit for MVP, ideally use pagination
-  query = query.limit(50);
-
-  const { data: properties, error } = await query;
-
-  if (error) {
-    console.error(error);
-  }
+  const lookups = await getFilterLookups();
+  const properties = await getPublicProperties(searchParams);
 
   const isMapView = searchParams.view === 'map';
 
@@ -156,10 +32,10 @@ export default async function ImoveisPage({
         <div className="mb-10">
           <Suspense fallback={<div>Carregando filtros...</div>}>
             <AdvancedFilters 
-              types={propertyTypes || []} 
-              cities={cities || []} 
-              neighborhoods={neighborhoods || []}
-              features={features || []}
+              types={lookups.propertyTypes} 
+              cities={lookups.cities} 
+              neighborhoods={lookups.neighborhoods}
+              features={lookups.features}
             />
           </Suspense>
         </div>

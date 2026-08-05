@@ -1,0 +1,59 @@
+import Image from "next/image";
+import Link from "next/link";
+import { CheckCircle2, ArrowRight } from "lucide-react";
+import { buttonClasses } from "@/components/ui/buttonStyles";
+import { SectionEyebrow } from "./SectionEyebrow";
+
+export function AboutSection() {
+  return (
+    <section className="container mx-auto px-4 mb-24">
+      <div className="flex flex-col lg:flex-row items-center gap-16">
+        <div className="flex-1 space-y-8">
+          <div>
+            <SectionEyebrow>POR QUE ESCOLHER A MITRAM</SectionEyebrow>
+            <h2 className="text-3xl md:text-4xl font-bold text-mitram-dark leading-tight">
+                Onde seus planos <br /> encontram espaço.
+            </h2>
+          </div>
+          <p className="text-gray-600 leading-relaxed text-lg">
+              Seja para construir uma nova fase em família ou investir no futuro, escolher um imóvel exige confiança. Por isso, ouvimos seus planos e ajudamos você a decidir com clareza e segurança.
+          </p>
+          
+          <ul className="space-y-4">
+            {[
+              "Ampla variedade de opções premium",
+              "Condições flexíveis e processos transparentes",
+              "Recomendações personalizadas para você",
+              "Confiado por centenas de clientes felizes"
+            ].map((item, i) => (
+              <li key={i} className="flex items-center gap-3">
+                <div className="bg-mitram-gold/20 p-1 rounded-full">
+                  <CheckCircle2 size={18} className="text-mitram-gold" />
+                </div>
+                <span className="text-mitram-dark font-medium">{item}</span>
+              </li>
+            ))}
+          </ul>
+
+          <div className="pt-4">
+            <Link href="/contato" className={buttonClasses("primary", "lg")}>
+              Saiba Mais
+              <ArrowRight size={18} />
+            </Link>
+          </div>
+        </div>
+        
+        <div className="flex-1 w-full">
+          <div className="relative h-[500px] md:h-[600px] w-full rounded-[2rem] overflow-hidden shadow-2xl">
+            <Image 
+              src="/images/garden-garage-entrance.png" 
+              alt="Interior Moderno" 
+              fill 
+              className="object-cover"
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}

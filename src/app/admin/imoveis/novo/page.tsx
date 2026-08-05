@@ -1,19 +1,17 @@
-import PropertyForm from "@/components/admin/PropertyForm";
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import PropertyForm from "@/features/admin/properties/components/PropertyForm";
+import { AdminPageHeader } from "@/features/admin/components/AdminPageHeader";
+import { BackLink } from "@/features/admin/components/BackLink";
+import { getPropertyFormLookups } from "@/features/admin/properties/queries";
 
-export default function NewPropertyPage() {
+export default async function NewPropertyPage() {
+  const lookups = await getPropertyFormLookups();
   return (
     <div className="max-w-6xl mx-auto pb-12">
-      <div className="mb-6">
-        <Link href="/admin/imoveis" className="text-gray-500 hover:text-mitram-dark inline-flex items-center gap-1 text-sm font-medium">
-          <ArrowLeft size={16} />
-          Voltar para imóveis
-        </Link>
-        <h1 className="text-2xl font-bold text-mitram-dark mt-2">Novo Imóvel</h1>
-      </div>
+      <AdminPageHeader title="Novo Imóvel">
+        <BackLink href="/admin/imoveis" label="Voltar para imóveis" />
+      </AdminPageHeader>
       
-      <PropertyForm />
+      <PropertyForm lookups={lookups} />
     </div>
   );
 }

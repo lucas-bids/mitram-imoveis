@@ -1,11 +1,5 @@
 import { describe, it, expect } from 'vitest';
-
-function generateSlug(title: string) {
-  return title.toLowerCase()
-    .replace(/[^\w\s-]/g, '')
-    .replace(/[\s_-]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-}
+import { generateSlug } from '@/features/admin/properties/slug';
 
 describe('Utils', () => {
   it('should generate a valid slug', () => {

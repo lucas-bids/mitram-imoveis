@@ -1,14 +1,15 @@
-import PropertyForm from "@/components/admin/PropertyForm";
+import PropertyForm from "@/features/admin/properties/components/PropertyForm";
 import { createClient } from "@/lib/supabase/server";
-import { PROPERTY_MEDIA_ALL } from "@/lib/properties/queries";
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { PROPERTY_MEDIA_ALL } from "@/features/properties/queries";
 import { notFound } from "next/navigation";
+import { AdminPageHeader } from "@/features/admin/components/AdminPageHeader";
+import { BackLink } from "@/features/admin/components/BackLink";
+import { getPropertyFormLookups } from "@/features/admin/properties/queries";
 
 export default async function EditPropertyPage({ params }: { params: { id: string } }) {
   const supabase = createClient();
   
-  const { data: property, error } = await supabase
+  const { data: propertyData, error } = await supabase
     .from("properties")
     .select(`
       *,
@@ -17,21 +18,21 @@ export default async function EditPropertyPage({ params }: { params: { id: strin
     .eq("id", params.id)
     .single();
 
+  const property = propertyData as any;
+
   if (error || !property) {
     notFound();
   }
 
+  const lookups = await getPropertyFormLookups();
+
   return (
     <div className="max-w-6xl mx-auto pb-12">
-      <div className="mb-6">
-        <Link href="/admin/imoveis" className="text-gray-500 hover:text-mitram-dark inline-flex items-center gap-1 text-sm font-medium">
-          <ArrowLeft size={16} />
-          Voltar para imóveis
-        </Link>
-        <h1 className="text-2xl font-bold text-mitram-dark mt-2">Editar Imóvel: {property.internal_code}</h1>
-      </div>
+      <AdminPageHeader title={`Editar Imóvel: ${property.internal_code}`}>
+        <BackLink href="/admin/imoveis" label="Voltar para imóveis" />
+      </AdminPageHeader>
       
-      <PropertyForm initialData={property} isEdit={true} />
+      <PropertyForm initialData={property} isEdit={true} lookups={lookups} />
     </div>
   );
 }
