@@ -188,7 +188,7 @@ export default function PropertyForm({ initialData, isEdit = false, lookups }: P
 
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="divide-y divide-gray-200 rounded-lg bg-white shadow-sm"
+        className="rounded-lg bg-white"
       >
         <FormSection
           id="informacoes"

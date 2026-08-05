@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { LogoutButton } from "@/features/admin/components/LogoutButton";
 
@@ -9,18 +8,9 @@ export default function AdminDashboardLayout({
 }) {
   return (
     <div className="min-h-screen bg-mitram-grayLight flex flex-col">
-      <header className="bg-mitram-dark text-mitram-white shadow-md sticky top-0 z-50">
+      <header className="sticky top-20 z-40 bg-mitram-dark text-mitram-white shadow-md">
         <div className="container mx-auto px-4 py-3 flex justify-between items-center">
           <div className="flex items-center gap-6">
-            <Link href="/admin/imoveis">
-              <Image
-                src="/images/mitram-full-branco.png"
-                alt="Mitram Imóveis"
-                width={120}
-                height={30}
-                className="h-8 w-auto"
-              />
-            </Link>
             <nav className="hidden md:flex space-x-4">
               <Link
                 href="/admin/imoveis"
