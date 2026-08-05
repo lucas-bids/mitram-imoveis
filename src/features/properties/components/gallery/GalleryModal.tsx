@@ -1,5 +1,4 @@
 import { X } from "lucide-react";
-// eslint-disable-next-line @next/next/no-img-element
 
 interface GalleryModalProps {
   isOpen: boolean;
@@ -12,31 +11,34 @@ export function GalleryModal({ isOpen, images, onClose, onOpenLightbox }: Galler
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-white overflow-y-auto">
-      <div className="sticky top-0 bg-white/90 backdrop-blur-md px-6 py-4 flex justify-between items-center border-b z-10">
-        <h2 className="text-xl font-bold text-mitram-dark">Todas as Fotos ({images.length})</h2>
-        <button 
+    <div className="fixed inset-0 z-50 bg-white flex flex-col">
+      <div className="flex items-center justify-between p-4 border-b bg-white sticky top-0 z-10">
+        <h2 className="text-lg font-bold text-mitram-dark">Galeria de Fotos</h2>
+        <button
           onClick={onClose}
-          className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+          className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
         >
-          <X size={24} />
+          <X size={24} className="text-mitram-dark" />
         </button>
       </div>
-      <div className="p-4 md:p-8">
-        <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 space-y-4">
+
+      <div className="flex-1 overflow-y-auto p-4 md:p-8">
+        <div className="max-w-6xl mx-auto columns-2 gap-4 md:gap-6 space-y-4 md:space-y-6">
           {images.map((img, index) => (
-            <div 
-              key={index} 
-              className="relative break-inside-avoid rounded-xl overflow-hidden cursor-pointer group"
+            <div
+              key={index}
+              className="break-inside-avoid relative rounded-xl overflow-hidden cursor-pointer group"
               onClick={() => onOpenLightbox(index)}
             >
+              {/* Native img keeps the natural aspect ratio the masonry columns rely on */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img 
-                src={img.public_url} 
-                alt={`Imagem ${index + 1}`} 
+              <img
+                src={img.public_url}
+                alt={`Imagem ${index + 1}`}
                 className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-500"
                 loading="lazy"
               />
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
             </div>
           ))}
         </div>

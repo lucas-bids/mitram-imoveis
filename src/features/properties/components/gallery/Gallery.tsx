@@ -12,7 +12,7 @@ interface GalleryProps {
 }
 
 export default function Gallery({ media }: GalleryProps) {
-  const images = media;
+  const images = media.filter((m) => m.media_type === "image");
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);

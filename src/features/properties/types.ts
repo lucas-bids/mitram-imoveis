@@ -1,5 +1,6 @@
 export type PropertyPurpose = 'sale' | 'rent';
 export type PropertyStatus = 'draft' | 'published' | 'archived' | 'sold' | 'rented' | 'trashed';
+export type MediaType = 'image' | 'floorplan_image' | 'floorplan_pdf';
 
 export type PropertyMedia = {
   id: string;
@@ -7,6 +8,8 @@ export type PropertyMedia = {
   is_cover: boolean;
   sort_order: number;
   storage_path?: string;
+  // Absent on list queries, which only select a subset of the media columns
+  media_type?: MediaType;
 };
 
 // Represents what is returned by the list query

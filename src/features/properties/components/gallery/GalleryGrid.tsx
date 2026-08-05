@@ -57,37 +57,30 @@ export function GalleryGrid({ images, onOpenModal }: GalleryGridProps) {
 
   // 4 or more
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-4 h-[400px] md:h-[500px]">
-      <div className="md:col-span-2 md:row-span-2 relative w-full h-full rounded-l-2xl md:rounded-2xl overflow-hidden cursor-pointer group" onClick={onOpenModal}>
-        <Image src={getImgUrl(0)} alt="Imagem 1" fill className="object-cover group-hover:scale-105 transition-transform duration-500" priority />
-      </div>
-      
-      <div className="relative w-full h-full rounded-2xl overflow-hidden cursor-pointer group hidden md:block" onClick={onOpenModal}>
-        <Image src={getImgUrl(1)} alt="Imagem 2" fill className="object-cover group-hover:scale-105 transition-transform duration-500" priority />
-      </div>
-      
-      <div className="relative w-full h-full rounded-r-2xl md:rounded-2xl overflow-hidden cursor-pointer group hidden md:block" onClick={onOpenModal}>
-        <Image src={getImgUrl(2)} alt="Imagem 3" fill className="object-cover group-hover:scale-105 transition-transform duration-500" priority />
-      </div>
-      
-      <div className="relative w-full h-full rounded-2xl overflow-hidden cursor-pointer group hidden md:block" onClick={onOpenModal}>
-        <Image src={getImgUrl(3)} alt="Imagem 4" fill className="object-cover group-hover:scale-105 transition-transform duration-500" priority />
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-[400px] md:h-[500px]">
+      <div className="relative w-full h-full rounded-2xl overflow-hidden cursor-pointer group" onClick={onOpenModal}>
+        <Image src={getImgUrl(0)} alt="Imagem 1" fill className="object-cover group-hover:scale-105 transition-transform duration-500" priority sizes="(max-width: 768px) 100vw, 50vw" />
       </div>
 
-      {images.length > 5 ? (
-        <div className="relative w-full h-full rounded-2xl overflow-hidden cursor-pointer group hidden md:block" onClick={onOpenModal}>
-          <Image src={getImgUrl(4)} alt="Imagem 5" fill className="object-cover group-hover:scale-105 transition-transform duration-500" priority />
-          <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-            <span className="text-white text-xl font-bold">+{images.length - 5}</span>
+      <div className="hidden md:grid grid-rows-2 gap-4 h-full">
+        <div className="relative w-full h-full rounded-2xl overflow-hidden cursor-pointer group" onClick={onOpenModal}>
+          <Image src={getImgUrl(1)} alt="Imagem 2" fill className="object-cover group-hover:scale-105 transition-transform duration-500" priority sizes="50vw" />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4 h-full">
+          <div className="relative w-full h-full rounded-2xl overflow-hidden cursor-pointer group" onClick={onOpenModal}>
+            <Image src={getImgUrl(2)} alt="Imagem 3" fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="25vw" />
+          </div>
+          <div className="relative w-full h-full rounded-2xl overflow-hidden cursor-pointer group" onClick={onOpenModal}>
+            <Image src={getImgUrl(3)} alt="Imagem 4" fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="25vw" />
+            {images.length > 4 && (
+              <div className="absolute inset-0 bg-black/40 flex items-center justify-center transition-colors group-hover:bg-black/50">
+                <span className="text-white text-2xl font-bold">+{images.length - 4}</span>
+              </div>
+            )}
           </div>
         </div>
-      ) : images.length === 5 ? (
-        <div className="relative w-full h-full rounded-2xl overflow-hidden cursor-pointer group hidden md:block" onClick={onOpenModal}>
-          <Image src={getImgUrl(4)} alt="Imagem 5" fill className="object-cover group-hover:scale-105 transition-transform duration-500" priority />
-        </div>
-      ) : (
-        <div className="hidden md:block"></div>
-      )}
+      </div>
     </div>
   );
 }
