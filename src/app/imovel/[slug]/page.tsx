@@ -1,21 +1,25 @@
-import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
-import Image from "next/image";
-import Gallery from "@/components/properties/Gallery";
-import PropertyCard from "@/components/properties/PropertyCard";
-import SchedulingForm from "@/components/forms/SchedulingForm";
-import PropertiesMap from "@/components/maps/PropertiesMap";
-import { PROPERTY_MEDIA_ALL, PROPERTY_MEDIA_FIELDS } from "@/lib/properties/queries";
-import { Bed, Bath, Car, Square, MapPin, Check, ExternalLink, CalendarCheck, MessageCircle, Search } from "lucide-react";
-import Link from "next/link";
 import { Metadata } from "next";
-import { buttonClasses, buttonShapeClasses } from "@/components/ui/buttonStyles";
+import { getPropertyBySlug, getPropertyMetaBySlug, getSimilarProperties } from "@/features/properties/queries";
+import Gallery from "@/features/properties/components/gallery/Gallery";
+import SchedulingForm from "@/features/contact/components/SchedulingForm";
+import PropertiesMap from "@/features/properties/components/PropertiesMap";
+import { MessageCircle } from "lucide-react";
+import { buttonShapeClasses } from "@/components/ui/buttonStyles";
+
+import { PropertyJsonLd } from "@/features/properties/components/detail/PropertyJsonLd";
+import { PropertyHeading } from "@/features/properties/components/detail/PropertyHeading";
+import { PropertySummary } from "@/features/properties/components/detail/PropertySummary";
+import { PropertyFeatures } from "@/features/properties/components/detail/PropertyFeatures";
+import { PropertyMediaLinks } from "@/features/properties/components/detail/PropertyMediaLinks";
+import { PropertyPriceCard } from "@/features/properties/components/detail/PropertyPriceCard";
+import { PropertySimilar } from "@/features/properties/components/detail/PropertySimilar";
+import { SearchCta } from "@/features/properties/components/detail/SearchCta";
 
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const supabase = createClient();
-  const { data: property } = await supabase.from("properties").select("title, description").eq("slug", params.slug).single();
+  const property = await getPropertyMetaBySlug(params.slug);
   
   if (!property) return { title: "Imóvel não encontrado | Mitram Imóveis" };
 
@@ -26,152 +30,37 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 }
 
 export default async function PropertyDetailsPage({ params }: { params: { slug: string } }) {
-  const supabase = createClient();
+  const property = await getPropertyBySlug(params.slug);
 
-  const { data: property, error } = await supabase
-    .from("properties")
-    .select(`
-      *,
-      property_types (name),
-      neighborhoods (name, cities (name, state)),
-      ${PROPERTY_MEDIA_ALL},
-      property_features (features (name))
-    `)
-    .eq("slug", params.slug)
-    .in("status", ["published", "sold", "rented"])
-    .single();
-
-  if (error || !property) {
+  if (!property) {
     notFound();
   }
 
   // Similar properties
-  const { data: similarProperties } = await supabase
-    .from("properties")
-    .select(`
-      id, title, slug, price, purpose, status, total_area, bedrooms, suites, bathrooms, parking_spaces,
-      property_types (name),
-      neighborhoods (name, cities (name)),
-      ${PROPERTY_MEDIA_FIELDS}
-    `)
-    .in("status", ["published", "sold", "rented"])
-    .eq("property_type_id", property.property_type_id)
-    .eq("purpose", property.purpose)
-    .neq("id", property.id)
-    .limit(3);
+  const similarProperties = await getSimilarProperties({
+    id: property.id,
+    property_type_id: property.property_type_id || "",
+    purpose: property.purpose
+  });
 
   const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "5541996787173";
   const propertyUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/imovel/${property.slug}`;
   const whatsappMessage = encodeURIComponent(`Olá, gostaria de saber mais sobre o imóvel: ${property.title}. Link: ${propertyUrl}`);
   const whatsappLink = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
 
-  const priceFormatted = property.price 
-    ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(property.price)
-    : 'Consulte';
-
   return (
     <div className="bg-mitram-grayLight min-h-screen">
-      {/* Schema.org JSON-LD */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "RealEstateListing",
-            "name": property.title,
-            "description": property.description,
-            "url": propertyUrl,
-            "offers": {
-              "@type": "Offer",
-              "price": property.price,
-              "priceCurrency": "BRL"
-            }
-          })
-        }}
-      />
+      <PropertyJsonLd property={property} propertyUrl={propertyUrl} />
 
       <div className="container mx-auto px-4 py-8">
-        {/* Gallery at the top */}
         <div className="mb-8">
           <Gallery media={property.property_media?.sort((a: any, b: any) => a.sort_order - b.sort_order) || []} />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-8">
-            {/* Title and Location */}
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <span className="bg-mitram-dark text-white text-xs font-semibold px-2 py-1 rounded">
-                  {property.purpose === 'sale' ? 'Venda' : 'Aluguel'}
-                </span>
-                <span className="bg-gray-200 text-gray-800 text-xs font-semibold px-2 py-1 rounded">
-                  {property.property_types?.name}
-                </span>
-                {property.status === 'sold' && <span className="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded">VENDIDO</span>}
-                {property.status === 'rented' && <span className="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded">ALUGADO</span>}
-              </div>
-              <h1 className="text-3xl font-bold text-mitram-dark mb-2">{property.title}</h1>
-              <p className="text-gray-600 flex items-center gap-1">
-                <MapPin size={18} />
-                {property.street && `${property.street}, `}
-                {property.number && `${property.number} - `}
-                {property.neighborhoods?.name}, {property.neighborhoods?.cities?.name} - {property.neighborhoods?.cities?.state}
-              </p>
-            </div>
-
-            <div className="bg-white p-6 rounded-xl shadow-sm">
-              <h2 className="text-lg font-bold text-mitram-dark mb-4">Resumo</h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {property.total_area && (
-                  <div>
-                    <p className="text-gray-500 text-sm">Área Total</p>
-                    <p className="font-semibold flex items-center gap-1"><Square size={16} /> {property.total_area} m²</p>
-                  </div>
-                )}
-                {property.private_area && (
-                  <div>
-                    <p className="text-gray-500 text-sm">Área Útil</p>
-                    <p className="font-semibold flex items-center gap-1"><Square size={16} /> {property.private_area} m²</p>
-                  </div>
-                )}
-                {property.bedrooms > 0 && (
-                  <div>
-                    <p className="text-gray-500 text-sm">Quartos</p>
-                    <p className="font-semibold flex items-center gap-1"><Bed size={16} /> {property.bedrooms}</p>
-                  </div>
-                )}
-                {property.suites > 0 && (
-                  <div>
-                    <p className="text-gray-500 text-sm">Suítes</p>
-                    <p className="font-semibold flex items-center gap-1"><Bath size={16} /> {property.suites}</p>
-                  </div>
-                )}
-                {property.bathrooms > 0 && (
-                  <div>
-                    <p className="text-gray-500 text-sm">Banheiros</p>
-                    <p className="font-semibold flex items-center gap-1"><Bath size={16} /> {property.bathrooms}</p>
-                  </div>
-                )}
-                {property.parking_spaces > 0 && (
-                  <div>
-                    <p className="text-gray-500 text-sm">Vagas</p>
-                    <p className="font-semibold flex items-center gap-1"><Car size={16} /> {property.parking_spaces}</p>
-                  </div>
-                )}
-                {property.floor && (
-                  <div>
-                    <p className="text-gray-500 text-sm">Andar</p>
-                    <p className="font-semibold">{property.floor}º</p>
-                  </div>
-                )}
-                {property.furnished && (
-                  <div>
-                    <p className="text-gray-500 text-sm">Mobiliado</p>
-                    <p className="font-semibold">Sim</p>
-                  </div>
-                )}
-              </div>
-            </div>
+            <PropertyHeading property={property} />
+            <PropertySummary property={property} />
 
             <div className="bg-white p-6 rounded-lg shadow-sm">
               <h2 className="text-lg font-bold text-mitram-dark mb-4">Descrição</h2>
@@ -180,69 +69,22 @@ export default async function PropertyDetailsPage({ params }: { params: { slug: 
               </div>
             </div>
 
-            {property.property_features && property.property_features.length > 0 && (
-              <div className="bg-white p-6 rounded-lg shadow-sm">
-                <h2 className="text-lg font-bold text-mitram-dark mb-4">Características</h2>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-y-3">
-                  {property.property_features.map((pf: any, index: number) => (
-                    <div key={index} className="flex items-center gap-2 text-gray-700">
-                      <Check size={18} className="text-mitram-gold" />
-                      {pf.features.name}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Video & Virtual Tour */}
-            {(property.youtube_url || property.virtual_tour_url) && (
-              <div className="bg-white p-6 rounded-lg shadow-sm">
-                <h2 className="text-lg font-bold text-mitram-dark mb-4">Mídia</h2>
-                <div className="flex gap-4 flex-wrap">
-                  {property.youtube_url && (
-                    <a href={property.youtube_url} target="_blank" rel="noopener noreferrer" className={buttonShapeClasses("md", "bg-red-600 text-white shadow-md hover:bg-red-700")}>
-                      <ExternalLink size={18} /> Ver Vídeo no YouTube
-                    </a>
-                  )}
-                  {property.virtual_tour_url && (
-                    <a href={property.virtual_tour_url} target="_blank" rel="noopener noreferrer" className={buttonClasses("primary", "md")}>
-                      <ExternalLink size={18} /> Abrir Tour Virtual
-                    </a>
-                  )}
-                </div>
-              </div>
-            )}
+            <PropertyFeatures property={property} />
+            <PropertyMediaLinks property={property} />
 
             {property.latitude && property.longitude && (
               <div className="bg-white p-6 rounded-lg shadow-sm">
                 <h2 className="text-lg font-bold text-mitram-dark mb-4">Localização</h2>
                 <div className="h-[400px] w-full rounded overflow-hidden border">
-                  <PropertiesMap properties={[property]} />
+                  <PropertiesMap properties={[property as any]} />
                 </div>
               </div>
             )}
-
           </div>
 
           <div className="lg:col-span-1">
             <div className="sticky top-24 space-y-6">
-              {/* Price Card */}
-              <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                <p className="text-sm text-gray-500 mb-1">Preço Total</p>
-                <p className="text-3xl font-bold text-mitram-dark mb-4">{priceFormatted}</p>
-                {property.condominium_fee && <p className="text-sm text-gray-500">Condomínio: R$ {property.condominium_fee}</p>}
-                {property.iptu && <p className="text-sm text-gray-500 mb-4">IPTU: R$ {property.iptu}</p>}
-                
-                <a
-                  href={whatsappLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={buttonClasses("primary", "md", "w-full")}
-                >
-                  <CalendarCheck size={18} />
-                  Agendar Visita
-                </a>
-              </div>
+              <PropertyPriceCard property={property} whatsappLink={whatsappLink} />
 
               <a
                 href={whatsappLink}
@@ -262,42 +104,8 @@ export default async function PropertyDetailsPage({ params }: { params: { slug: 
           </div>
         </div>
 
-        {similarProperties && similarProperties.length > 0 && (
-          <div className="mt-16">
-            <h2 className="text-xl font-bold text-mitram-dark mb-6">Imóveis Semelhantes</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {similarProperties.map((prop) => (
-                <PropertyCard key={prop.id} property={prop} />
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* CTA Section */}
-        <section className="mt-20 mb-8">
-          <div className="relative w-full rounded-[2.5rem] overflow-hidden">
-            <Image 
-              src="/images/bicicleta-parque.jpg" 
-              alt="Encontre o Imóvel Perfeito" 
-              fill 
-              className="object-cover"
-            />
-            <div className="absolute inset-0 bg-mitram-dark/50 z-10" />
-            
-            <div className="relative z-20 flex flex-col items-center justify-center px-4 py-24 md:py-32 text-center">
-              <h2 className="text-2xl md:text-4xl font-bold text-white mb-4">
-                Encontre o Imóvel Perfeito com a Mitram
-              </h2>
-              <p className="text-lg text-gray-200 max-w-2xl mb-8">
-                Procurando a casa dos seus sonhos? A Mitram torna a busca por imóveis fácil e sem estresse! Com nossa plataforma amigável e corretores especialistas.
-              </p>
-              <Link href="/imoveis" className={buttonClasses("inverse", "lg")}>
-                <Search size={18} />
-                Comece sua Busca
-              </Link>
-            </div>
-          </div>
-        </section>
+        <PropertySimilar properties={similarProperties} />
+        <SearchCta />
       </div>
     </div>
   );

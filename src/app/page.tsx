@@ -1,133 +1,30 @@
-import Image from "next/image";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
-import FeaturedPropertiesCarousel from "@/components/properties/FeaturedPropertiesCarousel";
-import QuickSearch from "@/components/public/QuickSearch";
-import TestimonialsCarousel from "@/components/public/TestimonialsCarousel";
-import { PROPERTY_MEDIA_FIELDS } from "@/lib/properties/queries";
-import { CheckCircle2, Handshake, Compass, MapPinned, LandPlot, ArrowRight } from "lucide-react";
-import { buttonClasses } from "@/components/ui/buttonStyles";
-import { CHECKBOX_CLASSES, FormField, fieldClasses } from "@/components/ui/FormField";
-
-const TESTIMONIALS = [
-  {
-    text: "Hoje estamos realizados com o apartamento dos sonhos e isso com o suporte dos profissionais que nos atenderam e souberam escutar nossas necessidades e entender quais nossas expectativas.",
-    author: "Isabely & Jean",
-    type: "Apartamento comprado",
-    image: "/images/testimonials/jean-300x297-1.png",
-  },
-  {
-    text: "Estou muito satisfeita com minha compra através da Cansei de Aluguel, fui atendida por uma equipe muito atenciosa e prestativa que me ajudaram em todos os detalhes do processo, eu super indico essa Imobiliária!",
-    author: "Cristiane",
-    type: "Apartamento comprado",
-    image: "/images/testimonials/cristiane-300x291-1.jpeg",
-  },
-  {
-    text: "Desde o início a equipe foi super atenciosa e me auxiliou no processo de avaliação da Caixa e na escolha do imóvel. O Marcos, corretor que me atendeu, estava sempre de prontidão e manteve a negociação sempre transparente! Nota 10!",
-    author: "Lucas Vidal",
-    type: "Casa comprada",
-    image: "/images/testimonials/lucas.jpg",
-  },
-  {
-    text: "Além de uma experiência incrível por ser uma conquista pessoal. Eles fizeram ser algo ainda mais legal, porque me atenderam super bem, sempre muito atenciosos e cuidadosos. Não posso deixar de falar que o café deles é ótimo! Foi uma experiência lindaaa! Obrigada!",
-    author: "Suelym",
-    type: "Casa comprada",
-    image: "/images/testimonials/suelyn-300x300-1.png",
-  },
-  {
-    text: "Agradeço imensamente à dedicação e paciência do Guima e do Bruno, que sonharam comigo, e me ajudaram nessa grande conquista de ter meu apartamento.",
-    author: "Daiane",
-    type: "Apartamento comprado",
-    image: "/images/testimonials/daiane-300x300-1.jpeg",
-  },
-];
+import FeaturedPropertiesCarousel from "@/features/properties/components/FeaturedPropertiesCarousel";
+import QuickSearch from "@/features/search/components/QuickSearch";
+import { ArrowRight } from "lucide-react";
+import { PropertyListItem } from "@/features/properties/types";
+import { getFeaturedProperties, getFilterLookups } from "@/features/properties/queries";
+import { HeroSection } from "@/features/home/components/HeroSection";
+import { ValuePropositions } from "@/features/home/components/ValuePropositions";
+import { AboutSection } from "@/features/home/components/AboutSection";
+import { ValuationCta } from "@/features/home/components/ValuationCta";
+import { TestimonialsSection } from "@/features/home/components/TestimonialsSection";
 
 export const revalidate = 3600; // revalidate every hour
 
 export default async function Home() {
-  const supabase = createClient();
-  
-  // Fetch featured properties
-  const { data: featuredProperties } = await supabase
-    .from("properties")
-    .select(`
-      id,
-      title,
-      slug,
-      price,
-      purpose,
-      status,
-      total_area,
-      bedrooms,
-      suites,
-      bathrooms,
-      parking_spaces,
-      property_types (name),
-      neighborhoods (name, cities (name)),
-      ${PROPERTY_MEDIA_FIELDS}
-    `)
-    .in("status", ["published", "sold", "rented"])
-    .eq("featured", true)
-    .order("created_at", { ascending: false })
-    .limit(6);
-
-  // Load locations for Quick Search
-  const { data: propertyTypes } = await supabase.from("property_types").select("id, name").eq("active", true);
-  const { data: cities } = await supabase.from("cities").select("id, name").eq("active", true);
-  const { data: neighborhoods } = await supabase.from("neighborhoods").select("id, city_id, name").eq("active", true);
+  const featuredProperties = await getFeaturedProperties();
+  const lookups = await getFilterLookups();
 
   return (
     <div className="flex flex-col min-h-screen bg-mitram-white">
       
       {/* Hero Section */}
-      <section className="relative px-4 pt-4 pb-20 lg:pb-32">
-        <div className="container mx-auto">
-          <div className="relative h-[650px] w-full rounded-[2.5rem] overflow-hidden">
-            <Image 
-              src="/images/hero-image.jpg" 
-              alt="Imóveis Modernos Mitram" 
-              fill 
-              className="object-cover"
-              priority
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-mitram-dark/80 via-mitram-dark/50 to-transparent z-10" />
-            
-            <div className="absolute inset-0 z-20 flex flex-col justify-center px-8 md:px-16 lg:px-24">
-              <div className="max-w-2xl space-y-6">
-                <span className="inline-block py-1.5 px-4 rounded-full bg-mitram-gold/20 text-mitram-goldLight text-sm font-semibold backdrop-blur-md border border-mitram-gold/30">
-                  ✨ Encontre seu novo lar
-                </span>
-                <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-tight tracking-tight">
-                <span className="text-mitram-goldLight">Viver bem</span> começa com uma escolha segura.
-                </h1>
-                <p className="text-lg md:text-xl text-gray-200 leading-relaxed max-w-xl">
-                Encontre imóveis de qualidade, escolhidos para combinar com o momento da sua família e seus planos com orientação segura em cada etapa.
-                </p>
-              </div>
-            </div>
-            
-            {/* Trusted Badge (Floating) */}
-            <div className="absolute top-8 right-8 z-20 hidden lg:flex items-center gap-3 bg-white/90 backdrop-blur-md px-4 py-2.5 rounded-full shadow-lg">
-              <div className="flex -space-x-2">
-                <div className="w-8 h-8 rounded-full bg-gray-300 border-2 border-white overflow-hidden">
-                  <Image src="https://i.pravatar.cc/100?img=1" alt="User" width={32} height={32} className="object-cover" />
-                </div>
-                <div className="w-8 h-8 rounded-full bg-gray-300 border-2 border-white overflow-hidden">
-                  <Image src="https://i.pravatar.cc/100?img=2" alt="User" width={32} height={32} className="object-cover" />
-                </div>
-                <div className="w-8 h-8 rounded-full bg-gray-300 border-2 border-white overflow-hidden">
-                  <Image src="https://i.pravatar.cc/100?img=3" alt="User" width={32} height={32} className="object-cover" />
-                </div>
-              </div>
-              <span className="text-sm font-semibold text-mitram-dark">Mais de 100+ clientes satisfeitos</span>
-            </div>
-          </div>
-        </div>
-      </section>
+      <HeroSection />
 
       {/* Quick Search */}
       <div className="relative z-30 -mt-32 md:-mt-[10.5rem] container mx-auto px-4 mb-20">
-        <QuickSearch types={propertyTypes || []} cities={cities || []} neighborhoods={neighborhoods || []} />
+        <QuickSearch types={lookups.propertyTypes} cities={lookups.cities} neighborhoods={lookups.neighborhoods} />
       </div>
 
       {/* Featured Properties */}
@@ -145,240 +42,22 @@ export default async function Home() {
               </Link>
             </div>
 
-            <FeaturedPropertiesCarousel properties={featuredProperties} />
+            <FeaturedPropertiesCarousel properties={featuredProperties as unknown as PropertyListItem[]} />
           </div>
         </section>
       )}
 
       {/* Value Propositions */}
-      <section className="container mx-auto px-4 mb-24">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="bg-white border border-gray-200 p-6 rounded-2xl flex items-start gap-4">
-            <div className="bg-purple-100 text-purple-600 p-3 rounded-xl">
-              <Handshake size={24} />
-            </div>
-            <div>
-              <h3 className="font-bold text-mitram-dark mb-1">Negociação descomplicada</h3>
-              <p className="text-sm text-gray-500 leading-relaxed">Acompanhamento e suporte em todas as etapas da negociação.</p>
-            </div>
-          </div>
-          <div className="bg-white border border-gray-200 p-6 rounded-2xl flex items-start gap-4">
-            <div className="bg-blue-100 text-blue-600 p-3 rounded-xl">
-              <Compass size={24} />
-            </div>
-            <div>
-              <h3 className="font-bold text-mitram-dark mb-1">Apoio em cada escolha</h3>
-              <p className="text-sm text-gray-500 leading-relaxed">Recomendações alinhadas ao seu perfil e orçamento.</p>
-            </div>
-          </div>
-          <div className="bg-white border border-gray-200 p-6 rounded-2xl flex items-start gap-4">
-            <div className="bg-green-100 text-green-600 p-3 rounded-xl">
-              <MapPinned size={24} />
-            </div>
-            <div>
-              <h3 className="font-bold text-mitram-dark mb-1">Imóveis selecionados</h3>
-              <p className="text-sm text-gray-500 leading-relaxed">Imóveis de qualidade em Curitiba e região.</p>
-            </div>
-          </div>
-          <div className="bg-white border border-gray-200 p-6 rounded-2xl flex items-start gap-4">
-            <div className="bg-red-100 text-red-600 p-3 rounded-xl">
-              <LandPlot size={24} />
-            </div>
-            <div>
-              <h3 className="font-bold text-mitram-dark mb-1">Compra e venda de terrenos</h3>
-              <p className="text-sm text-gray-500 leading-relaxed">Intermediação segura para comprar ou vender terrenos.</p>
-            </div>
-          </div>
-        </div>
-      </section>
+      <ValuePropositions />
 
       {/* Institutional / About */}
-      <section className="container mx-auto px-4 mb-24">
-        <div className="flex flex-col lg:flex-row items-center gap-16">
-          <div className="flex-1 space-y-8">
-            <div>
-              <div className="inline-flex items-center gap-2 px-4 py-2 mb-2 rounded-full bg-mitram-gold/10 text-mitram-gold font-bold text-xs uppercase tracking-widest border border-mitram-gold/20">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-mitram-gold opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-mitram-gold"></span>
-                </span>
-                POR QUE ESCOLHER A MITRAM
-              </div>
-              <h2 className="text-3xl md:text-4xl font-bold text-mitram-dark leading-tight">
-                  Onde seus planos <br /> encontram espaço.
-              </h2>
-            </div>
-            <p className="text-gray-600 leading-relaxed text-lg">
-                Seja para construir uma nova fase em família ou investir no futuro, escolher um imóvel exige confiança. Por isso, ouvimos seus planos e ajudamos você a decidir com clareza e segurança.
-            </p>
-            
-            <ul className="space-y-4">
-              {[
-                "Ampla variedade de opções premium",
-                "Condições flexíveis e processos transparentes",
-                "Recomendações personalizadas para você",
-                "Confiado por centenas de clientes felizes"
-              ].map((item, i) => (
-                <li key={i} className="flex items-center gap-3">
-                  <div className="bg-mitram-gold/20 p-1 rounded-full">
-                    <CheckCircle2 size={18} className="text-mitram-gold" />
-                  </div>
-                  <span className="text-mitram-dark font-medium">{item}</span>
-                </li>
-              ))}
-            </ul>
-
-            <div className="pt-4">
-              <Link href="/contato" className={buttonClasses("primary", "lg")}>
-                Saiba Mais
-                <ArrowRight size={18} />
-              </Link>
-            </div>
-          </div>
-          
-          <div className="flex-1 w-full">
-            <div className="relative h-[500px] md:h-[600px] w-full rounded-[2rem] overflow-hidden shadow-2xl">
-              <Image 
-                src="/images/garden-garage-entrance.png" 
-                alt="Interior Moderno" 
-                fill 
-                className="object-cover"
-              />
-            </div>
-          </div>
-        </div>
-      </section>
+      <AboutSection />
 
       {/* Avaliação CTA */}
-      <section id="avaliacao" className="py-24 relative overflow-hidden bg-mitram-grayLight">
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="flex flex-col-reverse lg:flex-row items-center gap-16">
-            
-            {/* Left Side: Image Grid */}
-            <div className="flex-1 w-full">
-              <div className="relative w-full">
-                
-                <div className="grid grid-cols-3 gap-4 md:gap-6">
-                  {/* Top wide image */}
-                  <div className="col-span-3 relative h-48 md:h-64 rounded-3xl overflow-hidden shadow-lg">
-                    <Image 
-                      src="/images/aerial-view-curitiba.jpg" 
-                      fill 
-                      className="object-cover" 
-                      alt="Avaliação Mitram - Vista" 
-                    />
-                  </div>
-                  
-                  {/* Bottom left image (~1/3) */}
-                  <div className="col-span-1 relative h-40 md:h-52 rounded-3xl overflow-hidden shadow-lg">
-                    <Image 
-                      src="/images/keys-on-table.jpg" 
-                      fill 
-                      className="object-cover" 
-                      alt="Avaliação Mitram - Chaves" 
-                    />
-                  </div>
-                  
-                  {/* Bottom right image (~2/3, taller) */}
-                  <div className="col-span-2 relative h-56 md:h-72 rounded-3xl overflow-hidden shadow-lg">
-                    <Image 
-                      src="/images/hero-image.jpg" 
-                      fill 
-                      className="object-cover" 
-                      alt="Avaliação Mitram - Interior" 
-                    />
-                  </div>
-                </div>
-                
-                {/* Center Badge */}
-                <div className="absolute top-1/2 left-[30%] -translate-x-[30%] -translate-y-1/2 w-28 h-28 md:w-32 md:h-32 bg-mitram-gold rounded-full flex items-center justify-center text-white shadow-2xl z-20">
-                  <div className="absolute inset-0">
-                    <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible">
-                      <path id="badgePath" d="M 50, 12 A 38,38 0 1,1 49.9,12" fill="none" />
-                      <text fill="currentColor" className="text-[10.5px] font-bold uppercase tracking-[0.24em]">
-                        <textPath href="#badgePath" startOffset="0%">• AVALIAÇÃO GRATUITA MITRAM</textPath>
-                      </text>
-                    </svg>
-                  </div>
-                  {/* Inner Icon */}
-                  <div className="relative z-10 text-white transform -rotate-45">
-                    <ArrowRight size={24} strokeWidth={3} />
-                  </div>
-                </div>
-
-              </div>
-            </div>
-
-            {/* Right Side: Text & Form */}
-            <div className="flex-1 w-full space-y-10">
-              <div className="space-y-6">
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-mitram-gold/10 text-mitram-gold font-bold text-xs uppercase tracking-widest border border-mitram-gold/20">
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-mitram-gold opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-mitram-gold"></span>
-                  </span>
-                  Avaliação Gratuita
-                </div>
-                
-                <h2 className="text-3xl md:text-4xl font-bold text-mitram-dark leading-tight">
-                  Venda sua casa ou terreno <br className="hidden lg:block"/>
-                  com a Mitram
-                </h2>
-                
-                <p className="text-gray-600 text-lg md:text-xl leading-relaxed max-w-lg">
-                  Nossos especialistas preparam uma análise de mercado precisa para o seu patrimônio. <strong>É rápido, seguro e sem compromisso.</strong>
-                </p>
-              </div>
-
-
-              {/* Form Integrated */}
-              <div className="max-w-lg pt-6">
-                <form className="space-y-5">
-                  <FormField label="Nome completo">
-                    <input type="text" id="name" placeholder=" " required className={fieldClasses()} />
-                  </FormField>
-
-                  <FormField label="WhatsApp ou Telefone">
-                    <input type="tel" id="phone" placeholder=" " required className={fieldClasses()} />
-                  </FormField>
-
-                  <div className="flex items-start gap-3 pt-2">
-                    <input type="checkbox" id="lgpd-home" required className={`mt-0.5 ${CHECKBOX_CLASSES}`} />
-                    <label htmlFor="lgpd-home" className="text-xs text-gray-500 leading-relaxed cursor-pointer select-none">
-                      Concordo que a Mitram utilize meus dados para entrar em contato referente a esta solicitação.
-                    </label>
-                  </div>
-
-                  <button type="submit" className={buttonClasses("primary", "lg", "w-full")}>
-                    Quero minha avaliação
-                    <ArrowRight size={20} />
-                  </button>
-                </form>
-              </div>
-            </div>
-            
-          </div>
-        </div>
-      </section>
+      <ValuationCta />
 
       {/* Testimonials */}
-      <section className="py-24 container mx-auto px-4">
-        <div className="max-w-3xl mb-12 space-y-6">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-mitram-gold/10 text-mitram-gold font-bold text-xs uppercase tracking-widest border border-mitram-gold/20">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-mitram-gold opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-mitram-gold"></span>
-            </span>
-            Depoimentos
-          </div>
-          <h2 className="text-3xl md:text-4xl font-bold text-mitram-dark leading-tight">O que nossos clientes dizem</h2>
-          <p className="text-gray-600 text-lg md:text-xl max-w-2xl">
-            Veja as histórias reais de quem confiou na Mitram para encontrar o lar perfeito ou realizar um excelente negócio.
-          </p>
-        </div>
-
-        <TestimonialsCarousel testimonials={TESTIMONIALS} />
-      </section>
+      <TestimonialsSection />
 
     </div>
   );

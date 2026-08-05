@@ -1,39 +1,12 @@
-"use client";
+import { Phone, Mail, Instagram } from "lucide-react";
+import { ContactForm } from "@/features/contact/components/ContactForm";
 
-import { useState } from "react";
-import { submitContactForm } from "@/app/actions/contact";
-import { Phone, Mail, Instagram, Send } from "lucide-react";
-import { buttonClasses } from "@/components/ui/buttonStyles";
-import { CHECKBOX_CLASSES, FormField, fieldClasses } from "@/components/ui/FormField";
+export const metadata = {
+  title: "Contato | Mitram Imóveis",
+  description: "Entre em contato conosco.",
+};
 
 export default function ContactPage() {
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [error, setError] = useState("");
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-    
-    const formData = new FormData(e.currentTarget);
-    formData.append("type", "contact");
-
-    try {
-      const result = await submitContactForm(formData);
-      if (result.success) {
-        setSuccess(true);
-        (e.target as HTMLFormElement).reset();
-      } else {
-        setError(result.error || "Ocorreu um erro ao enviar.");
-      }
-    } catch (err) {
-      setError("Falha de conexão. Tente novamente mais tarde.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="bg-mitram-white min-h-screen py-16 px-4 flex items-center justify-center">
       <div className="w-full max-w-6xl bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border border-gray-100 flex flex-col md:flex-row">
@@ -41,7 +14,6 @@ export default function ContactPage() {
         {/* Left Side: Contact Info */}
         <div className="w-full md:w-2/5 p-10 md:p-16 flex flex-col justify-between bg-white relative">
           <div>
-            
             <div className="space-y-10">
               <div>
                 <div className="flex items-center gap-3 mb-3">
@@ -80,81 +52,7 @@ export default function ContactPage() {
             Conte-nos um pouco sobre você e o que está buscando.
           </p>
           
-          {success ? (
-            <div className="bg-white p-10 rounded-3xl text-center shadow-sm border border-gray-100 mt-8">
-              <div className="w-20 h-20 bg-green-50 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
-              </div>
-              <h3 className="text-2xl font-bold text-mitram-dark mb-3">Mensagem enviada!</h3>
-              <p className="text-gray-600 mb-8">Obrigado pelo seu contato. Retornaremos em breve.</p>
-              <button onClick={() => setSuccess(false)} className={buttonClasses("primary", "md")}>
-                <Send size={18} />
-                Enviar outra mensagem
-              </button>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {error && <div className="text-red-500 text-sm bg-red-50 p-4 rounded-xl border border-red-100">{error}</div>}
-              
-              <input type="text" name="address_field" className="hidden" tabIndex={-1} autoComplete="off" />
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField label="Seu nome">
-                  <input type="text" id="name" name="name" required placeholder=" " className={fieldClasses()} />
-                </FormField>
-                <FormField label="Seu e-mail">
-                  <input type="email" id="email" name="email" required placeholder=" " className={fieldClasses()} />
-                </FormField>
-              </div>
-
-              <FormField label="Seu telefone (opcional)">
-                <input type="tel" id="phone" name="phone" placeholder=" " className={fieldClasses()} />
-              </FormField>
-
-              <FormField label="Como podemos ajudar?">
-                <textarea
-                  id="message"
-                  name="message"
-                  rows={1}
-                  required
-                  placeholder=" "
-                  className={fieldClasses(false, "resize-none")}
-                  onInput={(e) => {
-                    e.currentTarget.style.height = 'auto';
-                    e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px';
-                  }}
-                ></textarea>
-              </FormField>
-
-              <div className="pt-2">
-                <p className="text-sm font-semibold text-gray-500 mb-5 uppercase tracking-wider">Qual é o seu interesse principal?</p>
-                <div className="grid grid-cols-2 gap-y-4 gap-x-6">
-                  {['Comprar imóvel', 'Vender imóvel', 'Avaliação', 'Outros'].map((option) => (
-                    <label key={option} className="flex items-center gap-3 cursor-pointer group">
-                      <div className="relative flex items-center">
-                        <input type="checkbox" name="interests" value={option} className={CHECKBOX_CLASSES} />
-                      </div>
-                      <span className="text-sm font-medium text-gray-700 group-hover:text-mitram-dark transition-colors">{option}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              <div className="pt-6">
-                <button type="submit" disabled={loading} className={buttonClasses("primary", "lg", "w-full")}>
-                  <Send size={20} />
-                  {loading ? "Enviando..." : "Enviar Mensagem"}
-                </button>
-              </div>
-              
-              <div className="flex items-start gap-3">
-                <input type="checkbox" id="lgpd-contact" name="consent" required className={`mt-0.5 ${CHECKBOX_CLASSES}`} />
-                <label htmlFor="lgpd-contact" className="text-xs text-gray-500 leading-relaxed">
-                  Concordo que meus dados sejam utilizados pela Mitram Imóveis para responder a esta solicitação de acordo com as leis de privacidade.
-                </label>
-              </div>
-            </form>
-          )}
+          <ContactForm />
         </div>
       </div>
     </div>
