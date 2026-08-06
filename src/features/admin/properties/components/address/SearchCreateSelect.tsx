@@ -1,8 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Check, Loader2, Plus, Search } from "lucide-react";
-import { plainFieldClasses } from "@/components/ui/FormField";
+import { Check, Loader2, Plus } from "lucide-react";
+import { fieldClasses } from "@/components/ui/FormField";
 
 type Option = { id: string; name: string };
 
@@ -65,7 +65,7 @@ export function SearchCreateSelect<T extends Option>({ id, value, options, disab
           onFocus={() => { setQuery(""); setOpen(true); }}
           onBlur={() => window.setTimeout(() => setOpen(false), 150)}
           onChange={(event) => { setQuery(event.target.value); setOpen(true); }}
-          className={`${plainFieldClasses()} disabled:cursor-not-allowed disabled:bg-gray-50`}
+          className={`${fieldClasses()} disabled:cursor-not-allowed disabled:bg-gray-50`}
         />
       </div>
       {open && !disabled && (
