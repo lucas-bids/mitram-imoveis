@@ -16,7 +16,7 @@ ON CONFLICT (slug) DO NOTHING;
 -- Cities
 INSERT INTO cities (id, name, state, slug) VALUES
 ('aaaa1111-aaaa-1111-aaaa-1111aaaa1111', 'Curitiba', 'PR', 'curitiba')
-ON CONFLICT (slug) DO NOTHING;
+ON CONFLICT (state, slug) DO NOTHING;
 
 -- Neighborhoods
 INSERT INTO neighborhoods (id, city_id, name, slug) VALUES
@@ -51,6 +51,21 @@ VALUES
 ('dddd8888-dddd-8888-dddd-8888dddd8888', 'MIT-0008', 'Casa alugada em Santa Felicidade', 'casa-alugada-em-santa-felicidade', 'rent', '11111111-1111-1111-1111-111111111111', 'rented', 3500.00, 'Imóvel alugado', 'aaaa1111-aaaa-1111-aaaa-1111aaaa1111', 'bbbb2222-bbbb-2222-bbbb-2222bbbb2222', 3, 2, 2, 150, false),
 ('dddd9999-dddd-9999-dddd-9999dddd9999', 'MIT-0009', 'Rascunho de imóvel', 'rascunho-de-imovel', 'sale', '33333333-3333-3333-3333-333333333333', 'draft', 550000.00, 'Imóvel em rascunho para testes administrativos', 'aaaa1111-aaaa-1111-aaaa-1111aaaa1111', 'bbbb3333-bbbb-3333-bbbb-3333bbbb3333', 3, 2, 1, 110, false)
 ON CONFLICT (internal_code) DO NOTHING;
+
+-- Complete, plausible demo addresses and coordinates around each seeded Curitiba neighborhood.
+UPDATE properties SET
+  street = CASE internal_code
+    WHEN 'MIT-0001' THEN 'Rua Anne Frank' WHEN 'MIT-0002' THEN 'Avenida Manoel Ribas'
+    WHEN 'MIT-0003' THEN 'Avenida Presidente Kennedy' WHEN 'MIT-0004' THEN 'Rua Padre Anchieta'
+    WHEN 'MIT-0005' THEN 'Rua Amauri Lange Silvério' WHEN 'MIT-0006' THEN 'Rua Mateus Leme'
+    WHEN 'MIT-0007' THEN 'Rua Waldemar Kost' WHEN 'MIT-0008' THEN 'Rua Saturnino Miranda'
+    ELSE 'Avenida Presidente Kennedy' END,
+  number = CASE internal_code WHEN 'MIT-0001' THEN '2100' WHEN 'MIT-0002' THEN '4500' WHEN 'MIT-0003' THEN '1800' WHEN 'MIT-0004' THEN '1400' WHEN 'MIT-0005' THEN '600' WHEN 'MIT-0006' THEN '5200' WHEN 'MIT-0007' THEN '900' WHEN 'MIT-0008' THEN '300' ELSE '2200' END,
+  postal_code = CASE internal_code WHEN 'MIT-0002' THEN '82400-000' WHEN 'MIT-0004' THEN '80730-000' WHEN 'MIT-0005' THEN '82120-000' WHEN 'MIT-0006' THEN '82130-000' ELSE '80000-000' END,
+  state = 'PR',
+  latitude = CASE internal_code WHEN 'MIT-0001' THEN -25.4802 WHEN 'MIT-0002' THEN -25.3952 WHEN 'MIT-0003' THEN -25.4727 WHEN 'MIT-0004' THEN -25.4324 WHEN 'MIT-0005' THEN -25.4008 WHEN 'MIT-0006' THEN -25.3746 WHEN 'MIT-0007' THEN -25.4778 WHEN 'MIT-0008' THEN -25.3918 ELSE -25.4689 END,
+  longitude = CASE internal_code WHEN 'MIT-0001' THEN -49.2537 WHEN 'MIT-0002' THEN -49.3286 WHEN 'MIT-0003' THEN -49.2801 WHEN 'MIT-0004' THEN -49.2948 WHEN 'MIT-0005' THEN -49.3059 WHEN 'MIT-0006' THEN -49.2705 WHEN 'MIT-0007' THEN -49.2561 WHEN 'MIT-0008' THEN -49.3332 ELSE -49.2762 END
+WHERE internal_code BETWEEN 'MIT-0001' AND 'MIT-0009';
 
 -- Sync internal code sequence after fixed seed codes (only if migration 00001 was applied)
 DO $$

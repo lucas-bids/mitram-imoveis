@@ -25,6 +25,8 @@ import { FORM_SECTIONS } from "@/features/admin/properties/components/form/secti
 import { FilterOption } from "@/features/search/filters";
 import { FeatureSelector, SelectedFeature } from "@/features/admin/properties/components/features/FeatureSelector";
 import { FeatureOption, addPropertyFeatures } from "@/features/admin/properties/components/features/mutations";
+import { AddressSection } from "@/features/admin/properties/components/address/AddressSection";
+import { CityOption, NeighborhoodOption } from "@/features/admin/properties/components/address/types";
 
 interface PropertyFormProps {
   initialData?: Partial<PropertyFormValues> & {
@@ -35,8 +37,8 @@ interface PropertyFormProps {
   isEdit?: boolean;
   lookups?: {
     propertyTypes: FilterOption[];
-    cities: FilterOption[];
-    neighborhoods: (FilterOption & { city_id?: string })[];
+    cities: CityOption[];
+    neighborhoods: NeighborhoodOption[];
     features: FeatureOption[];
   };
 }
@@ -54,9 +56,7 @@ const FIELD_NUMBER =
 
 export default function PropertyForm({ initialData, isEdit = false, lookups }: PropertyFormProps) {
   const [loading, setLoading] = useState(false);
-  const [types, setTypes] = useState<FilterOption[]>(lookups?.propertyTypes || []);
-  const [cities, setCities] = useState<FilterOption[]>(lookups?.cities || []);
-  const [neighborhoods, setNeighborhoods] = useState<(FilterOption & { city_id?: string })[]>(lookups?.neighborhoods || []);
+  const [types] = useState<FilterOption[]>(lookups?.propertyTypes || []);
   const [media, setMedia] = useState<PropertyMedia[]>(initialData?.property_media || []);
   const [selectedFeatures, setSelectedFeatures] = useState<SelectedFeature[]>(
     (initialData?.property_features || []).map((pf) => pf.features),
@@ -67,15 +67,10 @@ export default function PropertyForm({ initialData, isEdit = false, lookups }: P
   const router = useRouter();
   const supabase = createClient();
 
-  const {
-    register,
-    handleSubmit,
-    watch,
-    formState: { errors },
-    setValue
-  } = useForm<PropertyFormValues>({
+  const inferredState = initialData?.state || lookups?.cities.find((city) => city.id === initialData?.city_id)?.state;
+  const form = useForm<PropertyFormValues>({
     resolver: zodResolver(propertySchema),
-    defaultValues: initialData || {
+    defaultValues: initialData ? { ...initialData, state: inferredState } : {
       status: "draft",
       purpose: "sale",
       featured: false,
@@ -83,7 +78,11 @@ export default function PropertyForm({ initialData, isEdit = false, lookups }: P
     },
   });
 
-  const watchCity = watch("city_id");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = form;
 
   const { ref: registerDescriptionRef, ...descriptionField } = register("description");
   const descriptionRef = useRef<HTMLTextAreaElement | null>(null);
@@ -91,26 +90,6 @@ export default function PropertyForm({ initialData, isEdit = false, lookups }: P
   useEffect(() => {
     if (descriptionRef.current) autoResizeTextarea(descriptionRef.current);
   }, []);
-
-  useEffect(() => {
-    async function loadNeighborhoods() {
-      if (!lookups?.neighborhoods && watchCity) {
-        const { data } = await supabase
-          .from("neighborhoods")
-          .select("*")
-          .eq("city_id", watchCity)
-          .eq("active", true)
-          .order("name");
-        
-        if (data) setNeighborhoods(data);
-      } else if (lookups?.neighborhoods) {
-        setNeighborhoods(lookups.neighborhoods.filter(n => n.city_id === watchCity));
-      } else {
-        setNeighborhoods([]);
-      }
-    }
-    loadNeighborhoods();
-  }, [watchCity, supabase, lookups]);
 
   const onSubmit = async (data: PropertyFormValues) => {
     setLoading(true);
@@ -373,49 +352,7 @@ export default function PropertyForm({ initialData, isEdit = false, lookups }: P
           </div>
         </FormSection>
 
-        <FormSection
-          id="endereco"
-          title="Endereço"
-          description="A cidade e o bairro definem onde o imóvel aparece nas buscas."
-        >
-          <div className="grid grid-cols-1 gap-x-8 gap-y-6 md:grid-cols-3">
-            <FormField label="Cidade" error={errors.city_id?.message} alwaysFloat>
-              <select
-                {...register("city_id")}
-                className={fieldClasses(!!errors.city_id, SELECT_EXTRA)}
-                style={SELECT_ARROW_STYLE}
-              >
-                <option value="">Selecione...</option>
-                {cities.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-              </select>
-            </FormField>
-            <FormField
-              label="Bairro"
-              error={errors.neighborhood_id?.message}
-              alwaysFloat
-              className="md:col-span-2"
-            >
-              <select
-                {...register("neighborhood_id")}
-                disabled={!watchCity}
-                className={fieldClasses(
-                  !!errors.neighborhood_id,
-                  `${SELECT_EXTRA} disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-400`,
-                )}
-                style={SELECT_ARROW_STYLE}
-              >
-                <option value="">{watchCity ? "Selecione..." : "Selecione a cidade primeiro"}</option>
-                {neighborhoods.map(n => <option key={n.id} value={n.id}>{n.name}</option>)}
-              </select>
-            </FormField>
-            <FormField label="Rua" error={errors.street?.message} className="md:col-span-2">
-              <input placeholder=" " {...register("street")} className={fieldClasses(!!errors.street)} />
-            </FormField>
-            <FormField label="Número" error={errors.number?.message}>
-              <input placeholder=" " {...register("number")} className={fieldClasses(!!errors.number)} />
-            </FormField>
-          </div>
-        </FormSection>
+        <AddressSection form={form} initialCities={lookups?.cities || []} initialNeighborhoods={lookups?.neighborhoods || []} />
 
         <FormSection
           id="descricao"

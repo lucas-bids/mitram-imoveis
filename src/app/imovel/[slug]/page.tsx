@@ -3,7 +3,7 @@ import { Metadata } from "next";
 import { getPropertyBySlug, getPropertyMetaBySlug, getSimilarProperties } from "@/features/properties/queries";
 import Gallery from "@/features/properties/components/gallery/Gallery";
 import SchedulingForm from "@/features/contact/components/SchedulingForm";
-import PropertiesMap from "@/features/properties/components/PropertiesMap";
+import { PropertyLocationMap } from "@/features/properties/components/detail/PropertyLocationMap";
 import { MessageCircle } from "lucide-react";
 import { buttonShapeClasses } from "@/components/ui/buttonStyles";
 
@@ -76,7 +76,7 @@ export default async function PropertyDetailsPage({ params }: { params: { slug: 
               <div className="bg-white p-6 rounded-lg shadow-sm">
                 <h2 className="text-lg font-bold text-mitram-dark mb-4">Localização</h2>
                 <div className="h-[400px] w-full rounded overflow-hidden border">
-                  <PropertiesMap properties={[property as any]} />
+                  <PropertyLocationMap latitude={Number(property.latitude)} longitude={Number(property.longitude)} />
                 </div>
               </div>
             )}

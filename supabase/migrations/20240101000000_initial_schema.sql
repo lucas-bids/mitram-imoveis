@@ -28,10 +28,11 @@ CREATE TABLE cities (
   id uuid default gen_random_uuid() primary key,
   name text not null,
   state text not null,
-  slug text unique not null,
+  slug text not null,
   active boolean default true,
   created_at timestamptz default now(),
-  updated_at timestamptz default now()
+  updated_at timestamptz default now(),
+  unique(state, slug)
 );
 
 -- NEIGHBORHOODS
