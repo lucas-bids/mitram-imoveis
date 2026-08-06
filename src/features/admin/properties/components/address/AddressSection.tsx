@@ -1,16 +1,17 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { APIProvider, useMapsLibrary } from "@vis.gl/react-google-maps";
 import { CheckCircle2, Loader2, MapPin } from "lucide-react";
 import { UseFormReturn, useWatch } from "react-hook-form";
 import { buttonShapeClasses } from "@/components/ui/buttonStyles";
 import { FormField, SELECT_ARROW_STYLE, SELECT_EXTRA, fieldClasses } from "@/components/ui/FormField";
 import { PropertyFormValues } from "@/features/admin/properties/schema";
-import { geocodePropertyAddress } from "@/features/admin/properties/addressActions";
 import { FormSection } from "@/features/admin/properties/components/form/FormSection";
 import { BRAZILIAN_STATES } from "./states";
 import { SearchCreateSelect } from "./SearchCreateSelect";
 import { createCity, createNeighborhood } from "./mutations";
+import { geocodePropertyAddress } from "./geocode";
 import { CityOption, NeighborhoodOption } from "./types";
 import { AddressMapPreview } from "./AddressMapPreview";
 
@@ -20,7 +21,17 @@ interface Props {
   initialNeighborhoods: NeighborhoodOption[];
 }
 
-export function AddressSection({ form, initialCities, initialNeighborhoods }: Props) {
+const MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+
+export function AddressSection(props: Props) {
+  return (
+    <APIProvider apiKey={MAPS_API_KEY ?? ""} language="pt-BR" region="BR">
+      <AddressFields {...props} />
+    </APIProvider>
+  );
+}
+
+function AddressFields({ form, initialCities, initialNeighborhoods }: Props) {
   const { control, register, setValue, getValues, trigger, formState: { errors } } = form;
   const values = useWatch({ control, name: ["state", "city_id", "neighborhood_id", "street", "number", "complement", "postal_code", "latitude", "longitude"] });
   const [state, cityId, neighborhoodId, street, number, , postalCode, latitude, longitude] = values;
@@ -30,6 +41,8 @@ export function AddressSection({ form, initialCities, initialNeighborhoods }: Pr
   const [geocodeError, setGeocodeError] = useState<string | null>(null);
   const [formattedAddress, setFormattedAddress] = useState<string | null>(null);
   const [confirmedFingerprint, setConfirmedFingerprint] = useState(() => latitude && longitude ? JSON.stringify(values.slice(0, 7)) : "");
+  const geocodingLibrary = useMapsLibrary("geocoding");
+  const geocoder = useMemo(() => geocodingLibrary ? new geocodingLibrary.Geocoder() : null, [geocodingLibrary]);
 
   const stateCities = useMemo(() => cities.filter((city) => city.state === state), [cities, state]);
   const cityNeighborhoods = useMemo(() => neighborhoods.filter((item) => item.city_id === cityId), [neighborhoods, cityId]);
@@ -48,11 +61,11 @@ export function AddressSection({ form, initialCities, initialNeighborhoods }: Pr
 
   const confirmAddress = async () => {
     const valid = await trigger(["state", "city_id", "neighborhood_id", "street", "number", "postal_code"]);
-    if (!valid || !city || !neighborhood) return;
+    if (!valid || !city || !neighborhood || !geocoder) return;
     setConfirming(true);
     setGeocodeError(null);
     try {
-      const result = await geocodePropertyAddress({
+      const result = await geocodePropertyAddress(geocoder, {
         state: getValues("state"), city: city.name, neighborhood: neighborhood.name,
         street: getValues("street"), number: getValues("number"), postalCode: getValues("postal_code"),
       });
@@ -127,10 +140,14 @@ export function AddressSection({ form, initialCities, initialNeighborhoods }: Pr
       </div>
 
       <div className="mt-6 space-y-4">
-        <button type="button" disabled={confirming} onClick={() => void confirmAddress()} className={buttonShapeClasses("md", "bg-mitram-dark text-white hover:bg-black disabled:opacity-60")}>
-          {confirming ? <Loader2 size={18} className="animate-spin" /> : <MapPin size={18} />}
-          {confirming ? "Localizando..." : confirmed ? "Confirmar endereço novamente" : "Confirmar endereço"}
-        </button>
+        {MAPS_API_KEY ? (
+          <button type="button" disabled={confirming || !geocoder} onClick={() => void confirmAddress()} className={buttonShapeClasses("md", "bg-mitram-dark text-white hover:bg-black disabled:opacity-60")}>
+            {confirming || !geocoder ? <Loader2 size={18} className="animate-spin" /> : <MapPin size={18} />}
+            {!geocoder ? "Carregando mapa..." : confirming ? "Localizando..." : confirmed ? "Confirmar endereço novamente" : "Confirmar endereço"}
+          </button>
+        ) : (
+          <p className="rounded-lg bg-red-50 p-4 text-sm text-red-700">Google Maps não está configurado.</p>
+        )}
         {geocodeError && <p className="text-sm text-red-600">{geocodeError}</p>}
         {confirmed && latitude && longitude && (
           <div className="space-y-3">
