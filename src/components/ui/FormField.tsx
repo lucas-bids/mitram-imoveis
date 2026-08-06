@@ -4,8 +4,8 @@ const FIELD_SHELL =
   "block w-full rounded-xl border-2 bg-white px-5 text-mitram-dark shadow-sm outline-none transition-all";
 /** Padding assimétrico para o rótulo flutuante (FormField). */
 const FIELD_FLOATING = "peer pb-3 pt-6";
-/** Padding simétrico quando o rótulo fica fora do controle. */
-const FIELD_PLAIN = "py-3";
+/** Padding simétrico (mesma altura que FIELD_FLOATING: pt-6 + pb-3). */
+const FIELD_PLAIN = "py-4";
 const FIELD_NORMAL = "border-gray-200 focus:border-mitram-gold focus:ring-2 focus:ring-mitram-gold/20";
 const FIELD_ERROR = "border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-500/20";
 
