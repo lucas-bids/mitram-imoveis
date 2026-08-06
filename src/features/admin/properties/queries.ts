@@ -11,7 +11,7 @@ export async function getPropertyFormLookups() {
     supabase.from("property_types").select("id, name").eq("active", true),
     supabase.from("cities").select("id, name").eq("active", true),
     supabase.from("neighborhoods").select("id, city_id, name").eq("active", true),
-    supabase.from("features").select("id, name").eq("active", true),
+    supabase.from("features").select("id, name, slug").eq("active", true).order("name"),
   ]);
 
   return {

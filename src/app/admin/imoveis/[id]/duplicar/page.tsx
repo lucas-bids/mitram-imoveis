@@ -10,7 +10,7 @@ export default async function DuplicatePropertyPage({ params }: { params: { id: 
   
   const { data: property, error } = await supabase
     .from("properties")
-    .select("*")
+    .select("*, property_features (features (id, name))")
     .eq("id", params.id)
     .single();
 

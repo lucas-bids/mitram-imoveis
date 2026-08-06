@@ -1,12 +1,21 @@
 import type { CSSProperties, ReactNode } from "react";
 
-const FIELD_BASE =
-  "peer block w-full rounded-xl border-2 bg-white px-5 pb-3 pt-6 text-mitram-dark shadow-sm outline-none transition-all";
+const FIELD_SHELL =
+  "block w-full rounded-xl border-2 bg-white px-5 text-mitram-dark shadow-sm outline-none transition-all";
+/** Padding assimétrico para o rótulo flutuante (FormField). */
+const FIELD_FLOATING = "peer pb-3 pt-6";
+/** Padding simétrico quando o rótulo fica fora do controle. */
+const FIELD_PLAIN = "py-3";
 const FIELD_NORMAL = "border-gray-200 focus:border-mitram-gold focus:ring-2 focus:ring-mitram-gold/20";
 const FIELD_ERROR = "border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-500/20";
 
 export function fieldClasses(hasError?: boolean, extra?: string) {
-  return [FIELD_BASE, hasError ? FIELD_ERROR : FIELD_NORMAL, extra].filter(Boolean).join(" ");
+  return [FIELD_SHELL, FIELD_FLOATING, hasError ? FIELD_ERROR : FIELD_NORMAL, extra].filter(Boolean).join(" ");
+}
+
+/** Mesmo visual de fieldClasses, com texto centralizado na vertical (sem rótulo flutuante). */
+export function plainFieldClasses(hasError?: boolean, extra?: string) {
+  return [FIELD_SHELL, FIELD_PLAIN, hasError ? FIELD_ERROR : FIELD_NORMAL, extra].filter(Boolean).join(" ");
 }
 
 export const SELECT_EXTRA = "cursor-pointer appearance-none pr-12";

@@ -23,14 +23,21 @@ import { FormSection } from "@/features/admin/properties/components/form/FormSec
 import { FORM_SECTIONS } from "@/features/admin/properties/components/form/sections";
 
 import { FilterOption } from "@/features/search/filters";
+import { FeatureSelector, SelectedFeature } from "@/features/admin/properties/components/features/FeatureSelector";
+import { FeatureOption, addPropertyFeatures } from "@/features/admin/properties/components/features/mutations";
 
 interface PropertyFormProps {
-  initialData?: Partial<PropertyFormValues> & { id?: string; property_media?: PropertyMedia[] };
+  initialData?: Partial<PropertyFormValues> & {
+    id?: string;
+    property_media?: PropertyMedia[];
+    property_features?: { features: SelectedFeature }[];
+  };
   isEdit?: boolean;
   lookups?: {
     propertyTypes: FilterOption[];
     cities: FilterOption[];
     neighborhoods: (FilterOption & { city_id?: string })[];
+    features: FeatureOption[];
   };
 }
 
@@ -51,6 +58,9 @@ export default function PropertyForm({ initialData, isEdit = false, lookups }: P
   const [cities, setCities] = useState<FilterOption[]>(lookups?.cities || []);
   const [neighborhoods, setNeighborhoods] = useState<(FilterOption & { city_id?: string })[]>(lookups?.neighborhoods || []);
   const [media, setMedia] = useState<PropertyMedia[]>(initialData?.property_media || []);
+  const [selectedFeatures, setSelectedFeatures] = useState<SelectedFeature[]>(
+    (initialData?.property_features || []).map((pf) => pf.features),
+  );
 
   const { activeSection, scrollToSection } = useSectionNavigation(FORM_SECTIONS.map((s) => s.id));
 
@@ -137,6 +147,10 @@ export default function PropertyForm({ initialData, isEdit = false, lookups }: P
           
         if (error) throw error;
         propertyId = newProp.id;
+
+        if (selectedFeatures.length > 0) {
+          await addPropertyFeatures(newProp.id, selectedFeatures.map((f) => f.id));
+        }
       }
 
       alert("Imóvel salvo com sucesso!");
@@ -347,6 +361,15 @@ export default function PropertyForm({ initialData, isEdit = false, lookups }: P
                 Mobiliado
               </span>
             </label>
+          </div>
+
+          <div className="grid grid-cols-1 gap-x-8 gap-y-6 md:grid-cols-2">
+            <FeatureSelector
+              propertyId={initialData?.id}
+              allFeatures={lookups?.features || []}
+              selected={selectedFeatures}
+              onSelectedChange={setSelectedFeatures}
+            />
           </div>
         </FormSection>
 

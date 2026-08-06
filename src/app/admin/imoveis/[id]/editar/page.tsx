@@ -13,7 +13,8 @@ export default async function EditPropertyPage({ params }: { params: { id: strin
     .from("properties")
     .select(`
       *,
-      ${PROPERTY_MEDIA_ALL}
+      ${PROPERTY_MEDIA_ALL},
+      property_features (features (id, name))
     `)
     .eq("id", params.id)
     .single();
