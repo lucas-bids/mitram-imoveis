@@ -1,12 +1,13 @@
 "use client";
 
-import { APIProvider, Map, Marker, AdvancedMarker, Pin } from "@vis.gl/react-google-maps";
+import { APIProvider, Map, Marker } from "@vis.gl/react-google-maps";
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
 import { PropertyListItem } from "@/features/properties/types";
 import { formatPrice, coverImageUrl } from "@/features/properties/format";
+import { GOOGLE_MAP_MARKER_ICON, GOOGLE_MAP_STYLES } from "@/lib/googleMaps";
 
 interface PropertiesMapProps {
   properties: PropertyListItem[];
@@ -34,17 +35,16 @@ export default function PropertiesMap({ properties }: PropertiesMapProps) {
       <Map
         defaultCenter={center}
         defaultZoom={12}
-        mapId="MITRAM_MAP_ID"
+        styles={GOOGLE_MAP_STYLES}
         disableDefaultUI={false}
       >
         {validProperties.map((prop) => (
-          <AdvancedMarker
+          <Marker
             key={prop.id}
             position={{ lat: Number(prop.latitude), lng: Number(prop.longitude) }}
             onClick={() => setSelectedProperty(prop)}
-          >
-            <Pin background={"#D4AF37"} borderColor={"#1A1A1A"} glyphColor={"#1A1A1A"} />
-          </AdvancedMarker>
+            icon={GOOGLE_MAP_MARKER_ICON}
+          />
         ))}
 
         {selectedProperty && (
