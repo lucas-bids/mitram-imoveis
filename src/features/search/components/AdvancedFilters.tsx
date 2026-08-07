@@ -48,6 +48,7 @@ export default function AdvancedFilters({
 
   const handleApply = (event: React.FormEvent) => {
     event.preventDefault();
+    setIsMobileFiltersOpen(false);
     const params = serializeFilters(filters);
     if (isMapView) params.set("view", "map");
     router.push(`${pathname}?${params.toString()}`);
@@ -95,7 +96,7 @@ export default function AdvancedFilters({
 
   return (
     <div className="bg-[#FAFAFA] rounded-[2rem] p-4 md:p-8 border border-gray-100 shadow-sm">
-      <form onSubmit={handleApply} className="space-y-6">
+      <form onSubmit={handleApply} className="flex flex-col gap-4 md:gap-6">
         
         {/* Mobile Top Bar */}
         <div className="flex flex-row items-center justify-between gap-4">
@@ -244,29 +245,31 @@ export default function AdvancedFilters({
           </FormField>
         </div>
 
-        <div className="flex flex-col gap-4 pt-4 lg:flex-row lg:items-center">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:gap-4">
           <div className="min-w-0 flex-1">
             <FilterPills activePills={activePills} onRemove={removeFilter} />
           </div>
 
-          <div className="flex items-center justify-end gap-3 shrink-0">
+          <div className="flex flex-col items-end gap-2 shrink-0">
             {hasActiveFilters && (
               <button
                 type="button"
                 onClick={clearAllFilters}
-                className="text-sm text-gray-500 hover:text-mitram-dark underline underline-offset-2 transition-colors mr-2"
+                className="text-sm text-gray-500 hover:text-mitram-dark underline underline-offset-2 transition-colors"
               >
                 Limpar filtros
               </button>
             )}
 
-            <button type="button" onClick={toggleView} className={buttonClasses("secondary", "md")}>
-              {isMapView ? <><List size={18} /> Lista</> : <><Map size={18} /> Mapa</>}
-            </button>
+            <div className="flex items-center gap-3">
+              <button type="button" onClick={toggleView} className={buttonClasses("secondary", "md")}>
+                {isMapView ? <><List size={18} /> Lista</> : <><Map size={18} /> Mapa</>}
+              </button>
 
-            <button type="submit" className={buttonClasses("primary", "md")}>
-              Buscar <Filter size={16} />
-            </button>
+              <button type="submit" className={buttonClasses("primary", "md")}>
+                Buscar <Filter size={16} />
+              </button>
+            </div>
           </div>
         </div>
       </form>

@@ -23,7 +23,7 @@ export default async function Home() {
       <HeroSection />
 
       {/* Quick Search */}
-      <div className="relative z-30 -mt-24 md:-mt-[10.5rem] container mx-auto px-4 mb-10 md:mb-20">
+      <div className="relative z-30 -mt-[116px] md:-mt-10 container mx-auto px-4 mb-10 md:mb-20">
         <QuickSearch types={lookups.propertyTypes} cities={lookups.cities} neighborhoods={lookups.neighborhoods} />
       </div>
 

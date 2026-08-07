@@ -61,7 +61,7 @@ export default async function ImoveisPage({
                 ))}
               </div>
             ) : (
-              <div className="text-center py-20 bg-white rounded-lg shadow-sm border border-gray-200">
+              <div className="text-center p-12 bg-white rounded-lg shadow-sm border border-gray-200">
                 <h3 className="text-xl font-medium text-mitram-dark mb-2">Nenhum imóvel encontrado</h3>
                 <p className="text-gray-500">Tente ajustar seus filtros de busca para encontrar mais opções.</p>
               </div>

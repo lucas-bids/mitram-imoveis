@@ -14,7 +14,7 @@ export default function Header() {
       <div className="container mx-auto px-6 py-4 flex justify-between items-center relative z-50 bg-transparent">
         <Link href="/" className="flex items-center" onClick={() => setIsMobileMenuOpen(false)}>
           <Image 
-            src="/images/MITRAM-ouro-degrade.png" 
+            src="/images/mitram-dark.png" 
             alt="Mitram Imóveis Logo" 
             width={140} 
             height={35} 
