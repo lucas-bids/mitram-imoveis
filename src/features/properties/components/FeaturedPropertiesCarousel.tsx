@@ -56,17 +56,49 @@ export default function FeaturedPropertiesCarousel({
     }
   }, [currentIndex, lastIndex, moveTo]);
 
+  // Keep dots in sync when the user swipes on mobile (native scroll-snap).
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track) return;
+
+    const syncIndexFromScroll = () => {
+      if (window.innerWidth >= 768) return;
+
+      const children = Array.from(track.children) as HTMLElement[];
+      let closest = 0;
+      let minDistance = Infinity;
+
+      children.forEach((child, index) => {
+        const distance = Math.abs(child.offsetLeft - track.scrollLeft);
+        if (distance < minDistance) {
+          minDistance = distance;
+          closest = index;
+        }
+      });
+
+      setCurrentIndex(Math.min(closest, lastIndex));
+    };
+
+    track.addEventListener("scroll", syncIndexFromScroll, { passive: true });
+    track.addEventListener("scrollend", syncIndexFromScroll);
+
+    return () => {
+      track.removeEventListener("scroll", syncIndexFromScroll);
+      track.removeEventListener("scrollend", syncIndexFromScroll);
+    };
+  }, [lastIndex]);
+
   return (
     <div>
       <div className="relative">
         <div
           ref={trackRef}
-          className="relative grid auto-cols-[100%] grid-flow-col gap-6 overflow-hidden scroll-smooth md:auto-cols-[calc((100%_-_1.5rem)/2)] lg:auto-cols-[calc((100%_-_3rem)/3)]"
+          className="relative grid auto-cols-[100%] grid-flow-col gap-6 overflow-x-auto overflow-y-hidden overscroll-x-contain scroll-smooth snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:auto-cols-[calc((100%_-_1.5rem)/2)] md:overflow-hidden lg:auto-cols-[calc((100%_-_3rem)/3)]"
           aria-label="Imóveis em destaque"
           aria-live="polite"
         >
           {properties.map((property) => (
-            <div key={property.id}>
+            <div key={property.id} className="snap-start">
               <PropertyCard property={property} />
             </div>
           ))}
