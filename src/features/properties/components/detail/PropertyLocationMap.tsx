@@ -1,6 +1,8 @@
 "use client";
 
-import { APIProvider, AdvancedMarker, Map, Pin } from "@vis.gl/react-google-maps";
+import { APIProvider, Map, Marker } from "@vis.gl/react-google-maps";
+
+import { GOOGLE_MAP_MARKER_ICON, GOOGLE_MAP_STYLES } from "@/lib/googleMaps";
 
 export function PropertyLocationMap({ latitude, longitude }: { latitude: number; longitude: number }) {
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
@@ -9,10 +11,8 @@ export function PropertyLocationMap({ latitude, longitude }: { latitude: number;
 
   return (
     <APIProvider apiKey={apiKey}>
-      <Map defaultCenter={position} defaultZoom={16} mapId="MITRAM_MAP_ID" gestureHandling="cooperative" mapTypeControl={false} streetViewControl={false}>
-        <AdvancedMarker position={position}>
-          <Pin background="#D4AF37" borderColor="#1A1A1A" glyphColor="#1A1A1A" />
-        </AdvancedMarker>
+      <Map defaultCenter={position} defaultZoom={16} styles={GOOGLE_MAP_STYLES} gestureHandling="cooperative" mapTypeControl={false} streetViewControl={false}>
+        <Marker position={position} icon={GOOGLE_MAP_MARKER_ICON} />
       </Map>
     </APIProvider>
   );

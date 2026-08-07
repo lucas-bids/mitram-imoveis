@@ -1,6 +1,8 @@
 "use client";
 
-import { AdvancedMarker, Map, Pin } from "@vis.gl/react-google-maps";
+import { Map, Marker } from "@vis.gl/react-google-maps";
+
+import { GOOGLE_MAP_MARKER_ICON, GOOGLE_MAP_STYLES } from "@/lib/googleMaps";
 
 interface Props {
   latitude: number;
@@ -14,17 +16,16 @@ export function AddressMapPreview({ latitude, longitude, onPositionChange }: Pro
 
   return (
     <div className="h-72 overflow-hidden rounded-xl border border-gray-200">
-      <Map center={position} defaultZoom={17} mapId="MITRAM_MAP_ID" disableDefaultUI gestureHandling="greedy">
-        <AdvancedMarker
+      <Map center={position} defaultZoom={17} styles={GOOGLE_MAP_STYLES} disableDefaultUI gestureHandling="greedy">
+        <Marker
           position={position}
           draggable
+          icon={GOOGLE_MAP_MARKER_ICON}
           onDragEnd={(event) => {
             const next = event.latLng;
             if (next) onPositionChange(next.lat(), next.lng());
           }}
-        >
-          <Pin background="#D4AF37" borderColor="#1A1A1A" glyphColor="#1A1A1A" />
-        </AdvancedMarker>
+        />
       </Map>
     </div>
   );
