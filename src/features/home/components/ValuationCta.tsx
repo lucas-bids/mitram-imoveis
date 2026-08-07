@@ -6,7 +6,7 @@ import { SectionEyebrow } from "./SectionEyebrow";
 
 export function ValuationCta() {
   return (
-    <section id="avaliacao" className="py-24 relative overflow-hidden bg-mitram-grayLight">
+    <section id="avaliacao" className="py-16 md:py-24 relative overflow-hidden bg-mitram-grayLight">
       <div className="container mx-auto px-4 relative z-10">
         <div className="flex flex-col-reverse lg:flex-row items-center gap-16">
           

@@ -2,9 +2,9 @@ import Image from "next/image";
 
 export function HeroSection() {
   return (
-    <section className="relative px-4 pt-4 pb-20 lg:pb-32">
-      <div className="container mx-auto">
-        <div className="relative h-[650px] w-full rounded-[2.5rem] overflow-hidden">
+    <section className="relative px-0 pt-0 md:px-4 md:pt-4 pb-16 lg:pb-32">
+      <div className="container mx-auto px-0 md:px-4">
+        <div className="relative h-[550px] md:h-[650px] w-full rounded-none md:rounded-[2.5rem] overflow-hidden">
           <Image 
             src="/images/hero-image.jpg" 
             alt="Imóveis Modernos Mitram" 

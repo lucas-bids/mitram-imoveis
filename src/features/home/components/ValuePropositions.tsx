@@ -2,8 +2,8 @@ import { Handshake, Compass, MapPinned, LandPlot } from "lucide-react";
 
 export function ValuePropositions() {
   return (
-    <section className="container mx-auto px-4 mb-24">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <section className="container mx-auto px-4 mb-12 md:mb-24">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         <div className="bg-white border border-gray-200 p-6 rounded-2xl flex items-start gap-4">
           <div className="bg-purple-100 text-purple-600 p-3 rounded-xl">
             <Handshake size={24} />

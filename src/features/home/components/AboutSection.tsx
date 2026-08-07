@@ -6,7 +6,7 @@ import { SectionEyebrow } from "./SectionEyebrow";
 
 export function AboutSection() {
   return (
-    <section className="container mx-auto px-4 mb-24">
+    <section className="container mx-auto px-4 mb-12 md:mb-24">
       <div className="flex flex-col lg:flex-row items-center gap-16">
         <div className="flex-1 space-y-8">
           <div>

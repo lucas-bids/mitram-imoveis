@@ -34,7 +34,7 @@ export default function QuickSearch({ types, cities, neighborhoods }: QuickSearc
     <div className="bg-white rounded-[2rem] shadow-xl border border-gray-100 p-2 md:p-3 max-w-4xl mx-auto">
       <form onSubmit={handleSearch} className="flex flex-col md:flex-row items-center divide-y md:divide-y-0 md:divide-x divide-gray-100">
         
-        <div className="w-full md:flex-1 px-4 py-3 md:py-2">
+        <div className="w-full md:flex-1 px-4 py-2">
           <div className="flex items-center gap-2 mb-1">
             <MapPin size={16} className="text-mitram-gold" />
             <label className="text-sm font-semibold text-mitram-dark">Localização</label>
@@ -52,7 +52,7 @@ export default function QuickSearch({ types, cities, neighborhoods }: QuickSearc
           </select>
         </div>
 
-        <div className="w-full md:flex-1 px-4 py-3 md:py-2">
+        <div className="w-full md:flex-1 px-4 py-2">
           <div className="flex items-center gap-2 mb-1">
             <Home size={16} className="text-mitram-gold" />
             <label className="text-sm font-semibold text-mitram-dark">Bairro</label>
@@ -68,7 +68,7 @@ export default function QuickSearch({ types, cities, neighborhoods }: QuickSearc
           </select>
         </div>
         
-        <div className="w-full md:flex-1 px-4 py-3 md:py-2">
+        <div className="w-full md:flex-1 px-4 py-2">
           <div className="flex items-center gap-2 mb-1">
             <Building2 size={16} className="text-mitram-gold" />
             <label className="text-sm font-semibold text-mitram-dark">Tipo de imóvel</label>
@@ -84,7 +84,7 @@ export default function QuickSearch({ types, cities, neighborhoods }: QuickSearc
         </div>
 
         <div className="w-full md:w-auto px-2 py-2 md:py-0 mt-2 md:mt-0">
-          <button type="submit" className="w-full md:w-auto flex items-center justify-center gap-2 px-8 py-4 md:py-3 bg-mitram-dark text-white rounded-full font-semibold hover:bg-black transition-all shadow-md">
+          <button type="submit" className="w-full md:w-auto flex items-center justify-center gap-2 px-8 py-3 bg-mitram-dark text-white rounded-full font-semibold hover:bg-black transition-all shadow-md">
             <Search size={18} />
             <span>Buscar</span>
           </button>

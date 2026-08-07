@@ -79,7 +79,7 @@ export default function FeaturedPropertiesCarousel({
               onClick={() => moveTo(currentIndex - 1)}
               disabled={currentIndex === 0}
               aria-label="Ver imóveis anteriores"
-              className="absolute left-3 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white text-mitram-dark shadow-lg transition-colors hover:bg-mitram-gold disabled:cursor-not-allowed disabled:opacity-40 md:-left-5"
+              className="absolute left-3 top-1/2 z-20 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white text-mitram-dark shadow-lg transition-colors hover:bg-mitram-gold disabled:cursor-not-allowed disabled:opacity-40 md:-left-5 md:flex"
             >
               <ChevronLeft size={24} aria-hidden="true" />
             </button>
@@ -88,7 +88,7 @@ export default function FeaturedPropertiesCarousel({
               onClick={() => moveTo(currentIndex + 1)}
               disabled={currentIndex === lastIndex}
               aria-label="Ver próximos imóveis"
-              className="absolute right-3 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white text-mitram-dark shadow-lg transition-colors hover:bg-mitram-gold disabled:cursor-not-allowed disabled:opacity-40 md:-right-5"
+              className="absolute right-3 top-1/2 z-20 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white text-mitram-dark shadow-lg transition-colors hover:bg-mitram-gold disabled:cursor-not-allowed disabled:opacity-40 md:-right-5 md:flex"
             >
               <ChevronRight size={24} aria-hidden="true" />
             </button>

@@ -8,11 +8,11 @@ export const metadata = {
 
 export default function ContactPage() {
   return (
-    <div className="bg-mitram-white min-h-screen py-16 px-4 flex items-center justify-center">
-      <div className="w-full max-w-6xl bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border border-gray-100 flex flex-col md:flex-row">
+    <div className="bg-mitram-white min-h-screen py-10 md:py-16 px-4 flex items-center justify-center">
+      <div className="w-full max-w-6xl md:bg-white md:rounded-[2.5rem] md:shadow-2xl overflow-hidden md:border md:border-gray-100 flex flex-col md:flex-row">
         
         {/* Left Side: Contact Info */}
-        <div className="w-full md:w-2/5 p-10 md:p-16 flex flex-col justify-between bg-white relative">
+        <div className="w-full md:w-2/5 p-4 md:p-16 flex flex-col justify-between md:bg-white relative mb-8 md:mb-0">
           <div>
             <div className="space-y-10">
               <div>
@@ -44,7 +44,7 @@ export default function ContactPage() {
         </div>
 
         {/* Right Side: Form */}
-        <div className="w-full md:w-3/5 bg-mitram-grayLight p-10 md:p-16 rounded-t-[2.5rem] md:rounded-l-none md:rounded-r-[2.5rem]">
+        <div className="w-full md:w-3/5 bg-white md:bg-mitram-grayLight p-8 md:p-16 rounded-[2rem] shadow-xl md:shadow-none md:rounded-l-none md:rounded-r-[2.5rem]">
           <h2 className="text-3xl md:text-4xl font-bold text-mitram-dark leading-tight mb-4">
             Tem alguma dúvida?<br/>Vamos conversar.
           </h2>

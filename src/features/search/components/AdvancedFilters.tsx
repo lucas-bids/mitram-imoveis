@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useState } from "react";
-import { List, Map, Filter } from "lucide-react";
+import { List, Map, Filter, ChevronDown, ChevronUp } from "lucide-react";
 import { buttonClasses } from "@/components/ui/buttonStyles";
 import { FormField, SELECT_ARROW_STYLE, SELECT_EXTRA, fieldClasses } from "@/components/ui/FormField";
 import { FilterOption, parseFilters, serializeFilters, deriveActivePills, PropertyFilters } from "@/features/search/filters";
@@ -34,6 +34,7 @@ export default function AdvancedFilters({
   const searchParams = useSearchParams();
 
   const [filters, setFilters] = useState<PropertyFilters>(() => parseFilters(searchParams));
+  const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
 
   const isMapView = searchParams.get("view") === "map";
 
@@ -70,6 +71,7 @@ export default function AdvancedFilters({
     fieldClasses(false, [SELECT_EXTRA, isActive ? "border-mitram-gold" : "", extra].filter(Boolean).join(" "));
 
   const activePills = deriveActivePills(filters, { types, cities, neighborhoods, features });
+  const hasActiveFilters = activePills.length > 0;
 
   const removeFilter = (key: string) => {
     const newFilters = { ...filters, [key]: "" };
@@ -92,11 +94,30 @@ export default function AdvancedFilters({
   };
 
   return (
-    <div className="bg-[#FAFAFA] rounded-[2rem] p-6 md:p-8 border border-gray-100 shadow-sm">
+    <div className="bg-[#FAFAFA] rounded-[2rem] p-4 md:p-8 border border-gray-100 shadow-sm">
       <form onSubmit={handleApply} className="space-y-6">
-        <PurposeToggle purpose={filters.purpose} onChange={(v) => handleChange("purpose", v)} />
+        
+        {/* Mobile Top Bar */}
+        <div className="flex flex-row items-center justify-between gap-4">
+          <PurposeToggle purpose={filters.purpose} onChange={(v) => handleChange("purpose", v)} />
+          
+          <button 
+            type="button" 
+            className="md:hidden flex items-center justify-between bg-white border border-gray-200 rounded-full px-4 py-2 text-sm font-semibold text-mitram-dark shadow-sm"
+            onClick={() => setIsMobileFiltersOpen(!isMobileFiltersOpen)}
+          >
+            <div className="flex items-center gap-2">
+              <Filter size={16} />
+              <span>Filtros</span>
+              {hasActiveFilters && (
+                <span className="w-2 h-2 rounded-full bg-mitram-gold"></span>
+              )}
+            </div>
+            {isMobileFiltersOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+          </button>
+        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+        <div className={`${isMobileFiltersOpen ? 'grid' : 'hidden'} md:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6`}>
           <FormField label="Tipo de Imóvel" alwaysFloat>
             <select
               value={filters.type}
@@ -229,7 +250,7 @@ export default function AdvancedFilters({
           </div>
 
           <div className="flex items-center justify-end gap-3 shrink-0">
-            {activePills.length > 0 && (
+            {hasActiveFilters && (
               <button
                 type="button"
                 onClick={clearAllFilters}
