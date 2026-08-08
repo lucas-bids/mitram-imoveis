@@ -71,7 +71,7 @@ export default function LoginForm() {
           />
         </div>
 
-        <h1 className="text-2xl font-bold text-center mb-6 text-mitram-dark">Painel Administrativo</h1>
+        <h1 className="text-xl md:text-2xl font-bold text-center mb-6 text-mitram-dark">Painel Administrativo</h1>
 
         {error && (
           <div className="bg-red-50 text-red-600 p-3 rounded mb-4 text-sm">

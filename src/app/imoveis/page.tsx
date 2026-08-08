@@ -23,7 +23,7 @@ export default async function ImoveisPage({
         {/* Breadcrumb & Title */}
         <div className="mb-8">
           <div className="text-sm text-gray-500 mb-2">Home page &gt; Imóveis</div>
-          <h1 className="text-4xl md:text-5xl font-bold text-mitram-dark tracking-tight">
+          <h1 className="text-3xl md:text-5xl font-bold text-mitram-dark tracking-tight">
             Encontre a sua próxima casa
           </h1>
         </div>
@@ -43,7 +43,7 @@ export default async function ImoveisPage({
 
       <div className="container mx-auto px-4 pb-16 flex-grow">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-lg font-bold text-mitram-dark">
+          <h2 className="text-base md:text-lg font-bold text-mitram-dark">
             {properties ? properties.length : 0} imóveis encontrados
           </h2>
         </div>
@@ -62,7 +62,7 @@ export default async function ImoveisPage({
               </div>
             ) : (
               <div className="text-center p-12 bg-white rounded-lg shadow-sm border border-gray-200">
-                <h3 className="text-xl font-medium text-mitram-dark mb-2">Nenhum imóvel encontrado</h3>
+                <h3 className="text-lg md:text-xl font-medium text-mitram-dark mb-2">Nenhum imóvel encontrado</h3>
                 <p className="text-gray-500">Tente ajustar seus filtros de busca para encontrar mais opções.</p>
               </div>
             )}

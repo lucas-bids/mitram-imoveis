@@ -11,7 +11,7 @@ export function AboutSection() {
         <div className="flex-1 space-y-8">
           <div>
             <SectionEyebrow>POR QUE ESCOLHER A MITRAM</SectionEyebrow>
-            <h2 className="text-3xl md:text-4xl font-bold text-mitram-dark leading-tight">
+            <h2 className="text-2xl md:text-4xl font-bold text-mitram-dark leading-tight">
                 Onde seus planos <br /> encontram espaço.
             </h2>
           </div>

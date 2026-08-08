@@ -23,7 +23,7 @@ export default function Footer() {
         </div>
         
         <div>
-          <h3 className="text-lg font-semibold mb-6 text-white tracking-wide">Acesso Rápido</h3>
+          <h3 className="text-base md:text-lg font-semibold mb-6 text-white tracking-wide">Acesso Rápido</h3>
           <ul className="space-y-4 text-[15px] text-gray-400">
             <li><Link href="/" className="hover:text-mitram-goldLight hover:translate-x-1 inline-block transition-all">Início</Link></li>
             <li><Link href="/imoveis" className="hover:text-mitram-goldLight hover:translate-x-1 inline-block transition-all">Imóveis</Link></li>
@@ -32,7 +32,7 @@ export default function Footer() {
         </div>
         
         <div>
-          <h3 className="text-lg font-semibold mb-6 text-white tracking-wide">Fale Conosco</h3>
+          <h3 className="text-base md:text-lg font-semibold mb-6 text-white tracking-wide">Fale Conosco</h3>
           <ul className="space-y-4 text-[15px] text-gray-400">
             <li className="flex items-center gap-3">
               <span className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-mitram-gold">📍</span>

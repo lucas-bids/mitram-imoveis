@@ -63,7 +63,7 @@ export default function PropertyCard({ property }: { property: PropertyListItem 
         
         {/* Title and Price */}
         <div className="flex justify-between items-end gap-3 mb-1">
-          <h3 className="text-lg md:text-xl font-bold text-white line-clamp-1 flex-1 leading-tight">{property.title}</h3>
+          <h3 className="text-base md:text-xl font-bold text-white line-clamp-1 flex-1 leading-tight">{property.title}</h3>
           <p className="text-lg md:text-xl font-bold text-white whitespace-nowrap">
             {priceFormatted}
           </p>

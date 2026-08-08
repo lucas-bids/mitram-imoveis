@@ -63,7 +63,7 @@ export default async function PropertyDetailsPage({ params }: { params: { slug: 
             <PropertySummary property={property} />
 
             <div className="bg-white p-6 rounded-lg shadow-sm">
-              <h2 className="text-lg font-bold text-mitram-dark mb-4">Descrição</h2>
+              <h2 className="text-base md:text-lg font-bold text-mitram-dark mb-4">Descrição</h2>
               <div className="text-gray-700 whitespace-pre-wrap leading-relaxed">
                 {property.description}
               </div>
@@ -74,7 +74,7 @@ export default async function PropertyDetailsPage({ params }: { params: { slug: 
 
             {property.latitude && property.longitude && (
               <div className="bg-white p-6 rounded-lg shadow-sm">
-                <h2 className="text-lg font-bold text-mitram-dark mb-4">Localização</h2>
+                <h2 className="text-base md:text-lg font-bold text-mitram-dark mb-4">Localização</h2>
                 <div className="h-[400px] w-full rounded overflow-hidden border">
                   <PropertyLocationMap latitude={Number(property.latitude)} longitude={Number(property.longitude)} />
                 </div>
@@ -97,7 +97,7 @@ export default async function PropertyDetailsPage({ params }: { params: { slug: 
               </a>
 
               <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-                <h3 className="text-xl font-bold text-mitram-dark mb-4">Agendar Visita / Mais Informações</h3>
+                <h3 className="text-lg md:text-xl font-bold text-mitram-dark mb-4">Agendar Visita / Mais Informações</h3>
                 <SchedulingForm propertyTitle={property.title} propertyUrl={propertyUrl} />
               </div>
             </div>

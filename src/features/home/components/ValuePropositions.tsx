@@ -9,7 +9,7 @@ export function ValuePropositions() {
             <Handshake size={24} />
           </div>
           <div>
-            <h3 className="font-bold text-mitram-dark mb-1">Negociação descomplicada</h3>
+            <h3 className="text-base md:text-lg font-bold text-mitram-dark mb-1">Negociação descomplicada</h3>
             <p className="text-sm text-gray-500 leading-relaxed">Acompanhamento e suporte em todas as etapas da negociação.</p>
           </div>
         </div>
@@ -18,7 +18,7 @@ export function ValuePropositions() {
             <Compass size={24} />
           </div>
           <div>
-            <h3 className="font-bold text-mitram-dark mb-1">Apoio em cada escolha</h3>
+            <h3 className="text-base md:text-lg font-bold text-mitram-dark mb-1">Apoio em cada escolha</h3>
             <p className="text-sm text-gray-500 leading-relaxed">Recomendações alinhadas ao seu perfil e orçamento.</p>
           </div>
         </div>
@@ -27,7 +27,7 @@ export function ValuePropositions() {
             <MapPinned size={24} />
           </div>
           <div>
-            <h3 className="font-bold text-mitram-dark mb-1">Imóveis selecionados</h3>
+            <h3 className="text-base md:text-lg font-bold text-mitram-dark mb-1">Imóveis selecionados</h3>
             <p className="text-sm text-gray-500 leading-relaxed">Imóveis de qualidade em Curitiba e região.</p>
           </div>
         </div>
@@ -36,7 +36,7 @@ export function ValuePropositions() {
             <LandPlot size={24} />
           </div>
           <div>
-            <h3 className="font-bold text-mitram-dark mb-1">Compra e venda de terrenos</h3>
+            <h3 className="text-base md:text-lg font-bold text-mitram-dark mb-1">Compra e venda de terrenos</h3>
             <p className="text-sm text-gray-500 leading-relaxed">Intermediação segura para comprar ou vender terrenos.</p>
           </div>
         </div>

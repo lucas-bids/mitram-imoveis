@@ -70,7 +70,7 @@ export function ValuationCta() {
             <div className="space-y-6">
               <SectionEyebrow>Avaliação Gratuita</SectionEyebrow>
               
-              <h2 className="text-3xl md:text-4xl font-bold text-mitram-dark leading-tight">
+              <h2 className="text-2xl md:text-4xl font-bold text-mitram-dark leading-tight">
                 Venda sua casa ou terreno <br className="hidden lg:block"/>
                 com a Mitram
               </h2>

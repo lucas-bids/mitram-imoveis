@@ -19,7 +19,7 @@ export function HeroSection() {
               <span className="inline-block py-1.5 px-4 rounded-full bg-mitram-gold/20 text-mitram-goldLight text-sm font-semibold backdrop-blur-md border border-mitram-gold/30">
                 ✨ Encontre seu novo lar
               </span>
-              <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-tight tracking-tight">
+              <h1 className="text-3xl md:text-6xl lg:text-7xl font-bold text-white leading-tight tracking-tight">
               <span className="text-mitram-goldLight">Viver bem</span> começa com uma escolha segura.
               </h1>
               <p className="text-lg md:text-xl text-gray-200 leading-relaxed max-w-xl">

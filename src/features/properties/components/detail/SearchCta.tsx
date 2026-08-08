@@ -16,7 +16,7 @@ export function SearchCta() {
         <div className="absolute inset-0 bg-mitram-dark/50 z-10" />
         
         <div className="relative z-20 flex flex-col items-center justify-center px-4 py-24 md:py-32 text-center">
-          <h2 className="text-2xl md:text-4xl font-bold text-white mb-4">
+          <h2 className="text-xl md:text-4xl font-bold text-white mb-4">
             Encontre o Imóvel Perfeito com a Mitram
           </h2>
           <p className="text-lg text-gray-200 max-w-2xl mb-8">

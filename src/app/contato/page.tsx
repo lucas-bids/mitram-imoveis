@@ -18,7 +18,7 @@ export default function ContactPage() {
               <div>
                 <div className="flex items-center gap-3 mb-3">
                   <Phone size={20} className="text-gray-400" />
-                  <h3 className="font-bold text-mitram-dark text-lg">WhatsApp / Telefone</h3>
+                  <h3 className="font-bold text-mitram-dark text-base md:text-lg">WhatsApp / Telefone</h3>
                 </div>
                 <p className="text-gray-500 text-sm mb-1 ml-8">Nossa equipe está pronta para ajudar.</p>
                 <p className="text-mitram-dark font-semibold ml-8">41 99678-7173</p>
@@ -28,7 +28,7 @@ export default function ContactPage() {
               <div>
                 <div className="flex items-center gap-3 mb-3">
                   <Mail size={20} className="text-gray-400" />
-                  <h3 className="font-bold text-mitram-dark text-lg">E-mail</h3>
+                  <h3 className="font-bold text-mitram-dark text-base md:text-lg">E-mail</h3>
                 </div>
                 <p className="text-gray-500 text-sm mb-1 ml-8">Envie-nos um e-mail para propostas e parcerias.</p>
                 <p className="text-mitram-dark font-semibold ml-8">lucas.vidal.andrade@gmail.com</p>
@@ -45,7 +45,7 @@ export default function ContactPage() {
 
         {/* Right Side: Form */}
         <div className="w-full md:w-3/5 bg-white md:bg-mitram-grayLight p-8 md:p-16 rounded-[2rem] shadow-xl md:shadow-none md:rounded-l-none md:rounded-r-[2.5rem]">
-          <h2 className="text-3xl md:text-4xl font-bold text-mitram-dark leading-tight mb-4">
+          <h2 className="text-2xl md:text-4xl font-bold text-mitram-dark leading-tight mb-4">
             Tem alguma dúvida?<br/>Vamos conversar.
           </h2>
           <p className="text-gray-600 mb-10 text-lg">
