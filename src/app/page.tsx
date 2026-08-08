@@ -23,15 +23,15 @@ export default async function Home() {
       <HeroSection />
 
       {/* Quick Search */}
-      <div className="relative z-30 -mt-[116px] md:-mt-10 container mx-auto px-4 mb-10 md:mb-20">
+      <div className="relative z-30 -mt-[100px] md:-mt-10 container mx-auto px-4 mb-8 md:mb-20">
         <QuickSearch types={lookups.propertyTypes} cities={lookups.cities} neighborhoods={lookups.neighborhoods} />
       </div>
 
       {/* Featured Properties */}
       {featuredProperties && featuredProperties.length > 0 && (
-        <section className="bg-white pb-12 md:pb-24 pt-8 md:pt-0">
+        <section className="bg-white pb-10 md:pb-24 pt-4 md:pt-0">
           <div className="container mx-auto px-4">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 md:mb-10 gap-4">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 md:mb-10 gap-4">
               <div>
                 <h2 className="text-xl md:text-3xl font-bold text-mitram-dark">Imóveis em Destaque</h2>
               </div>
@@ -43,7 +43,7 @@ export default async function Home() {
 
             <FeaturedPropertiesCarousel properties={featuredProperties as unknown as PropertyListItem[]} />
 
-            <Link href="/imoveis" className="group mt-6 flex md:hidden items-center justify-center gap-2 text-mitram-dark font-semibold hover:text-mitram-gold transition-colors">
+            <Link href="/imoveis" className="group mt-4 flex md:hidden items-center justify-center gap-2 text-mitram-dark font-semibold hover:text-mitram-gold transition-colors">
               Ver Todos
               <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
             </Link>

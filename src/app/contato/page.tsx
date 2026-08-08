@@ -8,13 +8,13 @@ export const metadata = {
 
 export default function ContactPage() {
   return (
-    <div className="bg-mitram-white min-h-screen py-10 md:py-16 px-4 flex items-center justify-center">
+    <div className="bg-mitram-white min-h-screen py-6 md:py-16 px-0 md:px-4 flex items-center justify-center">
       <div className="w-full max-w-6xl md:bg-white md:rounded-[2.5rem] md:shadow-2xl overflow-hidden md:border md:border-gray-100 flex flex-col md:flex-row">
         
         {/* Left Side: Contact Info */}
-        <div className="w-full md:w-2/5 p-4 md:p-16 flex flex-col justify-between md:bg-white relative mb-8 md:mb-0">
+        <div className="w-full md:w-2/5 px-4 py-4 md:p-16 flex flex-col justify-between md:bg-white relative mb-6 md:mb-0">
           <div>
-            <div className="space-y-10">
+            <div className="space-y-6 md:space-y-10">
               <div>
                 <div className="flex items-center gap-3 mb-3">
                   <Phone size={20} className="text-gray-400" />
@@ -36,7 +36,7 @@ export default function ContactPage() {
             </div>
           </div>
 
-          <div className="mt-16 pt-8 border-t border-gray-100 flex items-center gap-4">
+          <div className="mt-8 pt-6 border-t border-gray-100 flex items-center gap-4 md:mt-16 md:pt-8">
             <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="p-3 bg-gray-50 rounded-full text-gray-500 hover:text-mitram-gold hover:bg-mitram-gold/10 transition-colors" title="Instagram">
               <Instagram size={22} />
             </a>
@@ -44,11 +44,11 @@ export default function ContactPage() {
         </div>
 
         {/* Right Side: Form */}
-        <div className="w-full md:w-3/5 bg-white md:bg-mitram-grayLight p-8 md:p-16 rounded-[2rem] shadow-xl md:shadow-none md:rounded-l-none md:rounded-r-[2.5rem]">
-          <h2 className="text-2xl md:text-4xl font-bold text-mitram-dark leading-tight mb-4">
+        <div className="w-full md:w-3/5 bg-white md:bg-mitram-grayLight px-4 py-6 md:p-16 rounded-none shadow-none md:shadow-none md:rounded-l-none md:rounded-r-[2.5rem]">
+          <h2 className="text-2xl md:text-4xl font-bold text-mitram-dark leading-tight mb-3 md:mb-4">
             Tem alguma dúvida?<br/>Vamos conversar.
           </h2>
-          <p className="text-gray-600 mb-10 text-lg">
+          <p className="text-gray-600 mb-6 text-lg md:mb-10">
             Conte-nos um pouco sobre você e o que está buscando.
           </p>
           

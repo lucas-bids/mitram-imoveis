@@ -130,7 +130,7 @@ export default function FeaturedPropertiesCarousel({
 
       {lastIndex > 0 && (
         <div
-          className="mt-7 flex justify-center gap-2"
+          className="mt-4 flex justify-center gap-2 md:mt-7"
           aria-label="Escolher posição do carrossel"
         >
           {Array.from({ length: lastIndex + 1 }, (_, index) => (

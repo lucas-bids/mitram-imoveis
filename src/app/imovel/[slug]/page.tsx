@@ -52,18 +52,18 @@ export default async function PropertyDetailsPage({ params }: { params: { slug: 
     <div className="bg-mitram-grayLight min-h-screen">
       <PropertyJsonLd property={property} propertyUrl={propertyUrl} />
 
-      <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
+      <div className="container mx-auto px-4 py-4 md:py-8">
+        <div className="mb-6 md:mb-8">
           <Gallery media={property.property_media?.sort((a: any, b: any) => a.sort_order - b.sort_order) || []} />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+          <div className="lg:col-span-2 space-y-6 md:space-y-8">
             <PropertyHeading property={property} />
             <PropertySummary property={property} />
 
-            <div className="bg-white p-6 rounded-lg shadow-sm">
-              <h2 className="text-base md:text-lg font-bold text-mitram-dark mb-4">Descrição</h2>
+            <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm">
+              <h2 className="text-base md:text-lg font-bold text-mitram-dark mb-3 md:mb-4">Descrição</h2>
               <div className="text-gray-700 whitespace-pre-wrap leading-relaxed">
                 {property.description}
               </div>
@@ -73,9 +73,9 @@ export default async function PropertyDetailsPage({ params }: { params: { slug: 
             <PropertyMediaLinks property={property} />
 
             {property.latitude && property.longitude && (
-              <div className="bg-white p-6 rounded-lg shadow-sm">
-                <h2 className="text-base md:text-lg font-bold text-mitram-dark mb-4">Localização</h2>
-                <div className="h-[400px] w-full rounded overflow-hidden border">
+              <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm">
+                <h2 className="text-base md:text-lg font-bold text-mitram-dark mb-3 md:mb-4">Localização</h2>
+                <div className="h-[320px] md:h-[400px] w-full rounded overflow-hidden border">
                   <PropertyLocationMap latitude={Number(property.latitude)} longitude={Number(property.longitude)} />
                 </div>
               </div>
@@ -83,7 +83,7 @@ export default async function PropertyDetailsPage({ params }: { params: { slug: 
           </div>
 
           <div className="lg:col-span-1">
-            <div className="sticky top-24 space-y-6">
+            <div className="sticky top-24 space-y-4 md:space-y-6">
               <PropertyPriceCard property={property} whatsappLink={whatsappLink} />
 
               <a
@@ -96,8 +96,8 @@ export default async function PropertyDetailsPage({ params }: { params: { slug: 
                 Conversar pelo WhatsApp
               </a>
 
-              <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-                <h3 className="text-lg md:text-xl font-bold text-mitram-dark mb-4">Agendar Visita / Mais Informações</h3>
+              <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm border border-gray-100">
+                <h3 className="text-lg md:text-xl font-bold text-mitram-dark mb-3 md:mb-4">Agendar Visita / Mais Informações</h3>
                 <SchedulingForm propertyTitle={property.title} propertyUrl={propertyUrl} />
               </div>
             </div>

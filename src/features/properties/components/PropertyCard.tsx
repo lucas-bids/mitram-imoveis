@@ -22,7 +22,7 @@ export default function PropertyCard({ property }: { property: PropertyListItem 
   const priceFormatted = formatPrice(property.price);
 
   return (
-    <div className="group relative w-full h-[400px] sm:h-[420px] rounded-3xl overflow-hidden shadow-sm border border-gray-100 transition-all duration-300 hover:shadow-md flex flex-col bg-mitram-dark">
+    <div className="group relative w-full h-[360px] sm:h-[420px] rounded-3xl overflow-hidden shadow-sm border border-gray-100 transition-all duration-300 hover:shadow-md flex flex-col bg-mitram-dark">
       
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
@@ -59,7 +59,7 @@ export default function PropertyCard({ property }: { property: PropertyListItem 
       </div>
 
       {/* Bottom Content Area */}
-      <div className="absolute bottom-0 left-0 right-0 p-5 z-20 pointer-events-none">
+      <div className="absolute bottom-0 left-0 right-0 p-4 md:p-5 z-20 pointer-events-none">
         
         {/* Title and Price */}
         <div className="flex justify-between items-end gap-3 mb-1">
@@ -70,7 +70,7 @@ export default function PropertyCard({ property }: { property: PropertyListItem 
         </div>
         
         {/* Location */}
-        <p className="text-sm text-gray-300 mb-4 line-clamp-1">
+        <p className="text-sm text-gray-300 mb-3 md:mb-4 line-clamp-1">
           {locationLabel(property.neighborhoods)}
         </p>
 

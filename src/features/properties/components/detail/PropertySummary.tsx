@@ -3,9 +3,9 @@ import { Bed, Bath, Car, Square } from "lucide-react";
 
 export function PropertySummary({ property }: { property: PropertyDetail }) {
   return (
-    <div className="bg-white p-6 rounded-xl shadow-sm">
-      <h2 className="text-base md:text-lg font-bold text-mitram-dark mb-4">Resumo</h2>
-      <div className="grid grid-cols-3 md:grid-cols-4 gap-4">
+    <div className="bg-white p-4 md:p-6 rounded-xl shadow-sm">
+      <h2 className="text-base md:text-lg font-bold text-mitram-dark mb-3 md:mb-4">Resumo</h2>
+      <div className="grid grid-cols-3 md:grid-cols-4 gap-3 md:gap-4">
         {property.total_area && (
           <div>
             <p className="text-gray-500 text-sm">Área Total</p>
