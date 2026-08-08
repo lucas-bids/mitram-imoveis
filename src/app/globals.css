@@ -2,15 +2,28 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Brand colors — single source of truth. Edit here; tailwind.config.ts
+   and any inline styles (e.g. color-mix()) reference these same vars. */
 :root {
-  --background: #F5F5F5; /* Mitram grayLight */
-  --foreground: #1A1A1A; /* Mitram dark */
+  --color-white: #FFFFFF;
+  --color-gold: #D4AF37;
+  --color-gold-dark: #B3922E;
+  --color-gold-light: #F0E68C;
+  --color-gold-text: #A6851D;
+  --color-dark: #1A1A1A;
+  --color-gray-light: #F5F5F5;
+  --color-gray-dark: #333333;
+  --color-whatsapp: #25D366;
+  --color-whatsapp-dark: #128C7E;
+
+  --background: var(--color-gray-light);
+  --foreground: var(--color-dark);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #1A1A1A;
-    --foreground: #F5F5F5;
+    --background: var(--color-dark);
+    --foreground: var(--color-gray-light);
   }
 }
 

@@ -2,6 +2,7 @@ import { PropertyDetail } from "@/features/properties/types";
 import { MapPin } from "lucide-react";
 import { locationLabel, purposeLabel, statusLabel } from "@/features/properties/format";
 import { Badge } from "@/components/ui/Badge";
+import { Heading } from "@/components/ui/Heading";
 
 export function PropertyHeading({ property }: { property: PropertyDetail }) {
   return (
@@ -12,7 +13,7 @@ export function PropertyHeading({ property }: { property: PropertyDetail }) {
         {property.status === 'sold' && <Badge tone="red">{statusLabel(property.status)}</Badge>}
         {property.status === 'rented' && <Badge tone="red">{statusLabel(property.status)}</Badge>}
       </div>
-      <h1 className="text-2xl md:text-3xl font-bold text-mitram-dark mb-2">{property.title}</h1>
+      <Heading as="h1" variant="h2" className="mb-2">{property.title}</Heading>
       <p className="text-gray-600 flex items-center gap-1">
         <MapPin size={18} />
         {property.street && `${property.street}, `}

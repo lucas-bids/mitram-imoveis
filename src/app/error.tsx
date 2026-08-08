@@ -4,6 +4,8 @@ import { useEffect } from "react";
 import Link from "next/link";
 import { Home, RotateCcw } from "lucide-react";
 import { buttonClasses } from "@/components/ui/buttonStyles";
+import { Heading } from "@/components/ui/Heading";
+import { Text } from "@/components/ui/Text";
 
 export default function Error({
   error,
@@ -18,10 +20,10 @@ export default function Error({
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] px-4 text-center">
-      <h2 className="text-xl md:text-2xl font-bold text-mitram-dark mb-4">Algo deu errado</h2>
-      <p className="text-gray-600 mb-8 max-w-md">
+      <Heading as="h2" variant="h3" className="mb-4">Algo deu errado</Heading>
+      <Text variant="body" className="mb-8 max-w-md">
         Desculpe, ocorreu um erro inesperado ao carregar esta página.
-      </p>
+      </Text>
       <div className="flex gap-4">
         <button onClick={() => reset()} className={buttonClasses("secondary", "md")}>
           <RotateCcw size={18} />

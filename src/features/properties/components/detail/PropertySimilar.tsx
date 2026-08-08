@@ -1,12 +1,13 @@
 import PropertyCard from "@/features/properties/components/PropertyCard";
 import { PropertyListItem } from "@/features/properties/types";
+import { Heading } from "@/components/ui/Heading";
 
 export function PropertySimilar({ properties }: { properties: PropertyListItem[] }) {
   if (!properties || properties.length === 0) return null;
 
   return (
     <div className="mt-10 md:mt-16">
-      <h2 className="text-lg md:text-xl font-bold text-mitram-dark mb-4 md:mb-6">Imóveis Semelhantes</h2>
+      <Heading as="h2" variant="h3" className="mb-4 md:mb-6">Imóveis Semelhantes</Heading>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
         {properties.map((prop) => (
           <PropertyCard key={prop.id} property={prop} />

@@ -1,5 +1,7 @@
 import { Phone, Mail, Instagram } from "lucide-react";
 import { ContactForm } from "@/features/contact/components/ContactForm";
+import { Heading } from "@/components/ui/Heading";
+import { Text } from "@/components/ui/Text";
 
 export const metadata = {
   title: "Contato | Mitram Imóveis",
@@ -18,19 +20,19 @@ export default function ContactPage() {
               <div>
                 <div className="flex items-center gap-3 mb-3">
                   <Phone size={20} className="text-gray-400" />
-                  <h3 className="font-bold text-mitram-dark text-base md:text-lg">WhatsApp / Telefone</h3>
+                  <Heading as="h3" variant="h4">WhatsApp / Telefone</Heading>
                 </div>
-                <p className="text-gray-500 text-sm mb-1 ml-8">Nossa equipe está pronta para ajudar.</p>
+                <Text variant="bodySm" className="mb-1 ml-8">Nossa equipe está pronta para ajudar.</Text>
                 <p className="text-mitram-dark font-semibold ml-8">41 99678-7173</p>
-                <p className="text-gray-400 text-xs mt-1 ml-8">Segunda a Sexta das 8h às 18h.</p>
+                <Text variant="caption" className="mt-1 ml-8">Segunda a Sexta das 8h às 18h.</Text>
               </div>
 
               <div>
                 <div className="flex items-center gap-3 mb-3">
                   <Mail size={20} className="text-gray-400" />
-                  <h3 className="font-bold text-mitram-dark text-base md:text-lg">E-mail</h3>
+                  <Heading as="h3" variant="h4">E-mail</Heading>
                 </div>
-                <p className="text-gray-500 text-sm mb-1 ml-8">Envie-nos um e-mail para propostas e parcerias.</p>
+                <Text variant="bodySm" className="mb-1 ml-8">Envie-nos um e-mail para propostas e parcerias.</Text>
                 <p className="text-mitram-dark font-semibold ml-8">lucas.vidal.andrade@gmail.com</p>
               </div>
             </div>
@@ -45,12 +47,12 @@ export default function ContactPage() {
 
         {/* Right Side: Form */}
         <div className="w-full md:w-3/5 bg-white md:bg-mitram-grayLight px-4 py-6 md:p-16 rounded-none shadow-none md:shadow-none md:rounded-l-none md:rounded-r-[2.5rem]">
-          <h2 className="text-2xl md:text-4xl font-bold text-mitram-dark leading-tight mb-3 md:mb-4">
+          <Heading variant="h2" className="mb-3 md:mb-4">
             Tem alguma dúvida?<br/>Vamos conversar.
-          </h2>
-          <p className="text-gray-600 mb-6 text-lg md:mb-10">
+          </Heading>
+          <Text variant="lead" className="mb-6 md:mb-10">
             Conte-nos um pouco sobre você e o que está buscando.
-          </p>
+          </Text>
           
           <ContactForm />
         </div>

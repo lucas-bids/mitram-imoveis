@@ -6,8 +6,10 @@ import { createClient } from "@/lib/supabase/client";
 import Image from "next/image";
 import Link from "next/link";
 import { LogIn } from "lucide-react";
+import { AlertMessage } from "@/components/ui/AlertMessage";
 import { buttonClasses } from "@/components/ui/buttonStyles";
 import { FormField, fieldClasses } from "@/components/ui/FormField";
+import { Heading } from "@/components/ui/Heading";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
@@ -71,12 +73,12 @@ export default function LoginForm() {
           />
         </div>
 
-        <h1 className="text-xl md:text-2xl font-bold text-center mb-6 text-mitram-dark">Painel Administrativo</h1>
+        <Heading as="h1" variant="h3" className="text-center mb-6">Painel Administrativo</Heading>
 
         {error && (
-          <div className="bg-red-50 text-red-600 p-3 rounded mb-4 text-sm">
+          <AlertMessage tone="error" className="mb-4">
             {error}
-          </div>
+          </AlertMessage>
         )}
 
         <form onSubmit={handleLogin} className="space-y-4">

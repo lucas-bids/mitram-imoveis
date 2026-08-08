@@ -9,12 +9,12 @@ interface BadgeProps {
 
 const TONE_CLASSES: Record<BadgeTone, string> = {
   gold: "bg-mitram-gold/90 text-white backdrop-blur-md shadow-sm",
-  red: "bg-red-600/90 text-white backdrop-blur-md shadow-sm",
-  green: "bg-green-100 text-green-800",
+  red: "bg-mitram-error/90 text-white backdrop-blur-md shadow-sm",
+  green: "bg-mitram-successLight text-mitram-success",
   gray: "bg-gray-100 text-gray-800",
-  blue: "bg-blue-100 text-blue-800",
+  blue: "bg-mitram-infoLight text-mitram-info",
   purple: "bg-purple-100 text-purple-800",
-  yellow: "bg-yellow-100 text-yellow-800",
+  yellow: "bg-mitram-warningLight text-mitram-warning",
 };
 
 export function Badge({ tone, children }: BadgeProps) {

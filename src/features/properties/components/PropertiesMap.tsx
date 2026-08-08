@@ -8,6 +8,7 @@ import Link from "next/link";
 import { PropertyListItem } from "@/features/properties/types";
 import { formatPrice, coverImageUrl } from "@/features/properties/format";
 import { GOOGLE_MAP_MARKER_ICON, GOOGLE_MAP_STYLES } from "@/lib/googleMaps";
+import { Heading } from "@/components/ui/Heading";
 
 interface PropertiesMapProps {
   properties: PropertyListItem[];
@@ -58,7 +59,7 @@ export default function PropertiesMap({ properties }: PropertiesMapProps) {
               />
             </div>
             <div className="flex flex-col flex-1 justify-center">
-              <h4 className="text-xs font-bold text-mitram-dark line-clamp-2 leading-tight mb-1">{selectedProperty.title}</h4>
+              <Heading as="h4" variant="micro" className="line-clamp-2 mb-1">{selectedProperty.title}</Heading>
               <p className="text-sm font-semibold text-mitram-gold mb-1">
                 {formatPrice(selectedProperty.price)}
               </p>

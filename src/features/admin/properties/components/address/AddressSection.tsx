@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { APIProvider, useMapsLibrary } from "@vis.gl/react-google-maps";
 import { CheckCircle2, Loader2, MapPin } from "lucide-react";
 import { UseFormReturn, useWatch } from "react-hook-form";
+import { AlertMessage } from "@/components/ui/AlertMessage";
 import { buttonShapeClasses } from "@/components/ui/buttonStyles";
 import { FormField, SELECT_ARROW_STYLE, SELECT_EXTRA, fieldClasses } from "@/components/ui/FormField";
 import { PropertyFormValues } from "@/features/admin/properties/schema";
@@ -146,9 +147,9 @@ function AddressFields({ form, initialCities, initialNeighborhoods }: Props) {
             {!geocoder ? "Carregando mapa..." : confirming ? "Localizando..." : confirmed ? "Confirmar endereço novamente" : "Confirmar endereço"}
           </button>
         ) : (
-          <p className="rounded-lg bg-red-50 p-4 text-sm text-red-700">Google Maps não está configurado.</p>
+          <AlertMessage tone="error">Google Maps não está configurado.</AlertMessage>
         )}
-        {geocodeError && <p className="text-sm text-red-600">{geocodeError}</p>}
+        {geocodeError && <p className="text-sm text-mitram-error">{geocodeError}</p>}
         {confirmed && latitude && longitude && (
           <div className="space-y-3">
             <p className="flex items-center gap-2 text-sm text-green-700"><CheckCircle2 size={17} /> Endereço confirmado{formattedAddress ? `: ${formattedAddress}` : "."}</p>

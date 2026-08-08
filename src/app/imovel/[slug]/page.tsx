@@ -6,6 +6,8 @@ import SchedulingForm from "@/features/contact/components/SchedulingForm";
 import { PropertyLocationMap } from "@/features/properties/components/detail/PropertyLocationMap";
 import { MessageCircle } from "lucide-react";
 import { buttonShapeClasses } from "@/components/ui/buttonStyles";
+import { Container } from "@/components/ui/Container";
+import { Heading } from "@/components/ui/Heading";
 
 import { PropertyJsonLd } from "@/features/properties/components/detail/PropertyJsonLd";
 import { PropertyHeading } from "@/features/properties/components/detail/PropertyHeading";
@@ -52,7 +54,7 @@ export default async function PropertyDetailsPage({ params }: { params: { slug: 
     <div className="bg-mitram-grayLight min-h-screen">
       <PropertyJsonLd property={property} propertyUrl={propertyUrl} />
 
-      <div className="container mx-auto px-4 py-4 md:py-8">
+      <Container className="py-4 md:py-8">
         <div className="mb-6 md:mb-8">
           <Gallery media={property.property_media?.sort((a: any, b: any) => a.sort_order - b.sort_order) || []} />
         </div>
@@ -63,7 +65,7 @@ export default async function PropertyDetailsPage({ params }: { params: { slug: 
             <PropertySummary property={property} />
 
             <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm">
-              <h2 className="text-base md:text-lg font-bold text-mitram-dark mb-3 md:mb-4">Descrição</h2>
+              <Heading as="h2" variant="h4" className="mb-3 md:mb-4">Descrição</Heading>
               <div className="text-gray-700 whitespace-pre-wrap leading-relaxed">
                 {property.description}
               </div>
@@ -74,7 +76,7 @@ export default async function PropertyDetailsPage({ params }: { params: { slug: 
 
             {property.latitude && property.longitude && (
               <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm">
-                <h2 className="text-base md:text-lg font-bold text-mitram-dark mb-3 md:mb-4">Localização</h2>
+                <Heading as="h2" variant="h4" className="mb-3 md:mb-4">Localização</Heading>
                 <div className="h-[320px] md:h-[400px] w-full rounded overflow-hidden border">
                   <PropertyLocationMap latitude={Number(property.latitude)} longitude={Number(property.longitude)} />
                 </div>
@@ -90,14 +92,14 @@ export default async function PropertyDetailsPage({ params }: { params: { slug: 
                 href={whatsappLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={buttonShapeClasses("lg", "w-full bg-[#25D366] text-white shadow-md hover:bg-[#128C7E]")}
+                className={buttonShapeClasses("lg", "w-full bg-mitram-whatsapp text-white shadow-md hover:bg-mitram-whatsappDark")}
               >
                 <MessageCircle size={20} />
                 Conversar pelo WhatsApp
               </a>
 
               <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm border border-gray-100">
-                <h3 className="text-lg md:text-xl font-bold text-mitram-dark mb-3 md:mb-4">Agendar Visita / Mais Informações</h3>
+                <Heading as="h3" variant="h3" className="mb-3 md:mb-4">Agendar Visita / Mais Informações</Heading>
                 <SchedulingForm propertyTitle={property.title} propertyUrl={propertyUrl} />
               </div>
             </div>
@@ -106,7 +108,7 @@ export default async function PropertyDetailsPage({ params }: { params: { slug: 
 
         <PropertySimilar properties={similarProperties} />
         <SearchCta />
-      </div>
+      </Container>
     </div>
   );
 }

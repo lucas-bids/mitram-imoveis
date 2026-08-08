@@ -3,6 +3,7 @@
 import { Send } from "lucide-react";
 import { buttonClasses } from "@/components/ui/buttonStyles";
 import { CHECKBOX_CLASSES, FormField, fieldClasses } from "@/components/ui/FormField";
+import { Text } from "@/components/ui/Text";
 import { useContactFormSubmit, useAutoResizeTextarea } from "@/features/contact/hooks";
 
 interface SchedulingFormProps {
@@ -16,7 +17,7 @@ export default function SchedulingForm({ propertyTitle, propertyUrl }: Schedulin
 
   if (success) {
     return (
-      <div className="bg-green-50 text-green-800 p-4 rounded-lg text-center">
+      <div className="bg-mitram-successLight text-mitram-success p-4 rounded-lg text-center">
         <p className="font-semibold">Mensagem enviada com sucesso!</p>
         <p className="text-sm mt-2">Entraremos em contato em breve.</p>
         <button 
@@ -31,7 +32,7 @@ export default function SchedulingForm({ propertyTitle, propertyUrl }: Schedulin
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {error && <div className="text-red-500 text-sm">{error}</div>}
+      {error && <div className="text-mitram-error text-sm">{error}</div>}
       
       {/* Honeypot field for basic spam protection */}
       <input type="text" name="address_field" className="hidden" tabIndex={-1} autoComplete="off" />
@@ -48,9 +49,9 @@ export default function SchedulingForm({ propertyTitle, propertyUrl }: Schedulin
 
       <div className="flex items-start gap-3 pt-2">
         <input type="checkbox" id="lgpd-scheduling" name="consent" required className={`mt-0.5 ${CHECKBOX_CLASSES}`} />
-        <label htmlFor="lgpd-scheduling" className="text-xs text-gray-600 leading-tight">
+        <Text as="label" variant="caption" htmlFor="lgpd-scheduling" className="leading-tight">
           Concordo que meus dados sejam utilizados pela Mitram Imóveis para responder a esta solicitação.
-        </label>
+        </Text>
       </div>
 
       <button type="submit" disabled={loading} className={buttonClasses("primary", "md", "mt-2 w-full")}>

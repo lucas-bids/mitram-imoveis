@@ -1,10 +1,13 @@
 import Link from "next/link";
 import Image from "next/image";
+import { Container } from "@/components/ui/Container";
+import { Heading } from "@/components/ui/Heading";
+import { Text } from "@/components/ui/Text";
 
 export default function Footer() {
   return (
     <footer className="bg-mitram-dark text-mitram-white pt-12 md:pt-20 pb-8 mt-auto rounded-t-[2.5rem]">
-      <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12 mb-10 md:mb-16">
+      <Container padding="loose" className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12 mb-10 md:mb-16">
         <div className="md:col-span-2">
           <Image 
             src="/images/mitram-full-ouro-degrade.png" 
@@ -21,18 +24,18 @@ export default function Footer() {
             CRECI J06908
           </div>
         </div>
-        
+
         <div>
-          <h3 className="text-base md:text-lg font-semibold mb-4 md:mb-6 text-white tracking-wide">Acesso Rápido</h3>
+          <Heading as="h3" variant="h4" tone="light" className="mb-4 md:mb-6 tracking-wide">Acesso Rápido</Heading>
           <ul className="space-y-3 md:space-y-4 text-[15px] text-gray-400">
             <li><Link href="/" className="hover:text-mitram-goldLight hover:translate-x-1 inline-block transition-all">Início</Link></li>
             <li><Link href="/imoveis" className="hover:text-mitram-goldLight hover:translate-x-1 inline-block transition-all">Imóveis</Link></li>
             <li><Link href="/contato" className="hover:text-mitram-goldLight hover:translate-x-1 inline-block transition-all">Contato</Link></li>
           </ul>
         </div>
-        
+
         <div>
-          <h3 className="text-base md:text-lg font-semibold mb-4 md:mb-6 text-white tracking-wide">Fale Conosco</h3>
+          <Heading as="h3" variant="h4" tone="light" className="mb-4 md:mb-6 tracking-wide">Fale Conosco</Heading>
           <ul className="space-y-3 md:space-y-4 text-[15px] text-gray-400">
             <li className="flex items-center gap-3">
               <span className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-mitram-gold">📍</span>
@@ -48,19 +51,19 @@ export default function Footer() {
             </li>
           </ul>
         </div>
-      </div>
+      </Container>
 
-      <div className="container mx-auto px-6 pt-6 md:pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
-        <p className="text-sm text-gray-500">
+      <Container padding="loose" className="pt-6 md:pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
+        <Text variant="bodySm">
           © {new Date().getFullYear()} Mitram Imóveis. Todos os direitos reservados.
-        </p>
+        </Text>
         <Link
           href="/admin/login"
           className="text-xs px-4 py-2 rounded-full bg-white/5 text-gray-400 hover:text-mitram-goldLight hover:bg-white/10 transition-all border border-transparent hover:border-white/10"
         >
           Área do Corretor
         </Link>
-      </div>
+      </Container>
     </footer>
   );
 }

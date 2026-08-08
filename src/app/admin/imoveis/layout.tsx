@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Container } from "@/components/ui/Container";
 import { LogoutButton } from "@/features/admin/components/LogoutButton";
 
 export default function AdminDashboardLayout({
@@ -9,7 +10,7 @@ export default function AdminDashboardLayout({
   return (
     <div className="min-h-screen bg-mitram-grayLight flex flex-col">
       <header className="sticky top-20 z-40 bg-mitram-dark text-mitram-white shadow-md">
-        <div className="container mx-auto px-4 py-3 flex justify-between items-center">
+        <Container className="py-3 flex justify-between items-center">
           <div className="flex items-center gap-6">
             <nav className="hidden md:flex space-x-4">
               <Link
@@ -30,10 +31,10 @@ export default function AdminDashboardLayout({
           <div className="flex items-center gap-4">
             <LogoutButton />
           </div>
-        </div>
+        </Container>
       </header>
 
-      <main className="flex-1 container mx-auto px-4 py-8">{children}</main>
+      <Container as="main" className="flex-1 py-8">{children}</Container>
     </div>
   );
 }

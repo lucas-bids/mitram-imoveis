@@ -315,7 +315,7 @@ export function FeatureSelector({ propertyId, allFeatures, selected, onSelectedC
                   type="button"
                   onClick={() => void handleCreate()}
                   disabled={busy}
-                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium text-[#A6851D] hover:bg-mitram-gold/10 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium text-mitram-goldText hover:bg-mitram-gold/10 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {pendingAction?.type === "create" ? (
                     <Loader2 size={14} className="animate-spin" />

@@ -12,7 +12,7 @@ export function FilterPills({
   return (
     <div className="flex flex-wrap items-center gap-2">
       {activePills.map(pill => (
-        <div key={pill.key} className="flex items-center gap-1.5 bg-mitram-gold/10 text-[#A6851D] px-3 py-1.5 rounded-full text-xs font-bold border border-mitram-gold/30">
+        <div key={pill.key} className="flex items-center gap-1.5 bg-mitram-gold/10 text-mitram-goldText px-3 py-1.5 rounded-full text-xs font-bold border border-mitram-gold/30">
           <span>{pill.label}</span>
           <button 
             type="button" 

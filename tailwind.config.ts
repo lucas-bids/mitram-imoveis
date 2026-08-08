@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import colors from "tailwindcss/colors";
 
 const config: Config = {
   content: [
@@ -13,13 +14,26 @@ const config: Config = {
         background: "var(--background)",
         foreground: "var(--foreground)",
         mitram: {
-          white: "#ffffff",
-          gold: "#D4AF37", // Aprox. logo
-          goldDark: "#B3922E", // Hover dos botões dourados
-          goldLight: "#F0E68C",
-          dark: "#1A1A1A",
-          grayLight: "#F5F5F5",
-          grayDark: "#333333",
+          white: "var(--color-white)",
+          gold: "var(--color-gold)", // Aprox. logo
+          goldDark: "var(--color-gold-dark)", // Hover dos botões dourados
+          goldLight: "var(--color-gold-light)",
+          goldText: "var(--color-gold-text)", // Dourado com contraste p/ texto sobre fundo claro
+          dark: "var(--color-dark)",
+          grayLight: "var(--color-gray-light)",
+          grayDark: "var(--color-gray-dark)",
+          whatsapp: "var(--color-whatsapp)",
+          whatsappDark: "var(--color-whatsapp-dark)",
+          // Cores semânticas de estado, derivadas da paleta padrão do Tailwind
+          // para não duplicar valores hexadecimais já centralizados por ele.
+          success: colors.green[600],
+          successLight: colors.green[50],
+          error: colors.red[600],
+          errorLight: colors.red[50],
+          warning: colors.yellow[700],
+          warningLight: colors.yellow[50],
+          info: colors.blue[600],
+          infoLight: colors.blue[50],
         }
       },
     },
