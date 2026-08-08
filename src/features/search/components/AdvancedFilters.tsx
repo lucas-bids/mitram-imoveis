@@ -247,29 +247,17 @@ export default function AdvancedFilters({
 
         <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:gap-4">
           <div className="min-w-0 flex-1">
-            <FilterPills activePills={activePills} onRemove={removeFilter} />
+            <FilterPills activePills={activePills} onRemove={removeFilter} onClearAll={clearAllFilters} />
           </div>
 
-          <div className="flex flex-col items-end gap-2 shrink-0">
-            {hasActiveFilters && (
-              <button
-                type="button"
-                onClick={clearAllFilters}
-                className="text-sm text-gray-500 hover:text-mitram-dark underline underline-offset-2 transition-colors"
-              >
-                Limpar filtros
-              </button>
-            )}
+          <div className="flex items-center gap-3 shrink-0">
+            <button type="button" onClick={toggleView} className={buttonClasses("secondary", "md")}>
+              {isMapView ? <><List size={18} /> Lista</> : <><Map size={18} /> Mapa</>}
+            </button>
 
-            <div className="flex items-center gap-3">
-              <button type="button" onClick={toggleView} className={buttonClasses("secondary", "md")}>
-                {isMapView ? <><List size={18} /> Lista</> : <><Map size={18} /> Mapa</>}
-              </button>
-
-              <button type="submit" className={buttonClasses("primary", "md")}>
-                Buscar <Filter size={16} />
-              </button>
-            </div>
+            <button type="submit" className={buttonClasses("primary", "md")}>
+              Buscar <Filter size={16} />
+            </button>
           </div>
         </div>
       </form>
