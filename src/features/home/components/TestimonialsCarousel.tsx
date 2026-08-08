@@ -200,7 +200,7 @@ export default function TestimonialsCarousel({
                       ? "scale(calc(0.975 + 0.025 * var(--t)))" 
                       : "scale(1)",
                     // Shadow halo
-                    boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1), 0 20px 25px -5px color-mix(in srgb, var(--color-gold) calc(var(--t) * 28%), transparent)",
+                    boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1), 0 20px 25px -5px color-mix(in srgb, rgb(var(--color-gold)) calc(var(--t) * 28%), transparent)",
                     zIndex: `calc(var(--t) * 10)`,
                   }}
                 >
@@ -214,7 +214,7 @@ export default function TestimonialsCarousel({
                     className="pointer-events-none absolute top-7 right-7"
                     style={{
                       color:
-                        "color-mix(in srgb, color-mix(in srgb, var(--color-white) 30%, transparent) calc(var(--t) * 100%), color-mix(in srgb, var(--color-gold) 20%, transparent))",
+                        "color-mix(in srgb, color-mix(in srgb, rgb(var(--color-white)) 30%, transparent) calc(var(--t) * 100%), color-mix(in srgb, rgb(var(--color-gold)) 20%, transparent))",
                     }}
                     aria-hidden="true"
                   >
@@ -230,7 +230,7 @@ export default function TestimonialsCarousel({
                           key={starIndex}
                           size={16}
                           style={{
-                            color: "color-mix(in srgb, var(--color-white) calc(var(--t) * 100%), var(--color-gold))",
+                            color: "color-mix(in srgb, rgb(var(--color-white)) calc(var(--t) * 100%), rgb(var(--color-gold)))",
                             fill: "currentColor"
                           }}
                         />
@@ -264,7 +264,7 @@ export default function TestimonialsCarousel({
                       <p
                         className="font-bold"
                         style={{
-                          color: "color-mix(in srgb, var(--color-white) calc(var(--t) * 100%), var(--color-dark))"
+                          color: "color-mix(in srgb, rgb(var(--color-white)) calc(var(--t) * 100%), rgb(var(--color-dark)))"
                         }}
                       >
                         {testimonial.author}
@@ -272,7 +272,7 @@ export default function TestimonialsCarousel({
                       <p
                         className="text-sm"
                         style={{
-                          color: "color-mix(in srgb, #FFF6D0 calc(var(--t) * 100%), var(--color-gold))"
+                          color: "color-mix(in srgb, #FFF6D0 calc(var(--t) * 100%), rgb(var(--color-gold)))"
                         }}
                       >
                         {testimonial.type}

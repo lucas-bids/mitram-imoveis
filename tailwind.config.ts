@@ -11,19 +11,21 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+        // rgb(var(...) / <alpha-value>) lets Tailwind substitute the opacity
+        // modifier (bg-mitram-gold/20 etc.) — a bare var(--x) can't do that.
+        background: "rgb(var(--background) / <alpha-value>)",
+        foreground: "rgb(var(--foreground) / <alpha-value>)",
         mitram: {
-          white: "var(--color-white)",
-          gold: "var(--color-gold)", // Aprox. logo
-          goldDark: "var(--color-gold-dark)", // Hover dos botões dourados
-          goldLight: "var(--color-gold-light)",
-          goldText: "var(--color-gold-text)", // Dourado com contraste p/ texto sobre fundo claro
-          dark: "var(--color-dark)",
-          grayLight: "var(--color-gray-light)",
-          grayDark: "var(--color-gray-dark)",
-          whatsapp: "var(--color-whatsapp)",
-          whatsappDark: "var(--color-whatsapp-dark)",
+          white: "rgb(var(--color-white) / <alpha-value>)",
+          gold: "rgb(var(--color-gold) / <alpha-value>)", // Aprox. logo
+          goldDark: "rgb(var(--color-gold-dark) / <alpha-value>)", // Hover dos botões dourados
+          goldLight: "rgb(var(--color-gold-light) / <alpha-value>)",
+          goldText: "rgb(var(--color-gold-text) / <alpha-value>)", // Dourado com contraste p/ texto sobre fundo claro
+          dark: "rgb(var(--color-dark) / <alpha-value>)",
+          grayLight: "rgb(var(--color-gray-light) / <alpha-value>)",
+          grayDark: "rgb(var(--color-gray-dark) / <alpha-value>)",
+          whatsapp: "rgb(var(--color-whatsapp) / <alpha-value>)",
+          whatsappDark: "rgb(var(--color-whatsapp-dark) / <alpha-value>)",
           // Cores semânticas de estado, derivadas da paleta padrão do Tailwind
           // para não duplicar valores hexadecimais já centralizados por ele.
           success: colors.green[600],
