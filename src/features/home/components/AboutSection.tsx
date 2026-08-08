@@ -2,22 +2,25 @@ import Image from "next/image";
 import Link from "next/link";
 import { CheckCircle2, ArrowRight } from "lucide-react";
 import { buttonClasses } from "@/components/ui/buttonStyles";
+import { Container } from "@/components/ui/Container";
+import { Heading } from "@/components/ui/Heading";
+import { Text } from "@/components/ui/Text";
 import { SectionEyebrow } from "./SectionEyebrow";
 
 export function AboutSection() {
   return (
-    <section className="container mx-auto px-4 mb-10 md:mb-24">
+    <Container as="section" className="mb-10 md:mb-24">
       <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-16">
         <div className="flex-1 space-y-6 md:space-y-8">
           <div>
             <SectionEyebrow>POR QUE ESCOLHER A MITRAM</SectionEyebrow>
-            <h2 className="text-2xl md:text-4xl font-bold text-mitram-dark leading-tight">
-                Onde seus planos <br /> encontram espaço.
-            </h2>
+            <Heading variant="h2">
+              Onde seus planos <br /> encontram espaço.
+            </Heading>
           </div>
-          <p className="text-gray-600 leading-relaxed text-lg">
-              Seja para construir uma nova fase em família ou investir no futuro, escolher um imóvel exige confiança. Por isso, ouvimos seus planos e ajudamos você a decidir com clareza e segurança.
-          </p>
+          <Text variant="lead">
+            Seja para construir uma nova fase em família ou investir no futuro, escolher um imóvel exige confiança. Por isso, ouvimos seus planos e ajudamos você a decidir com clareza e segurança.
+          </Text>
           
           <ul className="space-y-3 md:space-y-4">
             {[
@@ -54,6 +57,6 @@ export function AboutSection() {
           </div>
         </div>
       </div>
-    </section>
+    </Container>
   );
 }

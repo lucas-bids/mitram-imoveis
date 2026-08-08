@@ -76,7 +76,7 @@ export function SearchCreateSelect<T extends Option>({ id, value, options, disab
             </button>
           ))}
           {canCreate && (
-            <button type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => void create()} className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium text-[#A6851D] hover:bg-mitram-gold/10">
+            <button type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => void create()} className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium text-mitram-goldText hover:bg-mitram-gold/10">
               {loading ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
               Criar {createLabel.toLowerCase()} “{query.trim()}”
             </button>

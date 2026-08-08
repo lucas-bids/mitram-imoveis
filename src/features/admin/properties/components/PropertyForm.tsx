@@ -9,6 +9,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import ImageUpload, { PropertyMedia } from "./ImageUpload";
 import { Save, Plus, X } from "lucide-react";
+import { AlertMessage } from "@/components/ui/AlertMessage";
 import { buttonClasses } from "@/components/ui/buttonStyles";
 import {
   CHECKBOX_CLASSES,
@@ -398,9 +399,9 @@ export default function PropertyForm({ initialData, isEdit = false, lookups }: P
           {isEdit && initialData?.id ? (
             <ImageUpload propertyId={initialData.id} initialMedia={media} onMediaUpdate={setMedia} />
           ) : (
-            <p className="rounded-md bg-blue-50 p-4 text-sm text-blue-800">
+            <AlertMessage tone="info">
               Você poderá adicionar imagens após salvar o imóvel pela primeira vez.
-            </p>
+            </AlertMessage>
           )}
         </FormSection>
 

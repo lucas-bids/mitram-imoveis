@@ -2,19 +2,34 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Brand colors — single source of truth. Edit here; tailwind.config.ts
+   and any inline styles (e.g. color-mix()) reference these same vars.
+   Stored as "R G B" channel triplets (no rgb()/hex) so Tailwind's opacity
+   modifiers (e.g. bg-mitram-gold/20) and rgb(var(...) / <alpha>) both work. */
 :root {
-  --background: #F5F5F5; /* Mitram grayLight */
-  --foreground: #1A1A1A; /* Mitram dark */
+  --color-white: 255 255 255;
+  --color-gold: 212 175 55;
+  --color-gold-dark: 179 146 46;
+  --color-gold-light: 240 230 140;
+  --color-gold-text: 166 133 29;
+  --color-dark: 26 26 26;
+  --color-gray-light: 245 245 245;
+  --color-gray-dark: 51 51 51;
+  --color-whatsapp: 37 211 102;
+  --color-whatsapp-dark: 18 140 126;
+
+  --background: var(--color-gray-light);
+  --foreground: var(--color-dark);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #1A1A1A;
-    --foreground: #F5F5F5;
+    --background: var(--color-dark);
+    --foreground: var(--color-gray-light);
   }
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
+  color: rgb(var(--foreground));
+  background: rgb(var(--background));
 }

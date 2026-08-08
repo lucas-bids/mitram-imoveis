@@ -5,19 +5,20 @@ import Link from "next/link";
 import Image from "next/image";
 import { MessageCircle, Menu, X } from "lucide-react";
 import { buttonShapeClasses } from "@/components/ui/buttonStyles";
+import { Container } from "@/components/ui/Container";
 
 const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "5541996787173";
 const whatsappMessage = encodeURIComponent("Olá, gostaria de falar com um corretor da Mitram Imóveis.");
 const whatsappLink = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
 
-const brokerButtonClasses = buttonShapeClasses("md", "bg-[#25D366] text-white shadow-md hover:bg-[#128C7E]");
+const brokerButtonClasses = buttonShapeClasses("md", "bg-mitram-whatsapp text-white shadow-md hover:bg-mitram-whatsappDark");
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-50 pt-4">
-      <div className="container mx-auto px-4">
+      <Container>
         <div className="relative">
           <div className="flex justify-between items-center rounded-full border border-gray-100 bg-white/80 backdrop-blur-md px-4 py-3 md:px-6 md:py-4">
             <Link href="/" className="flex items-center" onClick={() => setIsMobileMenuOpen(false)}>
@@ -115,7 +116,7 @@ export default function Header() {
             </div>
           )}
         </div>
-      </div>
+      </Container>
     </header>
   );
 }

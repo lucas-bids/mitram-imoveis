@@ -1,8 +1,11 @@
 "use client";
 
 import { Send } from "lucide-react";
+import { AlertMessage } from "@/components/ui/AlertMessage";
 import { buttonClasses } from "@/components/ui/buttonStyles";
 import { CHECKBOX_CLASSES, FormField, fieldClasses } from "@/components/ui/FormField";
+import { Heading } from "@/components/ui/Heading";
+import { Text } from "@/components/ui/Text";
 import { useContactFormSubmit, useAutoResizeTextarea } from "@/features/contact/hooks";
 
 export function ContactForm() {
@@ -15,8 +18,8 @@ export function ContactForm() {
         <div className="w-20 h-20 bg-green-50 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4 md:mb-6">
           <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
         </div>
-        <h3 className="text-xl md:text-2xl font-bold text-mitram-dark mb-3">Mensagem enviada!</h3>
-        <p className="text-gray-600 mb-6 md:mb-8">Obrigado pelo seu contato. Retornaremos em breve.</p>
+        <Heading as="h3" variant="h3" className="mb-3">Mensagem enviada!</Heading>
+        <Text variant="body" className="mb-6 md:mb-8">Obrigado pelo seu contato. Retornaremos em breve.</Text>
         <button onClick={() => setSuccess(false)} className={buttonClasses("primary", "md")}>
           <Send size={18} />
           Enviar outra mensagem
@@ -27,8 +30,8 @@ export function ContactForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
-      {error && <div className="text-red-500 text-sm bg-red-50 p-4 rounded-xl border border-red-100">{error}</div>}
-      
+      {error && <AlertMessage tone="error">{error}</AlertMessage>}
+
       <input type="text" name="address_field" className="hidden" tabIndex={-1} autoComplete="off" />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
@@ -59,10 +62,10 @@ export function ContactForm() {
 
       <div className="flex items-start gap-3 pt-1 md:pt-2">
         <input type="checkbox" id="lgpd-contact" required className={`mt-0.5 ${CHECKBOX_CLASSES}`} />
-        <label htmlFor="lgpd-contact" className="text-xs text-gray-500 leading-relaxed cursor-pointer select-none">
-          Concordo que a Mitram Imóveis armazene e processe meus dados pessoais de acordo com a LGPD (Lei Geral de Proteção de Dados), 
+        <Text as="label" variant="caption" htmlFor="lgpd-contact" className="leading-relaxed cursor-pointer select-none">
+          Concordo que a Mitram Imóveis armazene e processe meus dados pessoais de acordo com a LGPD (Lei Geral de Proteção de Dados),
           exclusivamente para fins de atendimento e envio de informações relacionadas ao mercado imobiliário.
-        </label>
+        </Text>
       </div>
 
       <div className="pt-2 md:pt-4">

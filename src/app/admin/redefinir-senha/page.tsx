@@ -6,8 +6,10 @@ import { createClient } from "@/lib/supabase/client";
 import Image from "next/image";
 import Link from "next/link";
 import { Save } from "lucide-react";
+import { AlertMessage } from "@/components/ui/AlertMessage";
 import { buttonClasses } from "@/components/ui/buttonStyles";
 import { FormField, fieldClasses } from "@/components/ui/FormField";
+import { Heading } from "@/components/ui/Heading";
 
 export default function ResetPasswordPage() {
   const [password, setPassword] = useState("");
@@ -70,18 +72,18 @@ export default function ResetPasswordPage() {
           />
         </div>
         
-        <h1 className="text-xl md:text-2xl font-bold text-center mb-6 text-mitram-dark">Redefinir Senha</h1>
-        
+        <Heading as="h1" variant="h3" className="text-center mb-6">Redefinir Senha</Heading>
+
         {error && (
-          <div className="bg-red-50 text-red-600 p-3 rounded mb-4 text-sm">
+          <AlertMessage tone="error" className="mb-4">
             {error}
-          </div>
+          </AlertMessage>
         )}
 
         {message && (
-          <div className="bg-green-50 text-green-700 p-3 rounded mb-4 text-sm">
+          <AlertMessage tone="success" className="mb-4">
             {message}
-          </div>
+          </AlertMessage>
         )}
         
         <form onSubmit={handleReset} className="space-y-4">

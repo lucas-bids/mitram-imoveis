@@ -7,6 +7,7 @@ import { PropertyListItem } from "@/features/properties/types";
 import { formatPrice, purposeLabel, statusLabel, locationLabel } from "@/features/properties/format";
 
 import { Badge } from "@/components/ui/Badge";
+import { Heading } from "@/components/ui/Heading";
 
 export default function PropertyCard({ property }: { property: PropertyListItem }) {
   const allMedia = property.property_media && property.property_media.length > 0 
@@ -63,7 +64,7 @@ export default function PropertyCard({ property }: { property: PropertyListItem 
         
         {/* Title and Price */}
         <div className="flex justify-between items-end gap-3 mb-1">
-          <h3 className="text-base md:text-xl font-bold text-white line-clamp-1 flex-1 leading-tight">{property.title}</h3>
+          <Heading as="h3" variant="h4" tone="light" className="line-clamp-1 flex-1 leading-tight">{property.title}</Heading>
           <p className="text-lg md:text-xl font-bold text-white whitespace-nowrap">
             {priceFormatted}
           </p>

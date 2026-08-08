@@ -1,4 +1,6 @@
 import { ReactNode } from "react";
+import { Heading } from "@/components/ui/Heading";
+import { Text } from "@/components/ui/Text";
 
 interface AdminPageHeaderProps {
   title: string;
@@ -10,8 +12,8 @@ export function AdminPageHeader({ title, description, children }: AdminPageHeade
   return (
     <div className="mb-6">
       {children}
-      <h1 className="text-xl md:text-2xl font-bold text-mitram-dark mt-2">{title}</h1>
-      {description && <p className="text-sm text-gray-500 mt-1">{description}</p>}
+      <Heading as="h1" variant="h3" className="mt-2">{title}</Heading>
+      {description && <Text variant="bodySm" className="mt-1">{description}</Text>}
     </div>
   );
 }

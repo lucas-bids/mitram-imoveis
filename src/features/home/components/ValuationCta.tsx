@@ -1,13 +1,16 @@
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { buttonClasses } from "@/components/ui/buttonStyles";
+import { Container } from "@/components/ui/Container";
 import { CHECKBOX_CLASSES, FormField, fieldClasses } from "@/components/ui/FormField";
+import { Heading } from "@/components/ui/Heading";
+import { Text } from "@/components/ui/Text";
 import { SectionEyebrow } from "./SectionEyebrow";
 
 export function ValuationCta() {
   return (
     <section id="avaliacao" className="py-10 md:py-24 relative overflow-hidden bg-mitram-grayLight">
-      <div className="container mx-auto px-4 relative z-10">
+      <Container className="relative z-10">
         <div className="flex flex-col-reverse lg:flex-row items-center gap-8 lg:gap-16">
           
           {/* Left Side: Image Grid */}
@@ -69,15 +72,15 @@ export function ValuationCta() {
           <div className="flex-1 w-full space-y-6 md:space-y-10">
             <div className="space-y-4 md:space-y-6">
               <SectionEyebrow>Avaliação Gratuita</SectionEyebrow>
-              
-              <h2 className="text-2xl md:text-4xl font-bold text-mitram-dark leading-tight">
+
+              <Heading variant="h2">
                 Venda sua casa ou terreno <br className="hidden lg:block"/>
                 com a Mitram
-              </h2>
-              
-              <p className="text-gray-600 text-lg md:text-xl leading-relaxed max-w-lg">
+              </Heading>
+
+              <Text variant="lead" className="max-w-lg">
                 Nossos especialistas preparam uma análise de mercado precisa para o seu patrimônio. <strong>É rápido, seguro e sem compromisso.</strong>
-              </p>
+              </Text>
             </div>
 
 
@@ -94,9 +97,9 @@ export function ValuationCta() {
 
                 <div className="flex items-start gap-3 pt-1 md:pt-2">
                   <input type="checkbox" id="lgpd-home" required className={`mt-0.5 ${CHECKBOX_CLASSES}`} />
-                  <label htmlFor="lgpd-home" className="text-xs text-gray-500 leading-relaxed cursor-pointer select-none">
+                  <Text as="label" variant="caption" htmlFor="lgpd-home" className="leading-relaxed cursor-pointer select-none">
                     Concordo que a Mitram utilize meus dados para entrar em contato referente a esta solicitação.
-                  </label>
+                  </Text>
                 </div>
 
                 <button type="submit" className={buttonClasses("primary", "lg", "w-full")}>
@@ -106,9 +109,9 @@ export function ValuationCta() {
               </form>
             </div>
           </div>
-          
+
         </div>
-      </div>
+      </Container>
     </section>
   );
 }
