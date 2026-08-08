@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useState } from "react";
-import { List, Map, Filter } from "lucide-react";
+import { List, Map, Filter, ChevronDown, ChevronUp } from "lucide-react";
 import { buttonClasses } from "@/components/ui/buttonStyles";
 import { FormField, SELECT_ARROW_STYLE, SELECT_EXTRA, fieldClasses } from "@/components/ui/FormField";
 import { FilterOption, parseFilters, serializeFilters, deriveActivePills, PropertyFilters } from "@/features/search/filters";
@@ -34,6 +34,7 @@ export default function AdvancedFilters({
   const searchParams = useSearchParams();
 
   const [filters, setFilters] = useState<PropertyFilters>(() => parseFilters(searchParams));
+  const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
 
   const isMapView = searchParams.get("view") === "map";
 
@@ -47,6 +48,7 @@ export default function AdvancedFilters({
 
   const handleApply = (event: React.FormEvent) => {
     event.preventDefault();
+    setIsMobileFiltersOpen(false);
     const params = serializeFilters(filters);
     if (isMapView) params.set("view", "map");
     router.push(`${pathname}?${params.toString()}`);
@@ -70,6 +72,7 @@ export default function AdvancedFilters({
     fieldClasses(false, [SELECT_EXTRA, isActive ? "border-mitram-gold" : "", extra].filter(Boolean).join(" "));
 
   const activePills = deriveActivePills(filters, { types, cities, neighborhoods, features });
+  const hasActiveFilters = activePills.length > 0;
 
   const removeFilter = (key: string) => {
     const newFilters = { ...filters, [key]: "" };
@@ -92,11 +95,30 @@ export default function AdvancedFilters({
   };
 
   return (
-    <div className="bg-[#FAFAFA] rounded-[2rem] p-6 md:p-8 border border-gray-100 shadow-sm">
-      <form onSubmit={handleApply} className="space-y-6">
-        <PurposeToggle purpose={filters.purpose} onChange={(v) => handleChange("purpose", v)} />
+    <div className="bg-[#FAFAFA] rounded-[2rem] p-4 md:p-8 border border-gray-100 shadow-sm">
+      <form onSubmit={handleApply} className="flex flex-col gap-2 md:gap-6">
+        
+        {/* Mobile Top Bar */}
+        <div className="flex flex-row items-center justify-between gap-4">
+          <PurposeToggle purpose={filters.purpose} onChange={(v) => handleChange("purpose", v)} />
+          
+          <button 
+            type="button" 
+            className="md:hidden flex items-center justify-between bg-white border border-gray-200 rounded-full px-5 py-2.5 text-sm font-semibold text-mitram-dark shadow-sm"
+            onClick={() => setIsMobileFiltersOpen(!isMobileFiltersOpen)}
+          >
+            <div className="flex items-center gap-2">
+              <Filter size={16} />
+              <span>Filtros</span>
+              {hasActiveFilters && (
+                <span className="w-2 h-2 rounded-full bg-mitram-gold"></span>
+              )}
+            </div>
+            {isMobileFiltersOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+          </button>
+        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+        <div className={`${isMobileFiltersOpen ? 'grid' : 'hidden'} md:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6`}>
           <FormField label="Tipo de Imóvel" alwaysFloat>
             <select
               value={filters.type}
@@ -223,29 +245,31 @@ export default function AdvancedFilters({
           </FormField>
         </div>
 
-        <div className="flex flex-col gap-4 pt-4 lg:flex-row lg:items-center">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:gap-4">
           <div className="min-w-0 flex-1">
             <FilterPills activePills={activePills} onRemove={removeFilter} />
           </div>
 
-          <div className="flex items-center justify-end gap-3 shrink-0">
-            {activePills.length > 0 && (
+          <div className="flex flex-col items-end gap-2 shrink-0">
+            {hasActiveFilters && (
               <button
                 type="button"
                 onClick={clearAllFilters}
-                className="text-sm text-gray-500 hover:text-mitram-dark underline underline-offset-2 transition-colors mr-2"
+                className="text-sm text-gray-500 hover:text-mitram-dark underline underline-offset-2 transition-colors"
               >
                 Limpar filtros
               </button>
             )}
 
-            <button type="button" onClick={toggleView} className={buttonClasses("secondary", "md")}>
-              {isMapView ? <><List size={18} /> Lista</> : <><Map size={18} /> Mapa</>}
-            </button>
+            <div className="flex items-center gap-3">
+              <button type="button" onClick={toggleView} className={buttonClasses("secondary", "md")}>
+                {isMapView ? <><List size={18} /> Lista</> : <><Map size={18} /> Mapa</>}
+              </button>
 
-            <button type="submit" className={buttonClasses("primary", "md")}>
-              Buscar <Filter size={16} />
-            </button>
+              <button type="submit" className={buttonClasses("primary", "md")}>
+                Buscar <Filter size={16} />
+              </button>
+            </div>
           </div>
         </div>
       </form>

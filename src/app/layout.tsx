@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/layout/Header";
@@ -10,6 +10,13 @@ const font = Plus_Jakarta_Sans({ subsets: ["latin"], weight: ["400", "500", "600
 export const metadata: Metadata = {
   title: "Mitram Imóveis",
   description: "Trabalhamos com comercialização de imóveis usados, novos ou na planta.",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({

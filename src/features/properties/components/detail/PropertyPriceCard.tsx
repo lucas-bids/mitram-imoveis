@@ -7,9 +7,9 @@ export function PropertyPriceCard({ property, whatsappLink }: { property: Proper
   const priceFormatted = formatPrice(property.price);
 
   return (
-    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+    <div className="bg-white p-4 md:p-6 rounded-xl shadow-sm border border-gray-100">
       <p className="text-sm text-gray-500 mb-1">Preço Total</p>
-      <p className="text-3xl font-bold text-mitram-dark mb-4">{priceFormatted}</p>
+      <p className="text-3xl font-bold text-mitram-dark mb-3 md:mb-4">{priceFormatted}</p>
       {property.condominium_fee && <p className="text-sm text-gray-500">Condomínio: R$ {property.condominium_fee}</p>}
       {property.iptu && <p className="text-sm text-gray-500 mb-4">IPTU: R$ {property.iptu}</p>}
       

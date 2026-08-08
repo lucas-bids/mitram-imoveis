@@ -1,84 +1,108 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { BedDouble, Bath, CarFront, Maximize2, Heart } from "lucide-react";
 import { PropertyListItem } from "@/features/properties/types";
-import { formatPrice, purposeLabel, statusLabel, coverImageUrl, locationLabel } from "@/features/properties/format";
+import { formatPrice, purposeLabel, statusLabel, locationLabel } from "@/features/properties/format";
 
 import { Badge } from "@/components/ui/Badge";
 
 export default function PropertyCard({ property }: { property: PropertyListItem }) {
-  const coverImage = coverImageUrl(property.property_media);
+  const allMedia = property.property_media && property.property_media.length > 0 
+    ? [...property.property_media].sort((a, b) => {
+        if (a.is_cover) return -1;
+        if (b.is_cover) return 1;
+        return a.sort_order - b.sort_order;
+      })
+    : [{ public_url: '/images/keys-on-table.jpg', id: 'placeholder' }];
+  
+  const coverImage = allMedia[0];
+
   const priceFormatted = formatPrice(property.price);
 
   return (
-    <div className="group relative bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 transition-all duration-300 flex flex-col">
+    <div className="group relative w-full h-[360px] sm:h-[420px] rounded-3xl overflow-hidden shadow-sm border border-gray-100 transition-all duration-300 hover:shadow-md flex flex-col bg-mitram-dark">
+      
+      {/* Background Image */}
+      <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 transition-opacity duration-500 ease-in-out opacity-100">
+          <Image 
+            src={coverImage.public_url}
+            alt={property.title}
+            fill
+            className="object-cover group-hover:scale-105 transition-transform duration-700"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          />
+        </div>
+        {/* Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none" />
+      </div>
+
       <Link href={`/imovel/${property.slug}`} className="absolute inset-0 z-10">
-        <span className="sr-only">Ver imóvel</span>
+        <span className="sr-only">Ver imóvel {property.title}</span>
       </Link>
 
-      <div className="relative h-64 w-full bg-gray-200 overflow-hidden">
-        <Image 
-          src={coverImage}
-          alt={property.title}
-          fill
-          className="object-cover group-hover:scale-105 transition-transform duration-700"
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-        />
-        
-        <div className="absolute top-4 left-4 flex flex-col gap-2 z-20">
+      {/* Top section: Badges and Heart */}
+      <div className="absolute top-4 left-4 right-4 flex justify-between items-start z-20 pointer-events-none">
+        <div className="flex flex-col gap-2 pointer-events-auto">
           <Badge tone="gold">{purposeLabel(property.purpose)}</Badge>
           {property.status === 'sold' && <Badge tone="red">{statusLabel(property.status)}</Badge>}
           {property.status === 'rented' && <Badge tone="red">{statusLabel(property.status)}</Badge>}
         </div>
-        
-        <button className="absolute bottom-4 right-4 z-20 w-10 h-10 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-white transition-all shadow-sm">
+        <button 
+          className="w-10 h-10 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center text-gray-800 hover:text-red-500 transition-all shadow-sm pointer-events-auto hover:bg-white"
+          onClick={(e) => { e.preventDefault(); /* Handle heart */ }}
+        >
           <Heart size={20} />
         </button>
       </div>
-      
-      <div className="p-6 flex flex-col flex-grow">
-        <div className="flex justify-between items-start mb-3">
-          <h3 className="text-xl font-bold text-mitram-dark line-clamp-1 group-hover:text-mitram-gold transition-colors">{property.title}</h3>
+
+      {/* Bottom Content Area */}
+      <div className="absolute bottom-0 left-0 right-0 p-4 md:p-5 z-20 pointer-events-none">
+        
+        {/* Title and Price */}
+        <div className="flex justify-between items-end gap-3 mb-1">
+          <h3 className="text-base md:text-xl font-bold text-white line-clamp-1 flex-1 leading-tight">{property.title}</h3>
+          <p className="text-lg md:text-xl font-bold text-white whitespace-nowrap">
+            {priceFormatted}
+          </p>
         </div>
         
-        <p className="text-sm text-gray-500 mb-4 flex items-center gap-1.5">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 text-mitram-gold">
-            <path fillRule="evenodd" d="M9.69 18.933l.003.001C9.89 19.02 10 19 10 19s.11.02.308-.066l.002-.001.006-.003.018-.008a5.741 5.741 0 00.281-.14c.186-.096.446-.24.757-.433.62-.384 1.445-.966 2.274-1.765C15.302 14.988 17 12.493 17 9A7 7 0 103 9c0 3.492 1.698 5.988 3.355 7.584a13.731 13.731 0 002.273 1.765 11.842 11.842 0 00.976.536c.038.018.067.032.086.042l.006.003.002.001zm-.234-11.458a2 2 0 102.828 2.828 2 2 0 00-2.828-2.828z" clipRule="evenodd" />
-          </svg>
+        {/* Location */}
+        <p className="text-sm text-gray-300 mb-3 md:mb-4 line-clamp-1">
           {locationLabel(property.neighborhoods)}
         </p>
 
-        <p className="text-2xl font-bold text-mitram-dark mb-6">
-          {priceFormatted}
-        </p>
-        
-        <div className="flex items-center justify-between text-gray-600 text-sm border-t border-gray-100 pt-4 mt-auto">
+        {/* Amenities */}
+        <div className="flex items-center gap-3 md:gap-4 text-white text-sm font-medium">
           {(property.bedrooms ?? 0) > 0 && (
-            <div className="flex flex-col items-center justify-center gap-1">
-              <BedDouble size={20} className="text-mitram-gold" />
-              <span className="font-medium text-mitram-dark">{property.bedrooms} <span className="text-gray-400 font-normal hidden sm:inline">Quartos</span></span>
+            <div className="flex items-center gap-1.5">
+              <BedDouble size={16} className="text-white/80" />
+              <span>{property.bedrooms} <span className="font-normal opacity-80">Quartos</span></span>
             </div>
           )}
           {(property.bathrooms ?? 0) > 0 && (
-            <div className="flex flex-col items-center justify-center gap-1">
-              <Bath size={20} className="text-mitram-gold" />
-              <span className="font-medium text-mitram-dark">{property.bathrooms} <span className="text-gray-400 font-normal hidden sm:inline">Banhos</span></span>
-            </div>
-          )}
-          {(property.parking_spaces ?? 0) > 0 && (
-            <div className="flex flex-col items-center justify-center gap-1">
-              <CarFront size={20} className="text-mitram-gold" />
-              <span className="font-medium text-mitram-dark">{property.parking_spaces} <span className="text-gray-400 font-normal hidden sm:inline">Vagas</span></span>
+            <div className="flex items-center gap-1.5">
+              <Bath size={16} className="text-white/80" />
+              <span>{property.bathrooms} <span className="font-normal opacity-80">Banhos</span></span>
             </div>
           )}
           {property.total_area && (
-            <div className="flex flex-col items-center justify-center gap-1">
-              <Maximize2 size={20} className="text-mitram-gold" />
-              <span className="font-medium text-mitram-dark">{property.total_area} <span className="text-gray-400 font-normal">m²</span></span>
+            <div className="flex items-center gap-1.5">
+              <Maximize2 size={16} className="text-white/80" />
+              <span>{property.total_area} <span className="font-normal opacity-80">m²</span></span>
             </div>
+          )}
+          {!property.total_area && (property.parking_spaces ?? 0) > 0 && (
+             <div className="flex items-center gap-1.5">
+               <CarFront size={16} className="text-white/80" />
+               <span>{property.parking_spaces} <span className="font-normal opacity-80">Vagas</span></span>
+             </div>
           )}
         </div>
       </div>
+      
     </div>
   );
 }

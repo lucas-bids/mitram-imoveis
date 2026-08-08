@@ -6,8 +6,8 @@ export function PropertyMediaLinks({ property }: { property: PropertyDetail }) {
   if (!property.youtube_url && !property.virtual_tour_url) return null;
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-sm">
-      <h2 className="text-lg font-bold text-mitram-dark mb-4">Mídia</h2>
+    <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm">
+      <h2 className="text-base md:text-lg font-bold text-mitram-dark mb-3 md:mb-4">Mídia</h2>
       <div className="flex gap-4 flex-wrap">
         {property.youtube_url && (
           <a href={property.youtube_url} target="_blank" rel="noopener noreferrer" className={buttonShapeClasses("md", "bg-red-600 text-white shadow-md hover:bg-red-700")}>

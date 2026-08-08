@@ -58,7 +58,6 @@ export type PropertyDetail = {
   suites: number | null;
   bathrooms: number | null;
   parking_spaces: number | null;
-  floor: number | null;
   furnished: boolean;
   youtube_url: string | null;
   virtual_tour_url: string | null;

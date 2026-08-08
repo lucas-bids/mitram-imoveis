@@ -6,17 +6,17 @@ import { SectionEyebrow } from "./SectionEyebrow";
 
 export function ValuationCta() {
   return (
-    <section id="avaliacao" className="py-24 relative overflow-hidden bg-mitram-grayLight">
+    <section id="avaliacao" className="py-10 md:py-24 relative overflow-hidden bg-mitram-grayLight">
       <div className="container mx-auto px-4 relative z-10">
-        <div className="flex flex-col-reverse lg:flex-row items-center gap-16">
+        <div className="flex flex-col-reverse lg:flex-row items-center gap-8 lg:gap-16">
           
           {/* Left Side: Image Grid */}
           <div className="flex-1 w-full">
             <div className="relative w-full">
               
-              <div className="grid grid-cols-3 gap-4 md:gap-6">
+              <div className="grid grid-cols-3 gap-3 md:gap-6">
                 {/* Top wide image */}
-                <div className="col-span-3 relative h-48 md:h-64 rounded-3xl overflow-hidden shadow-lg">
+                <div className="col-span-3 relative h-40 md:h-64 rounded-3xl overflow-hidden shadow-lg">
                   <Image 
                     src="/images/aerial-view-curitiba.jpg" 
                     fill 
@@ -26,7 +26,7 @@ export function ValuationCta() {
                 </div>
                 
                 {/* Bottom left image (~1/3) */}
-                <div className="col-span-1 relative h-40 md:h-52 rounded-3xl overflow-hidden shadow-lg">
+                <div className="col-span-1 relative h-32 md:h-52 rounded-3xl overflow-hidden shadow-lg">
                   <Image 
                     src="/images/keys-on-table.jpg" 
                     fill 
@@ -36,7 +36,7 @@ export function ValuationCta() {
                 </div>
                 
                 {/* Bottom right image (~2/3, taller) */}
-                <div className="col-span-2 relative h-56 md:h-72 rounded-3xl overflow-hidden shadow-lg">
+                <div className="col-span-2 relative h-44 md:h-72 rounded-3xl overflow-hidden shadow-lg">
                   <Image 
                     src="/images/hero-image.jpg" 
                     fill 
@@ -66,11 +66,11 @@ export function ValuationCta() {
           </div>
 
           {/* Right Side: Text & Form */}
-          <div className="flex-1 w-full space-y-10">
-            <div className="space-y-6">
+          <div className="flex-1 w-full space-y-6 md:space-y-10">
+            <div className="space-y-4 md:space-y-6">
               <SectionEyebrow>Avaliação Gratuita</SectionEyebrow>
               
-              <h2 className="text-3xl md:text-4xl font-bold text-mitram-dark leading-tight">
+              <h2 className="text-2xl md:text-4xl font-bold text-mitram-dark leading-tight">
                 Venda sua casa ou terreno <br className="hidden lg:block"/>
                 com a Mitram
               </h2>
@@ -82,8 +82,8 @@ export function ValuationCta() {
 
 
             {/* Form Integrated */}
-            <div className="max-w-lg pt-6">
-              <form className="space-y-5">
+            <div className="max-w-lg pt-2 md:pt-6">
+              <form className="space-y-4 md:space-y-5">
                 <FormField label="Nome completo">
                   <input type="text" id="name" placeholder=" " required className={fieldClasses()} />
                 </FormField>
@@ -92,7 +92,7 @@ export function ValuationCta() {
                   <input type="tel" id="phone" placeholder=" " required className={fieldClasses()} />
                 </FormField>
 
-                <div className="flex items-start gap-3 pt-2">
+                <div className="flex items-start gap-3 pt-1 md:pt-2">
                   <input type="checkbox" id="lgpd-home" required className={`mt-0.5 ${CHECKBOX_CLASSES}`} />
                   <label htmlFor="lgpd-home" className="text-xs text-gray-500 leading-relaxed cursor-pointer select-none">
                     Concordo que a Mitram utilize meus dados para entrar em contato referente a esta solicitação.

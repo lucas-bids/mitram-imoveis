@@ -1,15 +1,20 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, Menu, X } from "lucide-react";
 import { buttonClasses } from "@/components/ui/buttonStyles";
 
 export default function Header() {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
   return (
     <header className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-100">
-      <div className="container mx-auto px-6 py-4 flex justify-between items-center">
-        <Link href="/" className="flex items-center">
+      <div className="container mx-auto px-6 py-4 flex justify-between items-center relative z-50 bg-transparent">
+        <Link href="/" className="flex items-center" onClick={() => setIsMobileMenuOpen(false)}>
           <Image 
-            src="/images/MITRAM-ouro-degrade.png" 
+            src="/images/mitram-dark.png" 
             alt="Mitram Imóveis Logo" 
             width={140} 
             height={35} 
@@ -39,15 +44,61 @@ export default function Header() {
           </Link>
         </div>
 
-        {/* Mobile menu placeholder */}
+        {/* Mobile menu toggle */}
         <div className="md:hidden flex items-center">
-          <button className="text-mitram-dark p-2">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-            </svg>
+          <button 
+            className="text-mitram-dark p-2"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            aria-label="Toggle menu"
+          >
+            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
       </div>
+
+      {/* Mobile menu overlay */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden absolute top-full left-0 w-full bg-white border-b border-gray-100 shadow-lg py-4 px-6 flex flex-col space-y-4">
+          <Link 
+            href="/" 
+            className="text-mitram-grayDark font-medium py-2 hover:text-mitram-gold transition-colors"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            Início
+          </Link>
+          <Link 
+            href="/imoveis" 
+            className="text-mitram-grayDark font-medium py-2 hover:text-mitram-gold transition-colors"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            Imóveis
+          </Link>
+          <Link 
+            href="/#avaliacao" 
+            className="text-mitram-grayDark font-medium py-2 hover:text-mitram-gold transition-colors"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            Avalie
+          </Link>
+          <Link 
+            href="/contato" 
+            className="text-mitram-grayDark font-medium py-2 hover:text-mitram-gold transition-colors"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            Contato
+          </Link>
+          <div className="pt-4 border-t border-gray-100">
+            <Link 
+              href="/contato" 
+              className={`${buttonClasses("primary", "md")} w-full justify-center`}
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              <MessageCircle size={18} />
+              Falar com Especialista
+            </Link>
+          </div>
+        </div>
+      )}
     </header>
   );
 }

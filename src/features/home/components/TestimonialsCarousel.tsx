@@ -165,7 +165,7 @@ export default function TestimonialsCarousel({
     <div className="relative pointer-events-none">
       <div
         ref={viewportRef}
-        className="overflow-hidden py-4 md:py-8"
+        className="overflow-hidden py-2 md:py-8"
         role="region"
         aria-roledescription="carousel"
         aria-label="Depoimentos de clientes"
@@ -193,7 +193,7 @@ export default function TestimonialsCarousel({
                 aria-hidden={!isActive}
               >
                 <article
-                  className="relative flex h-full min-h-[300px] flex-col justify-between overflow-hidden rounded-[1.75rem] p-7 md:p-8 bg-white shadow-md border border-gray-100 will-change-transform"
+                  className="relative flex h-full min-h-[260px] md:min-h-[300px] flex-col justify-between overflow-hidden rounded-[1.75rem] p-5 md:p-8 bg-white shadow-md border border-gray-100 will-change-transform"
                   style={{
                     // Scale: 0.975 to 1.0 on desktop, always 1.0 on mobile
                     transform: itemsPerView === 3 
@@ -222,7 +222,7 @@ export default function TestimonialsCarousel({
                     </svg>
                   </div>
 
-                  <div className="relative z-10 space-y-5">
+                  <div className="relative z-10 space-y-4 md:space-y-5">
                     <div className="flex gap-1" aria-label="5 de 5 estrelas">
                       {Array.from({ length: 5 }, (_, starIndex) => (
                         <Star
@@ -246,7 +246,7 @@ export default function TestimonialsCarousel({
                     </p>
                   </div>
 
-                  <div className="relative z-10 mt-8 flex items-center gap-4">
+                  <div className="relative z-10 mt-6 flex items-center gap-4 md:mt-8">
                     <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full bg-mitram-gold/20 ring-2 ring-white/40">
                       <Image
                         src={testimonial.image}

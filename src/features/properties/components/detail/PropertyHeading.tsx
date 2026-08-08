@@ -12,7 +12,7 @@ export function PropertyHeading({ property }: { property: PropertyDetail }) {
         {property.status === 'sold' && <Badge tone="red">{statusLabel(property.status)}</Badge>}
         {property.status === 'rented' && <Badge tone="red">{statusLabel(property.status)}</Badge>}
       </div>
-      <h1 className="text-3xl font-bold text-mitram-dark mb-2">{property.title}</h1>
+      <h1 className="text-2xl md:text-3xl font-bold text-mitram-dark mb-2">{property.title}</h1>
       <p className="text-gray-600 flex items-center gap-1">
         <MapPin size={18} />
         {property.street && `${property.street}, `}

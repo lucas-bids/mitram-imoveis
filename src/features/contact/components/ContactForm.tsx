@@ -11,12 +11,12 @@ export function ContactForm() {
 
   if (success) {
     return (
-      <div className="bg-white p-10 rounded-3xl text-center shadow-sm border border-gray-100 mt-8">
-        <div className="w-20 h-20 bg-green-50 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
+      <div className="bg-white p-6 md:p-10 rounded-3xl text-center shadow-sm border border-gray-100 mt-4 md:mt-8">
+        <div className="w-20 h-20 bg-green-50 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4 md:mb-6">
           <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
         </div>
-        <h3 className="text-2xl font-bold text-mitram-dark mb-3">Mensagem enviada!</h3>
-        <p className="text-gray-600 mb-8">Obrigado pelo seu contato. Retornaremos em breve.</p>
+        <h3 className="text-xl md:text-2xl font-bold text-mitram-dark mb-3">Mensagem enviada!</h3>
+        <p className="text-gray-600 mb-6 md:mb-8">Obrigado pelo seu contato. Retornaremos em breve.</p>
         <button onClick={() => setSuccess(false)} className={buttonClasses("primary", "md")}>
           <Send size={18} />
           Enviar outra mensagem
@@ -26,12 +26,12 @@ export function ContactForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
       {error && <div className="text-red-500 text-sm bg-red-50 p-4 rounded-xl border border-red-100">{error}</div>}
       
       <input type="text" name="address_field" className="hidden" tabIndex={-1} autoComplete="off" />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
         <FormField label="Seu nome">
           <input type="text" name="name" id="name" placeholder=" " required className={fieldClasses()} />
         </FormField>
@@ -57,7 +57,7 @@ export function ContactForm() {
         />
       </FormField>
 
-      <div className="flex items-start gap-3 pt-2">
+      <div className="flex items-start gap-3 pt-1 md:pt-2">
         <input type="checkbox" id="lgpd-contact" required className={`mt-0.5 ${CHECKBOX_CLASSES}`} />
         <label htmlFor="lgpd-contact" className="text-xs text-gray-500 leading-relaxed cursor-pointer select-none">
           Concordo que a Mitram Imóveis armazene e processe meus dados pessoais de acordo com a LGPD (Lei Geral de Proteção de Dados), 
@@ -65,7 +65,7 @@ export function ContactForm() {
         </label>
       </div>
 
-      <div className="pt-4">
+      <div className="pt-2 md:pt-4">
         <button type="submit" disabled={loading} className={buttonClasses("primary", "lg", "w-full")}>
           <Send size={18} />
           {loading ? "Enviando..." : "Enviar Mensagem"}
