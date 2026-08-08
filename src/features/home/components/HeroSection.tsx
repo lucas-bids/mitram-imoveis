@@ -14,7 +14,7 @@ export function HeroSection() {
           />
           <div className="absolute inset-0 bg-gradient-to-r from-mitram-dark/80 via-mitram-dark/50 to-transparent z-10" />
           
-          <div className="absolute inset-0 z-20 flex flex-col justify-center px-8 pb-12 md:px-16 md:pb-0 lg:px-24">
+          <div className="absolute inset-0 z-20 flex flex-col justify-center px-4 pb-12 md:px-16 md:pb-0 lg:px-24">
             <div className="max-w-2xl space-y-6">
               <span className="inline-block py-1.5 px-4 rounded-full bg-mitram-gold/20 text-mitram-goldLight text-sm font-semibold backdrop-blur-md border border-mitram-gold/30">
                 ✨ Encontre seu novo lar
