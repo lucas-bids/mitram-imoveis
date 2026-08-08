@@ -26,7 +26,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR" className={font.className}>
-      <body className="flex min-h-screen flex-col bg-mitram-grayLight text-mitram-dark">
+      <body className="flex min-h-screen flex-col bg-white text-mitram-dark">
         <Header />
         <main className="flex-grow">
           {children}
