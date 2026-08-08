@@ -326,14 +326,6 @@ export default function PropertyForm({ initialData, isEdit = false, lookups }: P
                 className={fieldClasses(!!errors.parking_spaces, FIELD_NUMBER)}
               />
             </FormField>
-            <FormField label="Andar" error={errors.floor?.message}>
-              <input
-                type="number"
-                placeholder=" "
-                {...register("floor")}
-                className={fieldClasses(!!errors.floor, FIELD_NUMBER)}
-              />
-            </FormField>
             <label className="group flex cursor-pointer items-center gap-3 self-end pb-3">
               <input type="checkbox" {...register("furnished")} className={CHECKBOX_CLASSES} />
               <span className="text-sm font-medium text-gray-700 transition-colors group-hover:text-mitram-dark">

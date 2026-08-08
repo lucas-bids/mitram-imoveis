@@ -96,7 +96,7 @@ export default function AdvancedFilters({
 
   return (
     <div className="bg-[#FAFAFA] rounded-[2rem] p-4 md:p-8 border border-gray-100 shadow-sm">
-      <form onSubmit={handleApply} className="flex flex-col gap-4 md:gap-6">
+      <form onSubmit={handleApply} className="flex flex-col gap-2 md:gap-6">
         
         {/* Mobile Top Bar */}
         <div className="flex flex-row items-center justify-between gap-4">
@@ -104,7 +104,7 @@ export default function AdvancedFilters({
           
           <button 
             type="button" 
-            className="md:hidden flex items-center justify-between bg-white border border-gray-200 rounded-full px-4 py-2 text-sm font-semibold text-mitram-dark shadow-sm"
+            className="md:hidden flex items-center justify-between bg-white border border-gray-200 rounded-full px-5 py-2.5 text-sm font-semibold text-mitram-dark shadow-sm"
             onClick={() => setIsMobileFiltersOpen(!isMobileFiltersOpen)}
           >
             <div className="flex items-center gap-2">

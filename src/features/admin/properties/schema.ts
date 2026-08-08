@@ -24,7 +24,6 @@ export const propertySchema = z.object({
   suites: z.coerce.number().optional().nullable(),
   bathrooms: z.coerce.number().optional().nullable(),
   parking_spaces: z.coerce.number().optional().nullable(),
-  floor: z.coerce.number().optional().nullable(),
   furnished: z.boolean().default(false),
   youtube_url: z.string().url().optional().nullable().or(z.literal("")),
   virtual_tour_url: z.string().url().optional().nullable().or(z.literal("")),
