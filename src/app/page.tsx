@@ -59,11 +59,11 @@ export default async function Home() {
       {/* Institutional / About */}
       <AboutSection />
 
-      {/* Avaliação CTA */}
-      <ValuationCta />
-
       {/* Testimonials */}
       <TestimonialsSection />
+
+      {/* Avaliação CTA */}
+      <ValuationCta />
 
     </div>
   );

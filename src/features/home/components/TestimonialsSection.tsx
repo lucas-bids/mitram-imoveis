@@ -7,16 +7,18 @@ import { SectionEyebrow } from "./SectionEyebrow";
 
 export function TestimonialsSection() {
   return (
-    <Container as="section" className="py-10 md:py-24">
-      <div className="max-w-3xl mb-6 md:mb-12 space-y-4 md:space-y-6">
-        <SectionEyebrow>Depoimentos</SectionEyebrow>
-        <Heading variant="h2">O que nossos clientes dizem</Heading>
-        <Text variant="lead" className="max-w-2xl">
-          Veja as histórias reais de quem confiou na Mitram para encontrar o lar perfeito ou realizar um excelente negócio.
-        </Text>
-      </div>
+    <section className="bg-white py-10 md:py-24">
+      <Container>
+        <div className="max-w-3xl mb-6 md:mb-12 space-y-4 md:space-y-6">
+          <SectionEyebrow>Depoimentos</SectionEyebrow>
+          <Heading variant="h2">O que nossos clientes dizem</Heading>
+          <Text variant="lead" className="max-w-2xl">
+            Veja as histórias reais de quem confiou na Mitram para encontrar o lar perfeito ou realizar um excelente negócio.
+          </Text>
+        </div>
 
-      <TestimonialsCarousel testimonials={TESTIMONIALS} />
-    </Container>
+        <TestimonialsCarousel testimonials={TESTIMONIALS} />
+      </Container>
+    </section>
   );
 }

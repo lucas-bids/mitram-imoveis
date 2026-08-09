@@ -165,7 +165,7 @@ export default function TestimonialsCarousel({
     <div className="relative pointer-events-none">
       <div
         ref={viewportRef}
-        className="overflow-hidden py-2 md:py-8"
+        className="overflow-hidden py-2 md:py-4"
         role="region"
         aria-roledescription="carousel"
         aria-label="Depoimentos de clientes"
@@ -193,62 +193,19 @@ export default function TestimonialsCarousel({
                 aria-hidden={!isActive}
               >
                 <article
-                  className="relative flex h-full min-h-[260px] md:min-h-[300px] flex-col justify-between overflow-hidden rounded-[1.75rem] p-5 md:p-8 bg-white shadow-md border border-gray-100 will-change-transform"
+                  className="flex h-full min-h-[280px] md:min-h-[320px] flex-col rounded-2xl border bg-white p-5 md:p-7 will-change-transform"
                   style={{
-                    // Scale: 0.975 to 1.0 on desktop, always 1.0 on mobile
-                    transform: itemsPerView === 3 
-                      ? "scale(calc(0.975 + 0.025 * var(--t)))" 
+                    // Scale: 0.98 to 1.0 on desktop, always 1.0 on mobile
+                    transform: itemsPerView === 3
+                      ? "scale(calc(0.98 + 0.02 * var(--t)))"
                       : "scale(1)",
-                    // Shadow halo
-                    boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1), 0 20px 25px -5px color-mix(in srgb, rgb(var(--color-gold)) calc(var(--t) * 28%), transparent)",
+                    // O card ativo ganha borda dourada; os demais ficam em cinza
+                    borderColor: "color-mix(in srgb, rgb(var(--color-gold)) calc(var(--t) * 60%), rgb(229 231 235))",
                     zIndex: `calc(var(--t) * 10)`,
                   }}
                 >
-                  {/* Gold gradient overlay */}
-                  <div 
-                    className="absolute inset-0 bg-gradient-to-br from-[#DCBB55] to-[#C09A2C] pointer-events-none"
-                    style={{ opacity: "var(--t)" }}
-                  />
-
-                  <div
-                    className="pointer-events-none absolute top-7 right-7"
-                    style={{
-                      color:
-                        "color-mix(in srgb, color-mix(in srgb, rgb(var(--color-white)) 30%, transparent) calc(var(--t) * 100%), color-mix(in srgb, rgb(var(--color-gold)) 20%, transparent))",
-                    }}
-                    aria-hidden="true"
-                  >
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M14.017 18L14.017 10.609C14.017 4.905 17.748 1.039 23 0L23.995 2.151C21.563 3.068 20 5.789 20 8H24V18H14.017ZM0 18V10.609C0 4.905 3.748 1.038 9 0L9.996 2.151C7.563 3.068 6 5.789 6 8H9.983L9.983 18L0 18Z" />
-                    </svg>
-                  </div>
-
-                  <div className="relative z-10 space-y-4 md:space-y-5">
-                    <div className="flex gap-1" aria-label="5 de 5 estrelas">
-                      {Array.from({ length: 5 }, (_, starIndex) => (
-                        <Star
-                          key={starIndex}
-                          size={16}
-                          style={{
-                            color: "color-mix(in srgb, rgb(var(--color-white)) calc(var(--t) * 100%), rgb(var(--color-gold)))",
-                            fill: "currentColor"
-                          }}
-                        />
-                      ))}
-                    </div>
-
-                    <p
-                      className="text-base md:text-lg leading-relaxed italic"
-                      style={{
-                        color: "color-mix(in srgb, #FFFFFF calc(var(--t) * 100%), #4B5563)"
-                      }}
-                    >
-                      &quot;{testimonial.text}&quot;
-                    </p>
-                  </div>
-
-                  <div className="relative z-10 mt-6 flex items-center gap-4 md:mt-8">
-                    <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full bg-mitram-gold/20 ring-2 ring-white/40">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full bg-mitram-gold/10 ring-2 ring-mitram-gold/20">
                       <Image
                         src={testimonial.image}
                         alt={testimonial.author}
@@ -260,23 +217,38 @@ export default function TestimonialsCarousel({
                         draggable={false}
                       />
                     </div>
-                    <div>
-                      <p
-                        className="font-bold"
-                        style={{
-                          color: "color-mix(in srgb, rgb(var(--color-white)) calc(var(--t) * 100%), rgb(var(--color-dark)))"
-                        }}
-                      >
-                        {testimonial.author}
-                      </p>
-                      <p
-                        className="text-sm"
-                        style={{
-                          color: "color-mix(in srgb, #FFF6D0 calc(var(--t) * 100%), rgb(var(--color-gold)))"
-                        }}
-                      >
-                        {testimonial.type}
-                      </p>
+                    <span className="rounded-full border border-mitram-gold/30 bg-mitram-gold/10 px-3 py-1 text-xs font-semibold text-mitram-goldText">
+                      {testimonial.type}
+                    </span>
+                  </div>
+
+                  <div
+                    className="mt-5 md:mt-6"
+                    style={{
+                      color: "color-mix(in srgb, rgb(var(--color-gold)) calc(40% + var(--t) * 60%), transparent)",
+                    }}
+                    aria-hidden="true"
+                  >
+                    <svg width="34" height="34" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M14.017 18L14.017 10.609C14.017 4.905 17.748 1.039 23 0L23.995 2.151C21.563 3.068 20 5.789 20 8H24V18H14.017ZM0 18V10.609C0 4.905 3.748 1.038 9 0L9.996 2.151C7.563 3.068 6 5.789 6 8H9.983L9.983 18L0 18Z" />
+                    </svg>
+                  </div>
+
+                  <p className="mt-4 flex-1 text-base leading-relaxed text-mitram-grayDark">
+                    {testimonial.text}
+                  </p>
+
+                  <div className="mt-6 border-l-2 border-mitram-gold pl-4">
+                    <p className="font-bold text-mitram-dark">{testimonial.author}</p>
+                    <div className="mt-1 flex gap-0.5" aria-label="5 de 5 estrelas">
+                      {Array.from({ length: 5 }, (_, starIndex) => (
+                        <Star
+                          key={starIndex}
+                          size={13}
+                          className="text-mitram-gold"
+                          fill="currentColor"
+                        />
+                      ))}
                     </div>
                   </div>
                 </article>
