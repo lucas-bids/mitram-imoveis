@@ -64,7 +64,7 @@ export default async function PropertyDetailsPage({ params }: { params: { slug: 
             <PropertyHeading property={property} />
             <PropertySummary property={property} />
 
-            <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm">
+            <div>
               <Heading as="h2" variant="h4" className="mb-3 md:mb-4">Descrição</Heading>
               <div className="text-gray-700 whitespace-pre-wrap leading-relaxed">
                 {property.description}
@@ -75,7 +75,7 @@ export default async function PropertyDetailsPage({ params }: { params: { slug: 
             <PropertyMediaLinks property={property} />
 
             {property.latitude && property.longitude && (
-              <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm">
+              <div>
                 <Heading as="h2" variant="h4" className="mb-3 md:mb-4">Localização</Heading>
                 <div className="h-[320px] md:h-[400px] w-full rounded overflow-hidden border">
                   <PropertyLocationMap latitude={Number(property.latitude)} longitude={Number(property.longitude)} />
