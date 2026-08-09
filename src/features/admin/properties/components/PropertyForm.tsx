@@ -209,11 +209,11 @@ export default function PropertyForm({ initialData, isEdit = false, lookups }: P
                 className={fieldClasses(!!errors.status, SELECT_EXTRA)}
                 style={SELECT_ARROW_STYLE}
               >
-                <option value="draft">Rascunho</option>
-                <option value="published">Publicado</option>
-                <option value="archived">Arquivado</option>
-                <option value="sold">Vendido</option>
                 <option value="rented">Alugado</option>
+                <option value="archived">Arquivado</option>
+                <option value="published">Publicado</option>
+                <option value="draft">Rascunho</option>
+                <option value="sold">Vendido</option>
               </select>
             </FormField>
             <label className="group flex cursor-pointer items-center gap-3 md:col-span-2">
@@ -237,8 +237,8 @@ export default function PropertyForm({ initialData, isEdit = false, lookups }: P
                 className={fieldClasses(!!errors.purpose, SELECT_EXTRA)}
                 style={SELECT_ARROW_STYLE}
               >
-                <option value="sale">Venda</option>
                 <option value="rent">Aluguel</option>
+                <option value="sale">Venda</option>
               </select>
             </FormField>
             <FormField label="Preço" error={errors.price?.message} affix="R$">
