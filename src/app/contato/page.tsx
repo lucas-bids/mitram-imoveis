@@ -35,13 +35,23 @@ export default function ContactPage() {
                 <Text variant="bodySm" className="mb-1 ml-8">Envie-nos um e-mail para propostas e parcerias.</Text>
                 <p className="text-mitram-dark font-semibold ml-8">lucas.vidal.andrade@gmail.com</p>
               </div>
-            </div>
-          </div>
 
-          <div className="mt-8 pt-6 border-t border-gray-100 flex items-center gap-4 md:mt-16 md:pt-8">
-            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="p-3 bg-gray-50 rounded-full text-gray-500 hover:text-mitram-gold hover:bg-mitram-gold/10 transition-colors" title="Instagram">
-              <Instagram size={22} />
-            </a>
+              <div>
+                <div className="flex items-center gap-3 mb-3">
+                  <Instagram size={20} className="text-gray-400" />
+                  <Heading as="h3" variant="h4">Instagram</Heading>
+                </div>
+                <Text variant="bodySm" className="mb-1 ml-8">Acompanhe nossos imóveis e novidades.</Text>
+                <a
+                  href="https://instagram.com/mitramimoveis"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-mitram-dark font-semibold ml-8 hover:text-mitram-gold transition-colors"
+                >
+                  @mitramimoveis
+                </a>
+              </div>
+            </div>
           </div>
         </div>
 
