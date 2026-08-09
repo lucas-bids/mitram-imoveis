@@ -7,7 +7,7 @@ export function PropertyMediaLinks({ property }: { property: PropertyDetail }) {
   if (!property.youtube_url && !property.virtual_tour_url) return null;
 
   return (
-    <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm">
+    <div>
       <Heading as="h2" variant="h4" className="mb-3 md:mb-4">Mídia</Heading>
       <div className="flex gap-4 flex-wrap">
         {property.youtube_url && (
