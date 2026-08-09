@@ -5,10 +5,11 @@ import { useState } from "react";
 import { List, Map, Filter, ChevronDown, ChevronUp } from "lucide-react";
 import { buttonClasses } from "@/components/ui/buttonStyles";
 import { FormField, SELECT_ARROW_STYLE, SELECT_EXTRA, fieldClasses } from "@/components/ui/FormField";
-import { FilterOption, parseFilters, serializeFilters, deriveActivePills, PropertyFilters } from "@/features/search/filters";
+import { FilterOption, parseFilters, serializeFilters, deriveActivePills, pruneNeighborhoodIds, PropertyFilters } from "@/features/search/filters";
 import { PurposeToggle } from "@/features/search/components/PurposeToggle";
 import { RangeField } from "@/features/search/components/RangeField";
 import { FilterPills } from "@/features/search/components/FilterPills";
+import { MultiSelectField } from "@/features/search/components/MultiSelectField";
 
 interface NeighborhoodOption extends FilterOption {
   city_id: string;
@@ -41,7 +42,7 @@ export default function AdvancedFilters({
   const handleChange = (key: string, value: string) => {
     setFilters((prev) => {
       const newFilters = { ...prev, [key]: value };
-      if (key === "city") newFilters.neighborhood = "";
+      if (key === "city") newFilters.neighborhood = pruneNeighborhoodIds(prev.neighborhood, value, neighborhoods);
       return newFilters;
     });
   };
@@ -64,8 +65,9 @@ export default function AdvancedFilters({
     router.push(`${pathname}?${params.toString()}`);
   };
 
+  const selectedCityIds = filters.city ? filters.city.split(",").filter(Boolean) : [];
   const filteredNeighborhoods = neighborhoods.filter(
-    (n) => !filters.city || n.city_id === filters.city,
+    (n) => selectedCityIds.length === 0 || selectedCityIds.includes(n.city_id),
   );
 
   const filterSelectClasses = (isActive: boolean, extra?: string) =>
@@ -75,13 +77,18 @@ export default function AdvancedFilters({
   const hasActiveFilters = activePills.length > 0;
 
   const removeFilter = (key: string) => {
-    const newFilters = { ...filters, [key]: "" };
-    if (key === "city") newFilters.neighborhood = "";
+    const [field, id] = key.split(":") as [keyof PropertyFilters, string | undefined];
+    const nextValue = id ? filters[field].split(",").filter((v) => v !== id).join(",") : "";
+
+    const newFilters: PropertyFilters = { ...filters, [field]: nextValue };
+    if (field === "city") newFilters.neighborhood = pruneNeighborhoodIds(filters.neighborhood, nextValue, neighborhoods);
     setFilters(newFilters);
 
     const params = new URLSearchParams(searchParams.toString());
-    params.delete(key);
-    if (key === "city") params.delete("neighborhood");
+    if (nextValue) params.set(field, nextValue); else params.delete(field);
+    if (field === "city") {
+      if (newFilters.neighborhood) params.set("neighborhood", newFilters.neighborhood); else params.delete("neighborhood");
+    }
     router.push(`${pathname}?${params.toString()}`);
   };
 
@@ -134,32 +141,27 @@ export default function AdvancedFilters({
           </FormField>
 
           <FormField label="Cidade" alwaysFloat>
-            <select
+            <MultiSelectField
+              options={cities}
               value={filters.city}
-              onChange={(e) => handleChange("city", e.target.value)}
-              className={filterSelectClasses(!!filters.city)}
-              style={SELECT_ARROW_STYLE}
-            >
-              <option value="">Qualquer</option>
-              {cities.map((city) => (
-                <option key={city.id} value={city.id}>{city.name}</option>
-              ))}
-            </select>
+              onChange={(value) => handleChange("city", value)}
+              placeholder="Qualquer"
+              triggerClassName={filterSelectClasses(!!filters.city)}
+              triggerStyle={SELECT_ARROW_STYLE}
+            />
           </FormField>
 
           <FormField label="Bairro" alwaysFloat>
-            <select
+            <MultiSelectField
+              options={filteredNeighborhoods}
               value={filters.neighborhood}
-              onChange={(e) => handleChange("neighborhood", e.target.value)}
+              onChange={(value) => handleChange("neighborhood", value)}
+              placeholder="Qualquer"
               disabled={!filters.city}
-              className={filterSelectClasses(!!filters.neighborhood, "disabled:cursor-not-allowed disabled:opacity-50")}
-              style={SELECT_ARROW_STYLE}
-            >
-              <option value="">Qualquer</option>
-              {filteredNeighborhoods.map((n) => (
-                <option key={n.id} value={n.id}>{n.name}</option>
-              ))}
-            </select>
+              emptyMessage="Selecione uma cidade primeiro."
+              triggerClassName={filterSelectClasses(!!filters.neighborhood, "disabled:cursor-not-allowed disabled:opacity-50")}
+              triggerStyle={SELECT_ARROW_STYLE}
+            />
           </FormField>
 
           <FormField label="Preço" alwaysFloat>
@@ -231,17 +233,14 @@ export default function AdvancedFilters({
           </FormField>
 
           <FormField label="Características" alwaysFloat>
-            <select
+            <MultiSelectField
+              options={features}
               value={filters.features}
-              onChange={(e) => handleChange("features", e.target.value)}
-              className={filterSelectClasses(!!filters.features)}
-              style={SELECT_ARROW_STYLE}
-            >
-              <option value="">Qualquer</option>
-              {features.map((f) => (
-                <option key={f.id} value={f.id}>{f.name}</option>
-              ))}
-            </select>
+              onChange={(value) => handleChange("features", value)}
+              placeholder="Qualquer"
+              triggerClassName={filterSelectClasses(!!filters.features)}
+              triggerStyle={SELECT_ARROW_STYLE}
+            />
           </FormField>
         </div>
 
