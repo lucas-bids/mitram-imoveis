@@ -19,7 +19,7 @@ export function ValuationCta() {
               
               <div className="grid grid-cols-3 gap-3 md:gap-6">
                 {/* Top wide image */}
-                <div className="col-span-3 relative h-40 md:h-64 rounded-3xl overflow-hidden shadow-lg">
+                <div className="col-span-3 relative h-40 md:h-64 rounded-3xl overflow-hidden">
                   <Image 
                     src="/images/aerial-view-curitiba.jpg" 
                     fill 
@@ -29,7 +29,7 @@ export function ValuationCta() {
                 </div>
                 
                 {/* Bottom left image (~1/3) */}
-                <div className="col-span-1 relative h-32 md:h-52 rounded-3xl overflow-hidden shadow-lg">
+                <div className="col-span-1 relative h-32 md:h-52 rounded-3xl overflow-hidden">
                   <Image 
                     src="/images/keys-on-table.jpg" 
                     fill 
@@ -39,7 +39,7 @@ export function ValuationCta() {
                 </div>
                 
                 {/* Bottom right image (~2/3, taller) */}
-                <div className="col-span-2 relative h-44 md:h-72 rounded-3xl overflow-hidden shadow-lg">
+                <div className="col-span-2 relative h-44 md:h-72 rounded-3xl overflow-hidden">
                   <Image 
                     src="/images/hero-image.jpg" 
                     fill 

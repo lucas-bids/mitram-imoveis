@@ -23,7 +23,7 @@ export default function PropertyCard({ property }: { property: PropertyListItem 
   const priceFormatted = formatPrice(property.price);
 
   return (
-    <div className="group relative w-full h-[360px] sm:h-[420px] rounded-3xl overflow-hidden shadow-sm border border-gray-100 transition-all duration-300 hover:shadow-md flex flex-col bg-mitram-dark">
+    <div className="group relative w-full h-[360px] sm:h-[420px] rounded-3xl overflow-hidden border border-gray-100 transition-all duration-300 flex flex-col bg-mitram-dark">
       
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
