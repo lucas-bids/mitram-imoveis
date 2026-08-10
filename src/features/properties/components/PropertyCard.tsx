@@ -7,6 +7,7 @@ import { PropertyListItem } from "@/features/properties/types";
 import { formatPrice, purposeLabel, statusLabel, locationLabel } from "@/features/properties/format";
 
 import { Badge } from "@/components/ui/Badge";
+import { interactiveCardClasses } from "@/components/ui/cardStyles";
 import { Heading } from "@/components/ui/Heading";
 
 export default function PropertyCard({ property }: { property: PropertyListItem }) {
@@ -23,7 +24,7 @@ export default function PropertyCard({ property }: { property: PropertyListItem 
   const priceFormatted = formatPrice(property.price);
 
   return (
-    <div className="group relative w-full h-[360px] sm:h-[420px] rounded-3xl overflow-hidden border border-gray-100 transition-all duration-300 flex flex-col bg-mitram-dark">
+    <div className={interactiveCardClasses("group relative w-full h-[360px] sm:h-[420px] rounded-3xl overflow-hidden duration-300 flex flex-col bg-mitram-dark")}>
       
       {/* Background Image */}
       <div className="absolute inset-0 z-0">

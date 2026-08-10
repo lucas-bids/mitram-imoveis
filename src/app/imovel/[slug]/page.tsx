@@ -98,7 +98,7 @@ export default async function PropertyDetailsPage({ params }: { params: { slug: 
                 Conversar pelo WhatsApp
               </a>
 
-              <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm border border-gray-100">
+              <div className="bg-white p-4 md:p-6 rounded-lg border border-gray-200">
                 <Heading as="h3" variant="h3" className="mb-3 md:mb-4">Agendar Visita / Mais Informações</Heading>
                 <SchedulingForm propertyTitle={property.title} propertyUrl={propertyUrl} />
               </div>

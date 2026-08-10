@@ -4,6 +4,7 @@ import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useState } from "react";
 import { List, Map, Filter, ChevronDown, ChevronUp } from "lucide-react";
 import { buttonClasses } from "@/components/ui/buttonStyles";
+import { cardClasses } from "@/components/ui/cardStyles";
 import { FormField, SELECT_ARROW_STYLE, SELECT_EXTRA, fieldClasses } from "@/components/ui/FormField";
 import { FilterOption, parseFilters, serializeFilters, deriveActivePills, pruneNeighborhoodIds, PropertyFilters } from "@/features/search/filters";
 import { PurposeToggle } from "@/features/search/components/PurposeToggle";
@@ -102,7 +103,7 @@ export default function AdvancedFilters({
   };
 
   return (
-    <div className="bg-[#FAFAFA] rounded-[2rem] p-4 md:p-8 border border-gray-100 shadow-sm">
+    <div className={cardClasses("bg-[#FAFAFA] rounded-[2rem] p-4 md:p-8")}>
       <form onSubmit={handleApply} className="flex flex-col gap-2 md:gap-6">
         
         {/* Mobile Top Bar */}
@@ -111,7 +112,7 @@ export default function AdvancedFilters({
           
           <button 
             type="button" 
-            className="md:hidden flex items-center justify-between bg-white border border-gray-200 rounded-full px-5 py-2.5 text-sm font-semibold text-mitram-dark shadow-sm"
+            className="md:hidden flex items-center justify-between bg-white border border-gray-200 rounded-full px-5 py-2.5 text-sm font-semibold text-mitram-dark"
             onClick={() => setIsMobileFiltersOpen(!isMobileFiltersOpen)}
           >
             <div className="flex items-center gap-2">
