@@ -2,6 +2,7 @@
 
 import nodemailer from "nodemailer";
 import { headers } from "next/headers";
+import { contactPreferenceLabel } from "@/features/contact/types";
 
 // Simple in-memory rate limiting (since we don't have Redis).
 // This is not perfectly accurate in serverless environments, but it provides basic protection.
@@ -52,10 +53,10 @@ export async function submitContactForm(formData: FormData) {
     if (phone) htmlContent += `<p><strong>Telefone:</strong> ${phone}</p>`;
     if (email) htmlContent += `<p><strong>E-mail:</strong> ${email}</p>`;
 
-    if (type === "scheduling") {
+    if (type === "callback") {
       const propertyTitle = formData.get("propertyTitle");
       const propertyUrl = formData.get("propertyUrl");
-      subject = `[Agendamento] Interesse em: ${propertyTitle}`;
+      subject = `[Retorno] Interesse em: ${propertyTitle}`;
       htmlContent += `<p><strong>Interesse:</strong> <a href="${propertyUrl}">${propertyTitle}</a></p>`;
     } else if (type === "sell_land") {
       subject = "[Captação] Interesse em vender terreno";
@@ -67,6 +68,10 @@ export async function submitContactForm(formData: FormData) {
       }
       if (message) htmlContent += `<p><strong>Mensagem:</strong><br/>${message.replace(/\n/g, '<br/>')}</p>`;
     }
+
+    // Comum a qualquer tipo enviado pelo ContactPreferenceForm (callback, sell_land).
+    const preference = contactPreferenceLabel(formData.get("contactPreference"));
+    if (preference) htmlContent += `<p><strong>Prefere contato por:</strong> ${preference}</p>`;
 
     htmlContent += `<hr/><p><small>Este e-mail foi gerado automaticamente pelo site da Mitram Imóveis.</small></p>`;
 

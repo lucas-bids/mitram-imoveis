@@ -16,6 +16,12 @@ function isAdminRoute(pathname: string) {
 }
 
 export async function updateSession(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  if (!isAdminRoute(pathname)) {
+    return NextResponse.next({ request });
+  }
+
   let supabaseResponse = NextResponse.next({ request });
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -45,9 +51,7 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const { pathname } = request.nextUrl;
-
-  if (isAdminRoute(pathname) && !isAuthRoute(pathname)) {
+  if (!isAuthRoute(pathname)) {
     if (!user) {
       const url = request.nextUrl.clone();
       url.pathname = "/admin/login";

@@ -47,7 +47,7 @@ export function AboutSection() {
         </div>
         
         <div className="flex-1 w-full">
-          <div className="relative h-[360px] md:h-[600px] w-full rounded-[2rem] overflow-hidden shadow-2xl">
+          <div className="relative h-[360px] md:h-[600px] w-full rounded-[2rem] overflow-hidden">
             <Image 
               src="/images/garden-garage-entrance.png" 
               alt="Interior Moderno" 

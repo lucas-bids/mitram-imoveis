@@ -53,7 +53,7 @@ export default async function ImoveisPage({
         </div>
 
         {isMapView ? (
-          <div className="bg-white rounded-lg shadow-sm h-[600px] border border-gray-200 overflow-hidden">
+          <div className="bg-white rounded-lg h-[600px] border border-gray-200 overflow-hidden">
             <PropertiesMap properties={properties || []} />
           </div>
         ) : (

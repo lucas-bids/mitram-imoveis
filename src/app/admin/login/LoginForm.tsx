@@ -62,7 +62,7 @@ export default function LoginForm() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-mitram-grayLight px-4">
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+      <div className="bg-white p-8 rounded-lg border border-gray-200 w-full max-w-md">
         <div className="flex justify-center mb-8">
           <Image
             src="/images/MITRAM-ouro.png"

@@ -48,6 +48,32 @@ export function serializeFilters(filters: Partial<PropertyFilters>): URLSearchPa
 
 export type FilterOption = { id: string; name: string };
 
+/** Extrai os ids selecionados de um campo multi-valor serializado como CSV. */
+function csvIds(value: string): string[] {
+  return value ? value.split(",").filter(Boolean) : [];
+}
+
+/**
+ * Remove da seleção de bairros (CSV) os ids cuja cidade não está mais entre as
+ * cidades selecionadas (CSV). Sem cidade selecionada, nenhum bairro é descartado,
+ * pois a lista de bairros passa a exibir todas as opções.
+ */
+export function pruneNeighborhoodIds(
+  neighborhoodCsv: string,
+  cityCsv: string,
+  neighborhoods: { id: string; city_id?: string }[],
+): string {
+  const cityIds = csvIds(cityCsv);
+  if (cityIds.length === 0) return neighborhoodCsv;
+
+  return csvIds(neighborhoodCsv)
+    .filter((id) => {
+      const neighborhood = neighborhoods.find((item) => item.id === id);
+      return !!neighborhood?.city_id && cityIds.includes(neighborhood.city_id);
+    })
+    .join(",");
+}
+
 export function deriveActivePills(
   filters: PropertyFilters,
   lookups: { types: FilterOption[]; cities: FilterOption[]; neighborhoods: FilterOption[]; features: FilterOption[] }
@@ -62,21 +88,21 @@ export function deriveActivePills(
     const name = lookups.types.find(t => t.id === filters.type)?.name;
     if (name) activePills.push({ key: 'type', label: `Tipo: ${name}` });
   }
-  if (filters.city) {
-    const name = lookups.cities.find(c => c.id === filters.city)?.name;
-    if (name) activePills.push({ key: 'city', label: `Cidade: ${name}` });
-  }
-  if (filters.neighborhood) {
-    const name = lookups.neighborhoods.find(n => n.id === filters.neighborhood)?.name;
-    if (name) activePills.push({ key: 'neighborhood', label: `Bairro: ${name}` });
-  }
+  csvIds(filters.city).forEach((id) => {
+    const name = lookups.cities.find(c => c.id === id)?.name;
+    if (name) activePills.push({ key: `city:${id}`, label: `Cidade: ${name}` });
+  });
+  csvIds(filters.neighborhood).forEach((id) => {
+    const name = lookups.neighborhoods.find(n => n.id === id)?.name;
+    if (name) activePills.push({ key: `neighborhood:${id}`, label: `Bairro: ${name}` });
+  });
   if (filters.bedrooms) activePills.push({ key: 'bedrooms', label: `Quartos: ${filters.bedrooms}+` });
   if (filters.suites) activePills.push({ key: 'suites', label: `Suítes: ${filters.suites}+` });
   if (filters.parking_spaces) activePills.push({ key: 'parking_spaces', label: `Vagas: ${filters.parking_spaces}+` });
-  if (filters.features) {
-    const name = lookups.features.find(f => f.id === filters.features)?.name;
-    if (name) activePills.push({ key: 'features', label: `Extra: ${name}` });
-  }
+  csvIds(filters.features).forEach((id) => {
+    const name = lookups.features.find(f => f.id === id)?.name;
+    if (name) activePills.push({ key: `features:${id}`, label: `Extra: ${name}` });
+  });
   if (filters.min_price) activePills.push({ key: 'min_price', label: `Preço Mín: R$ ${filters.min_price}` });
   if (filters.max_price) activePills.push({ key: 'max_price', label: `Preço Máx: R$ ${filters.max_price}` });
   if (filters.min_area) activePills.push({ key: 'min_area', label: `Área Mín: ${filters.min_area}m²` });

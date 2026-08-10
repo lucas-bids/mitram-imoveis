@@ -152,7 +152,7 @@ export default function ImageUpload({ propertyId, initialMedia, onMediaUpdate }:
                       <div
                         ref={provided.innerRef}
                         {...provided.draggableProps}
-                        className={`relative group bg-white border rounded shadow-sm overflow-hidden w-40 h-40 ${item.is_cover ? 'border-mitram-gold ring-2 ring-mitram-gold' : 'border-gray-200'}`}
+                        className={`relative group bg-white border rounded overflow-hidden w-40 h-40 ${item.is_cover ? 'border-mitram-gold ring-2 ring-mitram-gold' : 'border-gray-200'}`}
                       >
                         <div className="absolute inset-0 w-full h-full">
                           <Image

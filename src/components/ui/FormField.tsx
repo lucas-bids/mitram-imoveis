@@ -1,7 +1,7 @@
 import type { CSSProperties, ReactNode } from "react";
 
 const FIELD_SHELL =
-  "block w-full rounded-xl border-2 bg-white px-5 text-mitram-dark shadow-sm outline-none transition-all";
+  "block w-full rounded-xl border-2 bg-white px-5 text-mitram-dark outline-none transition-all";
 /** Padding assimétrico para o rótulo flutuante (FormField). */
 const FIELD_FLOATING = "peer pb-3 pt-6";
 /** Padding simétrico (mesma altura que FIELD_FLOATING: pt-6 + pb-3). */

@@ -1,12 +1,13 @@
 import { PropertyDetail } from "@/features/properties/types";
 import { Check } from "lucide-react";
+import { cardClasses } from "@/components/ui/cardStyles";
 import { Heading } from "@/components/ui/Heading";
 
 export function PropertyFeatures({ property }: { property: PropertyDetail }) {
   if (!property.property_features || property.property_features.length === 0) return null;
 
   return (
-    <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm">
+    <div className={cardClasses("bg-white p-4 md:p-6 rounded-xl")}>
       <Heading as="h2" variant="h4" className="mb-3 md:mb-4">Características</Heading>
       <div className="grid grid-cols-2 md:grid-cols-3 gap-y-3">
         {property.property_features.map((pf: { features: { name: string } }, index: number) => (

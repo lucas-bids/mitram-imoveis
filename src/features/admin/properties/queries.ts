@@ -9,7 +9,7 @@ export async function getPropertyFormLookups() {
     { data: neighborhoods },
     { data: features },
   ] = await Promise.all([
-    supabase.from("property_types").select("id, name").eq("active", true),
+    supabase.from("property_types").select("id, name").eq("active", true).order("name"),
     supabase.from("cities").select("id, name, state, slug").eq("active", true).order("name"),
     supabase.from("neighborhoods").select("id, city_id, name, slug").eq("active", true).order("name"),
     supabase.from("features").select("id, name, slug").eq("active", true).order("name"),
