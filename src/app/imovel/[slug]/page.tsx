@@ -51,7 +51,7 @@ export default async function PropertyDetailsPage({ params }: { params: { slug: 
   const whatsappLink = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
 
   return (
-    <div className="bg-mitram-grayLight min-h-screen">
+    <div className="bg-white min-h-screen">
       <PropertyJsonLd property={property} propertyUrl={propertyUrl} />
 
       <Container className="py-4 md:py-8">
