@@ -85,7 +85,7 @@ export function ValuationCta() {
 
 
             {/* Form Integrated */}
-            <div className="max-w-lg pt-2 md:pt-6">
+            <div className="max-w-lg">
               <form className="space-y-4 md:space-y-5">
                 <FormField label="Nome completo">
                   <input type="text" id="name" placeholder=" " required className={fieldClasses()} />
