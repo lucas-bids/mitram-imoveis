@@ -34,7 +34,7 @@ export default async function DuplicatePropertyPage({ params }: { params: { id: 
   const lookups = await getPropertyFormLookups();
 
   return (
-    <div className="max-w-6xl mx-auto pb-12">
+    <div className="pb-12">
       <AdminPageHeader title="Duplicar Imóvel" description="Imagens não são copiadas. Você precisará adicioná-las novamente.">
         <BackLink href="/admin/imoveis" label="Voltar para imóveis" />
       </AdminPageHeader>
