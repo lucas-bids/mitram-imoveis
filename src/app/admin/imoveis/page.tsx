@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { Plus, Edit, Copy, Trash2, Eye } from "lucide-react";
-import { buttonClasses } from "@/components/ui/buttonStyles";
+import { Edit, Copy, Trash2, Eye } from "lucide-react";
 import { formatPrice, purposeLabel, statusLabel, locationLabel } from "@/features/properties/format";
 import { AdminPropertyListItem } from "@/features/properties/types";
 import { getAdminProperties } from "@/features/properties/queries";
@@ -31,12 +30,7 @@ export default async function AdminDashboard() {
 
   return (
     <div>
-      <AdminPageHeader title="Imóveis">
-        <Link href="/admin/imoveis/novo" className={buttonClasses("primary", "sm")}>
-          <Plus size={18} />
-          Novo imóvel
-        </Link>
-      </AdminPageHeader>
+      <AdminPageHeader title="Imóveis" />
 
       <AdminTable headers={["Código", "Imóvel", "Tipo/Finalidade", "Status", "Preço", "Ações"]}>
         {properties && properties.length > 0 ? (

@@ -28,7 +28,7 @@ export default async function EditPropertyPage({ params }: { params: { id: strin
   const lookups = await getPropertyFormLookups();
 
   return (
-    <div className="max-w-6xl mx-auto pb-12">
+    <div className="pb-12">
       <AdminPageHeader title={`Editar Imóvel: ${property.internal_code}`}>
         <BackLink href="/admin/imoveis" label="Voltar para imóveis" />
       </AdminPageHeader>
