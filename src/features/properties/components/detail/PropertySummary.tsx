@@ -1,11 +1,12 @@
 import { PropertyDetail } from "@/features/properties/types";
 import { Bed, Bath, Car, Square } from "lucide-react";
+import { cardClasses } from "@/components/ui/cardStyles";
 import { Heading } from "@/components/ui/Heading";
 import { Text } from "@/components/ui/Text";
 
 export function PropertySummary({ property }: { property: PropertyDetail }) {
   return (
-    <div className="bg-white p-4 md:p-6 rounded-xl shadow-sm">
+    <div className={cardClasses("bg-white p-4 md:p-6 rounded-xl")}>
       <Heading as="h2" variant="h4" className="mb-3 md:mb-4">Resumo</Heading>
       <div className="grid grid-cols-3 md:grid-cols-4 gap-3 md:gap-4">
         {property.total_area && (

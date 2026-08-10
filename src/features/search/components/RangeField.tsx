@@ -17,7 +17,7 @@ export function RangeField({
   onChangeMin: (value: string) => void;
   onChangeMax: (value: string) => void;
 }) {
-  const rangeBoxClasses = `relative flex items-center rounded-xl border-2 bg-white px-2 pb-3 pt-6 shadow-sm transition-all focus-within:border-mitram-gold focus-within:ring-2 focus-within:ring-mitram-gold/20 ${
+  const rangeBoxClasses = `relative flex items-center rounded-xl border-2 bg-white px-2 pb-3 pt-6 transition-all focus-within:border-mitram-gold focus-within:ring-2 focus-within:ring-mitram-gold/20 ${
     isActive ? "border-mitram-gold" : "border-gray-200"
   }`;
   const rangeInputClasses = "w-full bg-transparent px-3 text-sm text-mitram-dark outline-none";

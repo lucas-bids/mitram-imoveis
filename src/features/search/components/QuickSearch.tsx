@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Search, MapPin, Home, Building2 } from "lucide-react";
 
+import { cardClasses } from "@/components/ui/cardStyles";
 import { FilterOption, pruneNeighborhoodIds } from "@/features/search/filters";
 import { MultiSelectField } from "@/features/search/components/MultiSelectField";
 
@@ -43,7 +44,7 @@ export default function QuickSearch({ types, cities, neighborhoods }: QuickSearc
   };
 
   return (
-    <div className="bg-white rounded-[2rem] shadow-xl border border-gray-100 p-1 md:p-3 max-w-4xl mx-auto">
+    <div className={cardClasses("bg-white rounded-[2rem] p-1 md:p-3 max-w-4xl mx-auto")}>
       <form onSubmit={handleSearch} className="grid grid-cols-2 md:flex md:flex-row md:items-center md:divide-x md:divide-gray-100">
         
         <div className="col-span-1 border-r border-b border-gray-100 md:border-0 md:flex-1 px-4 py-3 md:py-2">

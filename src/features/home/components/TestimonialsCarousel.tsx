@@ -199,7 +199,10 @@ export default function TestimonialsCarousel({
                     transform: itemsPerView === 3
                       ? "scale(calc(0.98 + 0.02 * var(--t)))"
                       : "scale(1)",
-                    // O card ativo ganha borda dourada; os demais ficam em cinza
+                    // Origem do sistema de cartões do site (ver components/ui/cardStyles.ts):
+                    // o card ativo ganha borda dourada e os demais ficam em cinza.
+                    // Aqui a cor é interpolada por --t para acompanhar a animação,
+                    // em vez de alternar entre as duas classes do helper.
                     borderColor: "color-mix(in srgb, rgb(var(--color-gold)) calc(var(--t) * 60%), rgb(229 231 235))",
                     zIndex: `calc(var(--t) * 10)`,
                   }}

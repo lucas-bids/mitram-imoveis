@@ -1,5 +1,7 @@
 import { ReactNode } from "react";
 
+import { cardClasses } from "@/components/ui/cardStyles";
+
 interface AdminTableProps {
   headers: ReactNode[];
   children: ReactNode;
@@ -7,7 +9,7 @@ interface AdminTableProps {
 
 export function AdminTable({ headers, children }: AdminTableProps) {
   return (
-    <div className="bg-white rounded-lg shadow overflow-hidden">
+    <div className={cardClasses("bg-white rounded-lg overflow-hidden")}>
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>

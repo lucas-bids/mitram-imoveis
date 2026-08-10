@@ -1,3 +1,5 @@
+import { cardClasses } from "@/components/ui/cardStyles";
+
 export function PurposeToggle({
   purpose,
   onChange,
@@ -7,7 +9,7 @@ export function PurposeToggle({
 }) {
   return (
     <div className="flex">
-      <div className="bg-white rounded-full p-1.5 flex shadow-sm border border-gray-100">
+      <div className={cardClasses("bg-white rounded-full p-1.5 flex")}>
         <button
           type="button"
           onClick={() => onChange("rent")}
