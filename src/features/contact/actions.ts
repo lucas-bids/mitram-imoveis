@@ -2,6 +2,7 @@
 
 import nodemailer from "nodemailer";
 import { headers } from "next/headers";
+import { contactPreferenceLabel } from "@/features/contact/types";
 
 // Simple in-memory rate limiting (since we don't have Redis).
 // This is not perfectly accurate in serverless environments, but it provides basic protection.
@@ -52,11 +53,13 @@ export async function submitContactForm(formData: FormData) {
     if (phone) htmlContent += `<p><strong>Telefone:</strong> ${phone}</p>`;
     if (email) htmlContent += `<p><strong>E-mail:</strong> ${email}</p>`;
 
-    if (type === "scheduling") {
+    if (type === "callback") {
       const propertyTitle = formData.get("propertyTitle");
       const propertyUrl = formData.get("propertyUrl");
-      subject = `[Agendamento] Interesse em: ${propertyTitle}`;
+      const preference = contactPreferenceLabel(formData.get("contactPreference"));
+      subject = `[Retorno] Interesse em: ${propertyTitle}`;
       htmlContent += `<p><strong>Interesse:</strong> <a href="${propertyUrl}">${propertyTitle}</a></p>`;
+      if (preference) htmlContent += `<p><strong>Prefere contato por:</strong> ${preference}</p>`;
     } else if (type === "sell_land") {
       subject = "[Captação] Interesse em vender terreno";
       htmlContent += `<p><strong>Interesse:</strong> Venda de Terreno</p>`;
