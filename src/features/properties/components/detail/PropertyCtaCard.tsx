@@ -3,7 +3,7 @@ import { formatPrice } from "@/features/properties/format";
 import { cardClasses } from "@/components/ui/cardStyles";
 import { Heading } from "@/components/ui/Heading";
 import { Text } from "@/components/ui/Text";
-import CallbackForm from "@/features/contact/components/CallbackForm";
+import { ContactPreferenceForm } from "@/features/contact/components/ContactPreferenceForm";
 
 /** Valores e captura de lead em um cartão só — é a única chamada para ação da barra lateral. */
 export function PropertyCtaCard({ property, propertyUrl }: { property: PropertyDetail; propertyUrl: string }) {
@@ -41,7 +41,11 @@ export function PropertyCtaCard({ property, propertyUrl }: { property: PropertyD
         <Text variant="bodySm" className="mb-4">
           É rápido: deixe seu nome e telefone que um consultor da Mitram procura você.
         </Text>
-        <CallbackForm propertyTitle={property.title} propertyUrl={propertyUrl} />
+        <ContactPreferenceForm
+          type="callback"
+          submitLabel="Quero ser contatado"
+          hiddenFields={{ propertyTitle: property.title, propertyUrl }}
+        />
       </div>
     </div>
   );

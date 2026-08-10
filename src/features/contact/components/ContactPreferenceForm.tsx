@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { MessageCircle, Phone, Send } from "lucide-react";
 import { buttonClasses } from "@/components/ui/buttonStyles";
 import { cardClasses } from "@/components/ui/cardStyles";
@@ -16,15 +16,19 @@ const PREFERENCE_ICONS: Record<ContactPreference, typeof Phone> = {
 
 const PREFERENCE_ORDER: ContactPreference[] = ["whatsapp", "call"];
 
-interface CallbackFormProps {
-  propertyTitle: string;
-  propertyUrl: string;
+interface ContactPreferenceFormProps {
+  /** Tipo enviado à server action — decide o assunto do e-mail (ver features/contact/actions.ts). */
+  type: string;
+  submitLabel: string;
+  /** Campos extras enviados sem input visível, ex.: título/URL do imóvel de origem do lead. */
+  hiddenFields?: Record<string, string>;
 }
 
-/** Captura de lead do imóvel: o corretor liga ou manda WhatsApp, o usuário só deixa os dados. */
-export default function CallbackForm({ propertyTitle, propertyUrl }: CallbackFormProps) {
-  const { loading, success, error, handleSubmit, setSuccess } = useContactFormSubmit("callback");
+/** Formulário de captura de lead com preferência de retorno (WhatsApp ou ligação). */
+export function ContactPreferenceForm({ type, submitLabel, hiddenFields }: ContactPreferenceFormProps) {
+  const { loading, success, error, handleSubmit, setSuccess } = useContactFormSubmit(type);
   const [preference, setPreference] = useState<ContactPreference>("whatsapp");
+  const lgpdId = useId();
 
   if (success) {
     return (
@@ -49,8 +53,10 @@ export default function CallbackForm({ propertyTitle, propertyUrl }: CallbackFor
 
       {/* Honeypot field for basic spam protection */}
       <input type="text" name="address_field" className="hidden" tabIndex={-1} autoComplete="off" />
-      <input type="hidden" name="propertyTitle" value={propertyTitle} />
-      <input type="hidden" name="propertyUrl" value={propertyUrl} />
+      {hiddenFields &&
+        Object.entries(hiddenFields).map(([name, value]) => (
+          <input key={name} type="hidden" name={name} value={value} />
+        ))}
       <input type="hidden" name="contactPreference" value={preference} />
 
       <FormField label="Seu nome *">
@@ -103,15 +109,15 @@ export default function CallbackForm({ propertyTitle, propertyUrl }: CallbackFor
       </div>
 
       <div className="flex items-start gap-3 pt-2">
-        <input type="checkbox" id="lgpd-callback" name="consent" required className={`mt-0.5 ${CHECKBOX_CLASSES}`} />
-        <Text as="label" variant="caption" htmlFor="lgpd-callback" className="leading-tight">
+        <input type="checkbox" id={lgpdId} name="consent" required className={`mt-0.5 ${CHECKBOX_CLASSES}`} />
+        <Text as="label" variant="caption" htmlFor={lgpdId} className="leading-tight">
           Concordo que meus dados sejam utilizados pela Mitram Imóveis para responder a esta solicitação.
         </Text>
       </div>
 
       <button type="submit" disabled={loading} className={buttonClasses("primary", "md", "mt-2 w-full")}>
         <Send size={18} />
-        {loading ? "Enviando..." : "Quero ser contatado"}
+        {loading ? "Enviando..." : submitLabel}
       </button>
     </form>
   );
