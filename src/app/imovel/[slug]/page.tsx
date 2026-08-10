@@ -2,10 +2,7 @@ import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { getPropertyBySlug, getPropertyMetaBySlug, getSimilarProperties } from "@/features/properties/queries";
 import Gallery from "@/features/properties/components/gallery/Gallery";
-import SchedulingForm from "@/features/contact/components/SchedulingForm";
 import { PropertyLocationMap } from "@/features/properties/components/detail/PropertyLocationMap";
-import { MessageCircle } from "lucide-react";
-import { buttonShapeClasses } from "@/components/ui/buttonStyles";
 import { Container } from "@/components/ui/Container";
 import { Heading } from "@/components/ui/Heading";
 
@@ -14,7 +11,7 @@ import { PropertyHeading } from "@/features/properties/components/detail/Propert
 import { PropertySummary } from "@/features/properties/components/detail/PropertySummary";
 import { PropertyFeatures } from "@/features/properties/components/detail/PropertyFeatures";
 import { PropertyMediaLinks } from "@/features/properties/components/detail/PropertyMediaLinks";
-import { PropertyPriceCard } from "@/features/properties/components/detail/PropertyPriceCard";
+import { PropertyCtaCard } from "@/features/properties/components/detail/PropertyCtaCard";
 import { PropertySimilar } from "@/features/properties/components/detail/PropertySimilar";
 import { SearchCta } from "@/features/properties/components/detail/SearchCta";
 
@@ -45,10 +42,7 @@ export default async function PropertyDetailsPage({ params }: { params: { slug: 
     purpose: property.purpose
   });
 
-  const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "5541996787173";
   const propertyUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/imovel/${property.slug}`;
-  const whatsappMessage = encodeURIComponent(`Olá, gostaria de saber mais sobre o imóvel: ${property.title}. Link: ${propertyUrl}`);
-  const whatsappLink = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
 
   return (
     <div className="bg-white min-h-screen">
@@ -85,23 +79,8 @@ export default async function PropertyDetailsPage({ params }: { params: { slug: 
           </div>
 
           <div className="lg:col-span-1">
-            <div className="sticky top-24 space-y-4 md:space-y-6">
-              <PropertyPriceCard property={property} whatsappLink={whatsappLink} />
-
-              <a
-                href={whatsappLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={buttonShapeClasses("lg", "w-full bg-mitram-whatsapp text-white shadow-md hover:bg-mitram-whatsappDark")}
-              >
-                <MessageCircle size={20} />
-                Conversar pelo WhatsApp
-              </a>
-
-              <div className="bg-white p-4 md:p-6 rounded-lg border border-gray-200">
-                <Heading as="h3" variant="h3" className="mb-3 md:mb-4">Agendar Visita / Mais Informações</Heading>
-                <SchedulingForm propertyTitle={property.title} propertyUrl={propertyUrl} />
-              </div>
+            <div className="sticky top-24">
+              <PropertyCtaCard property={property} propertyUrl={propertyUrl} />
             </div>
           </div>
         </div>
