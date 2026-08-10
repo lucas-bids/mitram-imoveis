@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { MessageCircle, Menu, X } from "lucide-react";
 import { buttonShapeClasses } from "@/components/ui/buttonStyles";
 import { Container } from "@/components/ui/Container";
@@ -13,9 +14,18 @@ const whatsappLink = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
 
 const brokerButtonClasses = buttonShapeClasses("md", "bg-mitram-whatsapp text-white shadow-md hover:bg-mitram-whatsappDark");
 
+const navLinks = [
+  { href: "/", label: "Início" },
+  { href: "/imoveis", label: "Imóveis" },
+  { href: "/#avaliacao", label: "Avalie" },
+  { href: "/contato", label: "Contato" },
+];
+
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const pathname = usePathname();
 
+  const isLinkActive = (href: string) => !href.includes("#") && pathname === href;
   return (
     <header className="sticky top-0 z-50 pt-4">
       <Container>
@@ -31,19 +41,20 @@ export default function Header() {
               />
             </Link>
             
-            <nav className="hidden md:flex items-center space-x-8 text-[15px] font-medium text-mitram-grayDark">
-              <Link href="/" className="hover:text-mitram-gold transition-colors">
-                Início
-              </Link>
-              <Link href="/imoveis" className="hover:text-mitram-gold transition-colors">
-                Imóveis
-              </Link>
-              <Link href="/#avaliacao" className="hover:text-mitram-gold transition-colors">
-                Avalie
-              </Link>
-              <Link href="/contato" className="hover:text-mitram-gold transition-colors">
-                Contato
-              </Link>
+            <nav className="hidden md:flex items-center space-x-1 text-[15px] font-medium text-mitram-grayDark">
+              {navLinks.map(({ href, label }) => (
+                <Link
+                  key={href}
+                  href={href}
+                  className={`rounded-full px-4 py-1.5 transition-colors ${
+                    isLinkActive(href)
+                      ? "bg-mitram-gold text-white"
+                      : "hover:text-mitram-gold"
+                  }`}
+                >
+                  {label}
+                </Link>
+              ))}
             </nav>
             
             <div className="hidden md:flex">
@@ -73,34 +84,20 @@ export default function Header() {
           {/* Mobile menu overlay */}
           {isMobileMenuOpen && (
             <div className="md:hidden absolute top-full inset-x-0 mt-2 rounded-3xl border border-gray-100 bg-white/80 backdrop-blur-md shadow-lg py-4 px-6 flex flex-col space-y-4">
-              <Link 
-                href="/" 
-                className="text-mitram-grayDark font-medium py-2 hover:text-mitram-gold transition-colors"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                Início
-              </Link>
-              <Link 
-                href="/imoveis" 
-                className="text-mitram-grayDark font-medium py-2 hover:text-mitram-gold transition-colors"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                Imóveis
-              </Link>
-              <Link 
-                href="/#avaliacao" 
-                className="text-mitram-grayDark font-medium py-2 hover:text-mitram-gold transition-colors"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                Avalie
-              </Link>
-              <Link 
-                href="/contato" 
-                className="text-mitram-grayDark font-medium py-2 hover:text-mitram-gold transition-colors"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                Contato
-              </Link>
+              {navLinks.map(({ href, label }) => (
+                <Link
+                  key={href}
+                  href={href}
+                  className={`font-medium py-2 px-4 rounded-full transition-colors ${
+                    isLinkActive(href)
+                      ? "bg-mitram-gold text-white"
+                      : "text-mitram-grayDark hover:text-mitram-gold"
+                  }`}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  {label}
+                </Link>
+              ))}
               <div className="pt-4 border-t border-gray-100">
                 <a
                   href={whatsappLink}
