@@ -3,6 +3,7 @@
 import nodemailer from "nodemailer";
 import { headers } from "next/headers";
 import { contactPreferenceLabel } from "@/features/contact/types";
+import { logError } from "@/lib/logger";
 
 // Simple in-memory rate limiting (since we don't have Redis).
 // This is not perfectly accurate in serverless environments, but it provides basic protection.
@@ -95,7 +96,7 @@ export async function submitContactForm(formData: FormData) {
 
     return { success: true };
   } catch (error) {
-    console.error("Error sending email:", error);
+    logError("contact/submitContactForm", error);
     return { success: false, error: "Erro interno ao enviar a mensagem." };
   }
 }

@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { PropertyListItem, PropertyDetail, AdminPropertyListItem } from "./types";
+import { logError } from "@/lib/logger";
 
 export const PROPERTY_MEDIA_EMBED = "property_media!property_media_property_id_fkey";
 export const PROPERTY_MEDIA_FIELDS = `${PROPERTY_MEDIA_EMBED} (public_url, is_cover, sort_order)`;
@@ -30,7 +31,10 @@ export async function getFeaturedProperties(): Promise<PropertyListItem[]> {
     .order("created_at", { ascending: false })
     .limit(6);
 
-  if (error) throw error;
+  if (error) {
+    logError("properties/getFeaturedProperties", error);
+    throw error;
+  }
   return (data as unknown) as PropertyListItem[];
 }
 
@@ -141,8 +145,10 @@ export async function getPublicProperties(searchParams: { [key: string]: string 
   query = query.limit(50);
 
   const { data, error } = await query;
-  if (error) console.error(error);
-  
+  if (error) {
+    logError("properties/getPublicProperties", error, { searchParams });
+  }
+
   return ((data || []) as unknown) as PropertyListItem[];
 }
 
@@ -161,23 +167,34 @@ export async function getPropertyBySlug(slug: string): Promise<PropertyDetail | 
     .in("status", ["published", "sold", "rented"])
     .single();
 
-  if (error) return null;
+  if (error) {
+    // PGRST116 = no rows returned by .single() — a genuine "not found",
+    // not a failure. Any other error is a real DB problem and should
+    // surface as an error page instead of a misleading 404.
+    if (error.code === "PGRST116") return null;
+    logError("properties/getPropertyBySlug", error, { slug });
+    throw error;
+  }
   return (data as unknown) as PropertyDetail;
 }
 
 export async function getPropertyMetaBySlug(slug: string): Promise<{ title: string; description: string | null } | null> {
   const supabase = createClient();
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("properties")
     .select("title, description")
     .eq("slug", slug)
     .single();
+
+  if (error && error.code !== "PGRST116") {
+    logError("properties/getPropertyMetaBySlug", error, { slug });
+  }
   return data;
 }
 
 export async function getSimilarProperties(property: { id: string; property_type_id: string; purpose: string }): Promise<PropertyListItem[]> {
   const supabase = createClient();
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("properties")
     .select(`
       id, title, slug, price, purpose, status, total_area, bedrooms, suites, bathrooms, parking_spaces,
@@ -191,22 +208,30 @@ export async function getSimilarProperties(property: { id: string; property_type
     .neq("id", property.id)
     .limit(3);
 
+  if (error) {
+    logError("properties/getSimilarProperties", error, { propertyId: property.id });
+  }
   return ((data || []) as unknown) as PropertyListItem[];
 }
 
 export async function getFilterLookups() {
   const supabase = createClient();
   const [
-    { data: propertyTypes },
-    { data: cities },
-    { data: neighborhoods },
-    { data: features },
+    { data: propertyTypes, error: propertyTypesError },
+    { data: cities, error: citiesError },
+    { data: neighborhoods, error: neighborhoodsError },
+    { data: features, error: featuresError },
   ] = await Promise.all([
     supabase.from("property_types").select("id, name").eq("active", true).order("name"),
     supabase.from("cities").select("id, name").eq("active", true).order("name"),
     supabase.from("neighborhoods").select("id, city_id, name").eq("active", true).order("name"),
     supabase.from("features").select("id, name").eq("active", true).order("name"),
   ]);
+
+  if (propertyTypesError) logError("properties/getFilterLookups", propertyTypesError, { table: "property_types" });
+  if (citiesError) logError("properties/getFilterLookups", citiesError, { table: "cities" });
+  if (neighborhoodsError) logError("properties/getFilterLookups", neighborhoodsError, { table: "neighborhoods" });
+  if (featuresError) logError("properties/getFilterLookups", featuresError, { table: "features" });
 
   return {
     propertyTypes: propertyTypes || [],
@@ -218,7 +243,7 @@ export async function getFilterLookups() {
 
 export async function getAdminProperties(): Promise<AdminPropertyListItem[]> {
   const supabase = createClient();
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("properties")
     .select(`
       id,
@@ -236,16 +261,24 @@ export async function getAdminProperties(): Promise<AdminPropertyListItem[]> {
     .in("status", ["draft", "published", "archived", "sold", "rented"])
     .order("created_at", { ascending: false });
 
+  if (error) {
+    logError("properties/getAdminProperties", error);
+    throw error;
+  }
   return ((data || []) as unknown) as AdminPropertyListItem[];
 }
 
 export async function getTrashedProperties() {
   const supabase = createClient();
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("properties")
     .select("id, internal_code, title, deleted_at")
     .eq("status", "trashed")
     .order("deleted_at", { ascending: false });
 
+  if (error) {
+    logError("properties/getTrashedProperties", error);
+    throw error;
+  }
   return data || [];
 }
