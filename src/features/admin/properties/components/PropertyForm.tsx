@@ -116,27 +116,31 @@ export default function PropertyForm({ initialData, isEdit = false, lookups }: P
           .from("properties")
           .update(payload)
           .eq("id", propertyId);
-        
+
         if (error) throw error;
+
+        alert("Imóvel salvo com sucesso!");
+        router.push("/admin/imoveis");
+        router.refresh();
       } else {
         const { data: newProp, error } = await supabase
           .from("properties")
           .insert(payload)
           .select()
           .single();
-          
+
         if (error) throw error;
         propertyId = newProp.id;
 
         if (selectedFeatures.length > 0) {
           await addPropertyFeatures(newProp.id, selectedFeatures.map((f) => f.id));
         }
+
+        alert("Imóvel salvo com sucesso! Agora você pode adicionar imagens.");
+        router.push(`/admin/imoveis/${propertyId}/editar`);
+        router.refresh();
       }
 
-      alert("Imóvel salvo com sucesso!");
-      router.push("/admin/imoveis");
-      router.refresh();
-      
     } catch (error) {
       console.error(error);
       alert("Erro ao salvar o imóvel: " + (error instanceof Error ? error.message : "Desconhecido"));
