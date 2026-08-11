@@ -14,7 +14,7 @@ const MAX_REQUESTS = 3;
 export async function submitContactForm(formData: FormData) {
   try {
     // 1. Basic Rate Limiting
-    const ip = headers().get("x-forwarded-for") || "unknown";
+    const ip = (await headers()).get("x-forwarded-for") || "unknown";
     const now = Date.now();
     const userLimit = rateLimit.get(ip);
     
