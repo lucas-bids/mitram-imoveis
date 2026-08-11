@@ -162,7 +162,12 @@ $$;
 
 -- Profiles: users read own row; admins manage all
 CREATE POLICY "Users can view own profile" ON profiles FOR SELECT USING (auth.uid() = id);
-CREATE POLICY "Users can update own profile" ON profiles FOR UPDATE USING (auth.uid() = id) WITH CHECK (auth.uid() = id);
+-- No self-service UPDATE policy on purpose: it would let a user set their own
+-- role to 'admin'. Role changes are admin-only (see policy below) or run
+-- out-of-band via supabase/promote-admin.sql. The grants below make the role
+-- column unwritable through PostgREST regardless of policies.
+REVOKE UPDATE ON profiles FROM anon, authenticated;
+GRANT UPDATE (full_name, updated_at) ON profiles TO authenticated;
 CREATE POLICY "Admins can view profiles" ON profiles FOR SELECT USING (public.is_admin());
 CREATE POLICY "Admins can update profiles" ON profiles FOR UPDATE USING (public.is_admin());
 CREATE POLICY "Admins can insert profiles" ON profiles FOR INSERT WITH CHECK (public.is_admin());
