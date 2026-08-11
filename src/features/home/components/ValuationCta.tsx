@@ -84,7 +84,7 @@ export function ValuationCta() {
 
 
             {/* Form Integrated */}
-            <div className="max-w-lg">
+            <div className="max-w-lg pt-2 md:pt-6">
               <ContactPreferenceForm type="sell_land" submitLabel="Quero minha avaliação" />
             </div>
           </div>
