@@ -7,10 +7,12 @@ import { FilterPills } from "@/features/search/components/FilterPills";
 import {
   FeatureOption,
   addPropertyFeature,
-  createFeature,
-  deleteFeatureGlobally,
   removePropertyFeature,
 } from "@/features/admin/properties/components/features/mutations";
+import {
+  createFeature,
+  deleteFeatureGlobally,
+} from "@/features/admin/properties/components/features/actions";
 
 export type SelectedFeature = { id: string; name: string };
 
