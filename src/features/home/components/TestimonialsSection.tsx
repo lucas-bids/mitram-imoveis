@@ -7,7 +7,7 @@ import { SectionEyebrow } from "./SectionEyebrow";
 
 export function TestimonialsSection() {
   return (
-    <section className="bg-white pb-10 md:pb-24">
+    <section className="bg-white py-10 md:py-24">
       <Container>
         <div className="max-w-3xl mb-6 md:mb-12 space-y-4 md:space-y-6">
           <SectionEyebrow>Depoimentos</SectionEyebrow>

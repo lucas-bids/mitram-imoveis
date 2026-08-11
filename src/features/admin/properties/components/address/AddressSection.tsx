@@ -11,7 +11,7 @@ import { PropertyFormValues } from "@/features/admin/properties/schema";
 import { FormSection } from "@/features/admin/properties/components/form/FormSection";
 import { BRAZILIAN_STATES } from "./states";
 import { SearchCreateSelect } from "./SearchCreateSelect";
-import { createCity, createNeighborhood, deactivateCity, deactivateNeighborhood } from "./actions";
+import { createCity, createNeighborhood } from "./mutations";
 import { geocodePropertyAddress } from "./geocode";
 import { CityOption, NeighborhoodOption } from "./types";
 import { AddressMapPreview } from "./AddressMapPreview";
@@ -112,15 +112,6 @@ function AddressFields({ form, initialCities, initialNeighborhoods }: Props) {
               setValue("neighborhood_id", "", { shouldValidate: true, shouldDirty: true });
               invalidateLocation();
             }}
-            onDelete={async (option) => {
-              await deactivateCity(option.id);
-              setCities((current) => current.filter((item) => item.id !== option.id));
-              if (option.id === cityId) {
-                setValue("city_id", "", { shouldValidate: true, shouldDirty: true });
-                setValue("neighborhood_id", "", { shouldValidate: true, shouldDirty: true });
-                invalidateLocation();
-              }
-            }}
           />
         </FormField>
         <FormField label="Bairro" error={errors.neighborhood_id?.message} className="md:col-span-3" alwaysFloat>
@@ -132,14 +123,6 @@ function AddressFields({ form, initialCities, initialNeighborhoods }: Props) {
               setNeighborhoods((current) => current.some((item) => item.id === option.id) ? current : [...current, option]);
               setValue("neighborhood_id", id, { shouldValidate: true, shouldDirty: true });
               invalidateLocation();
-            }}
-            onDelete={async (option) => {
-              await deactivateNeighborhood(option.id);
-              setNeighborhoods((current) => current.filter((item) => item.id !== option.id));
-              if (option.id === neighborhoodId) {
-                setValue("neighborhood_id", "", { shouldValidate: true, shouldDirty: true });
-                invalidateLocation();
-              }
             }}
           />
         </FormField>
