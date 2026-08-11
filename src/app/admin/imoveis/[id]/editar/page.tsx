@@ -6,7 +6,8 @@ import { AdminPageHeader } from "@/features/admin/components/AdminPageHeader";
 import { BackLink } from "@/features/admin/components/BackLink";
 import { getPropertyFormLookups } from "@/features/admin/properties/queries";
 
-export default async function EditPropertyPage({ params }: { params: { id: string } }) {
+export default async function EditPropertyPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const supabase = createClient();
   
   const { data: propertyData, error } = await supabase
@@ -16,7 +17,7 @@ export default async function EditPropertyPage({ params }: { params: { id: strin
       ${PROPERTY_MEDIA_ALL},
       property_features (features (id, name))
     `)
-    .eq("id", params.id)
+    .eq("id", id)
     .single();
 
   const property = propertyData as any;

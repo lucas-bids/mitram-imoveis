@@ -47,5 +47,6 @@ Em **Authentication > URL Configuration**:
 
 - Migrations agora incluem **storage buckets**, **políticas de storage** e **trigger** que cria `profiles` ao cadastrar usuário no Auth.
 - RLS de `profiles` permite que o usuário autenticado leia **a própria** linha (necessário para o middleware do painel).
+- RLS de `profiles` **não** permite que o usuário altere o próprio `role`: só administradores atribuem ou modificam roles. A regra é aplicada tanto na policy de UPDATE quanto por um trigger (`enforce_profile_role_change`). Em bancos já criados antes dessa correção, aplique `supabase/migrations/20260811000000_profiles_role_guard.sql`.
 - Páginas de login/recuperação **não** usam mais o layout do painel administrativo.
 - Login valida `profiles.role = 'admin'` antes de redirecionar.

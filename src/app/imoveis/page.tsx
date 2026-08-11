@@ -14,12 +14,14 @@ export const dynamic = "force-dynamic";
 export default async function ImoveisPage({
   searchParams,
 }: {
-  searchParams: { [key: string]: string | string[] | undefined };
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  const lookups = await getFilterLookups();
-  const properties = await getPublicProperties(searchParams);
+  const resolvedSearchParams = await searchParams;
 
-  const isMapView = searchParams.view === 'map';
+  const lookups = await getFilterLookups();
+  const properties = await getPublicProperties(resolvedSearchParams);
+
+  const isMapView = resolvedSearchParams.view === 'map';
 
   return (
     <div className="flex flex-col min-h-screen bg-white">

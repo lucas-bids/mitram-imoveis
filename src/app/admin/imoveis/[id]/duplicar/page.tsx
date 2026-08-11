@@ -5,13 +5,14 @@ import { AdminPageHeader } from "@/features/admin/components/AdminPageHeader";
 import { BackLink } from "@/features/admin/components/BackLink";
 import { getPropertyFormLookups } from "@/features/admin/properties/queries";
 
-export default async function DuplicatePropertyPage({ params }: { params: { id: string } }) {
+export default async function DuplicatePropertyPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const supabase = createClient();
   
   const { data: property, error } = await supabase
     .from("properties")
     .select("*, property_features (features (id, name))")
-    .eq("id", params.id)
+    .eq("id", id)
     .single();
 
   if (error || !property) {

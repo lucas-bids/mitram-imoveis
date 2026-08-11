@@ -160,12 +160,65 @@ AS $$
   );
 $$;
 
--- Profiles: users read own row; admins manage all
+-- Helper to read the caller's own role. SECURITY DEFINER bypasses RLS, which is
+-- what lets a profiles policy read profiles without recursing into itself.
+CREATE OR REPLACE FUNCTION public.current_profile_role()
+RETURNS text
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
+STABLE
+AS $$
+  SELECT role
+  FROM public.profiles
+  WHERE id = auth.uid();
+$$;
+
+-- Profiles: users read own row; admins manage all.
+-- A self-update must leave `role` untouched: every other policy in this file
+-- keys off is_admin(), so a user able to set their own role to 'admin' would
+-- gain write access to every table and storage bucket.
 CREATE POLICY "Users can view own profile" ON profiles FOR SELECT USING (auth.uid() = id);
-CREATE POLICY "Users can update own profile" ON profiles FOR UPDATE USING (auth.uid() = id) WITH CHECK (auth.uid() = id);
+CREATE POLICY "Users can update own profile" ON profiles FOR UPDATE
+  USING (auth.uid() = id)
+  WITH CHECK (
+    auth.uid() = id
+    AND role IS NOT DISTINCT FROM public.current_profile_role()
+  );
 CREATE POLICY "Admins can view profiles" ON profiles FOR SELECT USING (public.is_admin());
-CREATE POLICY "Admins can update profiles" ON profiles FOR UPDATE USING (public.is_admin());
+CREATE POLICY "Admins can update profiles" ON profiles FOR UPDATE
+  USING (public.is_admin())
+  WITH CHECK (public.is_admin());
 CREATE POLICY "Admins can insert profiles" ON profiles FOR INSERT WITH CHECK (public.is_admin());
+
+-- Defence in depth: reject role changes at the table itself, whatever path the
+-- write arrives through. auth.uid() is NULL for the service_role client and for
+-- SQL Editor sessions (postgres); both are trusted and must keep working, which
+-- is what promote-admin.sql relies on.
+CREATE OR REPLACE FUNCTION public.prevent_profile_role_escalation()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  IF NEW.role IS DISTINCT FROM OLD.role
+     AND auth.uid() IS NOT NULL
+     AND NOT public.is_admin() THEN
+    RAISE EXCEPTION 'Somente administradores podem alterar profiles.role.'
+      USING ERRCODE = 'insufficient_privilege';
+  END IF;
+
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS enforce_profile_role_change ON public.profiles;
+
+CREATE TRIGGER enforce_profile_role_change
+  BEFORE UPDATE ON public.profiles
+  FOR EACH ROW
+  EXECUTE FUNCTION public.prevent_profile_role_escalation();
 
 -- Property Types: Public can read active. Admin can read/write all.
 CREATE POLICY "Public can read active property types" ON property_types FOR SELECT USING (active = true);

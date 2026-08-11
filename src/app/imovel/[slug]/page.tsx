@@ -17,8 +17,9 @@ import { SearchCta } from "@/features/properties/components/detail/SearchCta";
 
 export const dynamic = "force-dynamic";
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const property = await getPropertyMetaBySlug(params.slug);
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const property = await getPropertyMetaBySlug(slug);
   
   if (!property) return { title: "Imóvel não encontrado | Mitram Imóveis" };
 
@@ -28,8 +29,9 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   };
 }
 
-export default async function PropertyDetailsPage({ params }: { params: { slug: string } }) {
-  const property = await getPropertyBySlug(params.slug);
+export default async function PropertyDetailsPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const property = await getPropertyBySlug(slug);
 
   if (!property) {
     notFound();
