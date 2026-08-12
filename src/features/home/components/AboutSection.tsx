@@ -50,14 +50,14 @@ export function AboutSection() {
           <ImageGrid className="grid-rows-2 h-[360px] md:h-[600px]">
             {/* Tall image */}
             <ImageGridItem
-              src="/images/team/time-02.png"
+              src="/images/team/time-01.png"
               alt="Equipe Mitram com clientes em novo imóvel"
               className="col-span-2 row-span-2"
             />
 
             {/* Stacked image top */}
             <ImageGridItem
-              src="/images/team/time-01.png"
+              src="/images/team/time-02.png"
               alt="Consultores Mitram acompanhando clientes"
               className="col-span-1"
             />
