@@ -1,10 +1,10 @@
-import Image from "next/image";
 import Link from "next/link";
 import { CheckCircle2, ArrowRight } from "lucide-react";
 import { buttonClasses } from "@/components/ui/buttonStyles";
 import { Container } from "@/components/ui/Container";
 import { Heading } from "@/components/ui/Heading";
 import { Text } from "@/components/ui/Text";
+import { ImageGrid, ImageGridItem } from "./ImageGrid";
 import { SectionEyebrow } from "./SectionEyebrow";
 
 export function AboutSection() {
@@ -47,14 +47,28 @@ export function AboutSection() {
         </div>
         
         <div className="flex-1 w-full">
-          <div className="relative h-[360px] md:h-[600px] w-full rounded-[2rem] overflow-hidden">
-            <Image 
-              src="/images/garden-garage-entrance.png" 
-              alt="Interior Moderno" 
-              fill 
-              className="object-cover"
+          <ImageGrid className="grid-rows-2 h-[360px] md:h-[600px]">
+            {/* Tall image */}
+            <ImageGridItem
+              src="/images/team/time-01.png"
+              alt="Equipe Mitram com clientes em novo imóvel"
+              className="col-span-2 row-span-2"
             />
-          </div>
+
+            {/* Stacked image top */}
+            <ImageGridItem
+              src="/images/team/time-02.png"
+              alt="Consultores Mitram acompanhando clientes"
+              className="col-span-1"
+            />
+
+            {/* Stacked image bottom */}
+            <ImageGridItem
+              src="/images/team/time03.png"
+              alt="Equipe Mitram entregando as chaves aos clientes"
+              className="col-span-1"
+            />
+          </ImageGrid>
         </div>
       </div>
     </Container>

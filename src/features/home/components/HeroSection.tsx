@@ -5,7 +5,7 @@ import { Text } from "@/components/ui/Text";
 
 export function HeroSection() {
   return (
-    <section className="relative px-0 pt-0 -mt-[100px] md:mt-0 md:px-4 md:pt-4">
+    <section className="relative px-0 pt-0 -mt-[100px] md:mt-0 md:px-4 md:pt-8">
       <Container padding="none" className="md:px-4">
         <div className="relative h-[650px] md:h-[650px] w-full rounded-none md:rounded-[2.5rem] overflow-hidden">
           <Image

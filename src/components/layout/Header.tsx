@@ -33,7 +33,7 @@ export default function Header() {
           <div className="flex justify-between items-center rounded-full border border-gray-100 bg-white/80 backdrop-blur-md px-4 py-3 md:px-6 md:py-4">
             <Link href="/" className="flex items-center" onClick={() => setIsMobileMenuOpen(false)}>
               <Image 
-                src="/images/mitram-dark.png" 
+                src="/images/mitram-dark-02.png" 
                 alt="Mitram Imóveis Logo" 
                 width={140} 
                 height={35} 
