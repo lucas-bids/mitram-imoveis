@@ -1,9 +1,9 @@
-import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Heading } from "@/components/ui/Heading";
 import { Text } from "@/components/ui/Text";
 import { ContactPreferenceForm } from "@/features/contact/components/ContactPreferenceForm";
+import { ImageGrid, ImageGridItem } from "./ImageGrid";
 import { SectionEyebrow } from "./SectionEyebrow";
 
 export function ValuationCta() {
@@ -15,39 +15,30 @@ export function ValuationCta() {
           {/* Left Side: Image Grid */}
           <div className="flex-1 w-full">
             <div className="relative w-full">
-              
-              <div className="grid grid-cols-3 gap-3 md:gap-6">
+
+              <ImageGrid>
                 {/* Top wide image */}
-                <div className="col-span-3 relative h-40 md:h-64 rounded-3xl overflow-hidden">
-                  <Image 
-                    src="/images/aerial-view-curitiba.jpg" 
-                    fill 
-                    className="object-cover" 
-                    alt="Avaliação Mitram - Vista" 
-                  />
-                </div>
-                
+                <ImageGridItem
+                  src="/images/aerial-view-curitiba.jpg"
+                  alt="Avaliação Mitram - Vista"
+                  className="col-span-3 h-40 md:h-64"
+                />
+
                 {/* Bottom left image (~1/3) */}
-                <div className="col-span-1 relative h-32 md:h-52 rounded-3xl overflow-hidden">
-                  <Image 
-                    src="/images/keys-on-table.jpg" 
-                    fill 
-                    className="object-cover" 
-                    alt="Avaliação Mitram - Chaves" 
-                  />
-                </div>
-                
+                <ImageGridItem
+                  src="/images/keys-on-table.jpg"
+                  alt="Avaliação Mitram - Chaves"
+                  className="col-span-1 h-32 md:h-52"
+                />
+
                 {/* Bottom right image (~2/3, taller) */}
-                <div className="col-span-2 relative h-44 md:h-72 rounded-3xl overflow-hidden">
-                  <Image 
-                    src="/images/hero-image.jpg" 
-                    fill 
-                    className="object-cover" 
-                    alt="Avaliação Mitram - Interior" 
-                  />
-                </div>
-              </div>
-              
+                <ImageGridItem
+                  src="/images/hero-image.jpg"
+                  alt="Avaliação Mitram - Interior"
+                  className="col-span-2 h-44 md:h-72"
+                />
+              </ImageGrid>
+
               {/* Center Badge */}
               <div className="absolute top-1/2 left-[30%] -translate-x-[30%] -translate-y-1/2 w-28 h-28 md:w-32 md:h-32 bg-mitram-gold rounded-full flex items-center justify-center text-white shadow-2xl z-20">
                 <div className="absolute inset-0">
