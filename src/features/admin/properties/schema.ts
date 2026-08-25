@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 export const propertySchema = z.object({
+  internal_code: z.string().trim().min(1, "Informe o código do imóvel").max(50, "Máximo de 50 caracteres"),
   title: z.string().min(3, "Título deve ter no mínimo 3 caracteres"),
   purpose: z.enum(["sale", "rent"], { required_error: "Selecione a finalidade" }),
       property_type_id: z.string().optional().nullable(),
