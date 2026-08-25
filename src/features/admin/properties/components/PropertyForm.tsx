@@ -103,8 +103,6 @@ export default function PropertyForm({ initialData, isEdit = false, lookups }: P
 
       if (!isEdit) {
         payload.slug = `${slug}-${Math.random().toString(36).substring(2, 6)}`;
-        // generate a pseudo internal code
-        payload.internal_code = `MIT-${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`;
       } else {
         payload.updated_at = new Date().toISOString();
       }
@@ -138,8 +136,19 @@ export default function PropertyForm({ initialData, isEdit = false, lookups }: P
       router.refresh();
       
     } catch (error) {
-      console.error(error);
-      alert("Erro ao salvar o imóvel: " + (error instanceof Error ? error.message : "Desconhecido"));
+      const isDuplicateCode =
+        typeof error === "object" &&
+        error !== null &&
+        "code" in error &&
+        (error as { code?: string }).code === "23505";
+
+      if (!isDuplicateCode) console.error(error);
+
+      alert(
+        isDuplicateCode
+          ? "Este código já está em uso, escolha outro."
+          : "Erro ao salvar o imóvel: " + (error instanceof Error ? error.message : "Desconhecido"),
+      );
     } finally {
       setLoading(false);
     }
@@ -192,6 +201,13 @@ export default function PropertyForm({ initialData, isEdit = false, lookups }: P
           <div className="grid grid-cols-1 gap-x-8 gap-y-6 md:grid-cols-2">
             <FormField label="Título do anúncio" error={errors.title?.message} className="md:col-span-2">
               <input {...register("title")} placeholder=" " className={fieldClasses(!!errors.title)} />
+            </FormField>
+            <FormField label="Código do imóvel" error={errors.internal_code?.message}>
+              <input
+                {...register("internal_code")}
+                placeholder="Ex: AP-1234"
+                className={fieldClasses(!!errors.internal_code)}
+              />
             </FormField>
             <FormField label="Tipo de imóvel" error={errors.property_type_id?.message} alwaysFloat>
               <select
