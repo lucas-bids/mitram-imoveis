@@ -8,8 +8,8 @@ import { generateSlug } from "@/features/admin/properties/slug";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import ImageUpload, { PropertyMedia } from "./ImageUpload";
+import { insertMediaRecord } from "@/features/admin/properties/components/media/mutations";
 import { Save, Plus, X } from "lucide-react";
-import { AlertMessage } from "@/components/ui/AlertMessage";
 import { buttonClasses } from "@/components/ui/buttonStyles";
 import {
   CHECKBOX_CLASSES,
@@ -62,6 +62,13 @@ export default function PropertyForm({ initialData, isEdit = false, lookups }: P
   const [selectedFeatures, setSelectedFeatures] = useState<SelectedFeature[]>(
     (initialData?.property_features || []).map((pf) => pf.features),
   );
+  const [pendingPropertyId, setPendingPropertyId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!isEdit) setPendingPropertyId(crypto.randomUUID());
+  }, [isEdit]);
+
+  const effectivePropertyId = initialData?.id ?? pendingPropertyId;
 
   const { activeSection, scrollToSection } = useSectionNavigation(FORM_SECTIONS.map((s) => s.id));
 
@@ -103,6 +110,7 @@ export default function PropertyForm({ initialData, isEdit = false, lookups }: P
 
       if (!isEdit) {
         payload.slug = `${slug}-${Math.random().toString(36).substring(2, 6)}`;
+        payload.id = pendingPropertyId;
       } else {
         payload.updated_at = new Date().toISOString();
       }
@@ -114,7 +122,7 @@ export default function PropertyForm({ initialData, isEdit = false, lookups }: P
           .from("properties")
           .update(payload)
           .eq("id", propertyId);
-        
+
         if (error) throw error;
       } else {
         const { data: newProp, error } = await supabase
@@ -122,19 +130,38 @@ export default function PropertyForm({ initialData, isEdit = false, lookups }: P
           .insert(payload)
           .select()
           .single();
-          
+
         if (error) throw error;
         propertyId = newProp.id;
 
         if (selectedFeatures.length > 0) {
           await addPropertyFeatures(newProp.id, selectedFeatures.map((f) => f.id));
         }
+
+        let failedImages = 0;
+        for (const item of media) {
+          try {
+            await insertMediaRecord(newProp.id, item.storage_path, item.public_url, item.sort_order, item.is_cover);
+          } catch (mediaError) {
+            console.error("Failed to attach staged image:", mediaError);
+            failedImages += 1;
+          }
+        }
+
+        if (failedImages > 0) {
+          alert(
+            `Imóvel salvo, mas ${failedImages} imagem(ns) não puderam ser anexadas. Tente adicioná-las novamente na tela de edição.`,
+          );
+          router.push(`/admin/imoveis/${newProp.id}/editar`);
+          router.refresh();
+          return;
+        }
       }
 
       alert("Imóvel salvo com sucesso!");
       router.push("/admin/imoveis");
       router.refresh();
-      
+
     } catch (error) {
       const isDuplicateCode =
         typeof error === "object" &&
@@ -159,23 +186,18 @@ export default function PropertyForm({ initialData, isEdit = false, lookups }: P
       <nav aria-label="Seções do formulário" className="sticky top-24 hidden lg:block">
         <ul className="space-y-1">
           {FORM_SECTIONS.map((section, index) => {
-            const disabled = section.requiresSavedProperty && !isEdit;
             const active = activeSection === section.id;
 
             return (
               <li key={section.id}>
                 <button
                   type="button"
-                  disabled={disabled}
                   onClick={() => scrollToSection(section.id)}
                   aria-current={active ? "true" : undefined}
-                  title={disabled ? "Disponível após salvar o imóvel" : undefined}
                   className={`flex w-full items-baseline gap-2.5 rounded-full px-4 py-2 text-left text-sm transition-colors ${
-                    disabled
-                      ? "cursor-not-allowed text-gray-400"
-                      : active
-                        ? "bg-mitram-dark font-medium text-white"
-                        : "text-gray-600 hover:bg-gray-200/60 hover:text-mitram-dark"
+                    active
+                      ? "bg-mitram-dark font-medium text-white"
+                      : "text-gray-600 hover:bg-gray-200/60 hover:text-mitram-dark"
                   }`}
                 >
                   <span className={`text-xs font-bold ${active ? "text-white/50" : "text-gray-400"}`}>
@@ -406,18 +428,15 @@ export default function PropertyForm({ initialData, isEdit = false, lookups }: P
         <FormSection
           id="fotos"
           title="Fotos do imóvel"
-          description={
-            isEdit
-              ? "Arraste para reordenar e use \"Definir capa\" para escolher a imagem principal."
-              : "Disponível depois que o imóvel for salvo pela primeira vez."
-          }
+          description='Arraste para reordenar e use "Definir capa" para escolher a imagem principal.'
         >
-          {isEdit && initialData?.id ? (
-            <ImageUpload propertyId={initialData.id} initialMedia={media} onMediaUpdate={setMedia} />
-          ) : (
-            <AlertMessage tone="info">
-              Você poderá adicionar imagens após salvar o imóvel pela primeira vez.
-            </AlertMessage>
+          {effectivePropertyId && (
+            <ImageUpload
+              propertyId={effectivePropertyId}
+              initialMedia={media}
+              onMediaUpdate={setMedia}
+              deferDbWrites={!isEdit}
+            />
           )}
         </FormSection>
 

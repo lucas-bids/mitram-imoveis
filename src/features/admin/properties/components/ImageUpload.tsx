@@ -20,9 +20,15 @@ interface ImageUploadProps {
   propertyId: string;
   initialMedia: PropertyMedia[];
   onMediaUpdate: (media: PropertyMedia[]) => void;
+  /**
+   * When true, uploaded files still go to Storage immediately, but no
+   * property_media DB rows are written — the property doesn't exist yet.
+   * The parent is responsible for persisting `media` once it does.
+   */
+  deferDbWrites?: boolean;
 }
 
-export default function ImageUpload({ propertyId, initialMedia, onMediaUpdate }: ImageUploadProps) {
+export default function ImageUpload({ propertyId, initialMedia, onMediaUpdate, deferDbWrites = false }: ImageUploadProps) {
   const [media, setMedia] = useState<PropertyMedia[]>(
     [...initialMedia].sort((a, b) => a.sort_order - b.sort_order)
   );
@@ -47,9 +53,19 @@ export default function ImageUpload({ propertyId, initialMedia, onMediaUpdate }:
         
         const publicUrl = await uploadMediaToStorage(compressedFile, fileName);
         const isCover = newMediaList.length === 0;
-        
-        const mediaRow = await insertMediaRecord(propertyId, fileName, publicUrl, newMediaList.length, isCover);
-        newMediaList.push(mediaRow);
+
+        if (deferDbWrites) {
+          newMediaList.push({
+            id: crypto.randomUUID(),
+            storage_path: fileName,
+            public_url: publicUrl,
+            is_cover: isCover,
+            sort_order: newMediaList.length,
+          });
+        } else {
+          const mediaRow = await insertMediaRecord(propertyId, fileName, publicUrl, newMediaList.length, isCover);
+          newMediaList.push(mediaRow);
+        }
       } catch (err) {
         console.error("Upload/Compression error:", err);
       }
@@ -77,8 +93,10 @@ export default function ImageUpload({ propertyId, initialMedia, onMediaUpdate }:
     setMedia(updatedItems);
     onMediaUpdate(updatedItems);
 
-    for (const item of updatedItems) {
-      await updateMediaSortOrder(item.id, item.sort_order);
+    if (!deferDbWrites) {
+      for (const item of updatedItems) {
+        await updateMediaSortOrder(item.id, item.sort_order);
+      }
     }
   };
 
@@ -87,25 +105,31 @@ export default function ImageUpload({ propertyId, initialMedia, onMediaUpdate }:
       ...item,
       is_cover: item.id === id,
     }));
-    
+
     setMedia(updatedItems);
     onMediaUpdate(updatedItems);
 
-    await updateCoverImage(propertyId, id);
+    if (!deferDbWrites) {
+      await updateCoverImage(propertyId, id);
+    }
   };
 
   const handleDelete = async (id: string, path: string) => {
     if (!confirm("Tem certeza que deseja excluir esta imagem?")) return;
 
     await deleteMediaFromStorage(path);
-    await deleteMediaRecord(id);
+    if (!deferDbWrites) {
+      await deleteMediaRecord(id);
+    }
 
     const updatedItems = media.filter(item => item.id !== id);
-    
+
     if (updatedItems.length > 0 && !updatedItems.some(i => i.is_cover)) {
       updatedItems[0].is_cover = true;
-      await updateCoverImage(propertyId, updatedItems[0].id);
-    } else if (updatedItems.length === 0) {
+      if (!deferDbWrites) {
+        await updateCoverImage(propertyId, updatedItems[0].id);
+      }
+    } else if (updatedItems.length === 0 && !deferDbWrites) {
       await updateCoverImage(propertyId, null);
     }
 
