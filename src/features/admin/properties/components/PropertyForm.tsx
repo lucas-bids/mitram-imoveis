@@ -183,7 +183,7 @@ export default function PropertyForm({ initialData, isEdit = false, lookups }: P
 
   return (
     <div className="lg:grid lg:grid-cols-[220px_1fr] lg:items-start lg:gap-8">
-      <nav aria-label="Seções do formulário" className="sticky top-24 hidden lg:block">
+      <nav aria-label="Seções do formulário" className="sticky top-32 hidden lg:block">
         <ul className="space-y-1">
           {FORM_SECTIONS.map((section, index) => {
             const active = activeSection === section.id;
@@ -224,7 +224,7 @@ export default function PropertyForm({ initialData, isEdit = false, lookups }: P
             <FormField label="Título do anúncio" error={errors.title?.message} className="md:col-span-2">
               <input {...register("title")} placeholder=" " className={fieldClasses(!!errors.title)} />
             </FormField>
-            <FormField label="Código do imóvel" error={errors.internal_code?.message}>
+            <FormField label="Código do imóvel" error={errors.internal_code?.message} alwaysFloat>
               <input
                 {...register("internal_code")}
                 placeholder="Ex: AP-1234"
