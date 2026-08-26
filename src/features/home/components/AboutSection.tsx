@@ -13,18 +13,17 @@ export function AboutSection() {
       <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-16">
         <div className="flex-1 space-y-6 md:space-y-8">
           <div>
-            <SectionEyebrow>POR QUE ESCOLHER A MITRAM</SectionEyebrow>
+            <SectionEyebrow>DESDE 2018 NO MERCADO IMOBILIÁRIO</SectionEyebrow>
             <Heading variant="h2">
-              Onde seus planos <br /> encontram espaço.
+            Experiência que traz segurança para cada decisão.
             </Heading>
           </div>
           <Text variant="lead">
-            Seja para construir uma nova fase em família ou investir no futuro, escolher um imóvel exige confiança. Por isso, ouvimos seus planos e ajudamos você a decidir com clareza e segurança.
+          À frente da Mitram, Bruno Andrade reúne mais de 12 anos de experiência e mais de 80 imóveis vendidos. Sua formação em Administração, Gestão Financeira, Finanças Corporativas e avaliação de imóveis proporciona uma visão completa dos processos, da documentação e dos aspectos financeiros de cada negociação, garantindo um atendimento transparente, criterioso e seguro em todas as etapas.
           </Text>
           
           <ul className="space-y-3 md:space-y-4">
             {[
-              "Ampla variedade de opções premium",
               "Condições flexíveis e processos transparentes",
               "Recomendações personalizadas para você",
               "Confiado por centenas de clientes felizes"
