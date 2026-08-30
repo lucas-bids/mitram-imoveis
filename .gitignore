@@ -5,5 +5,11 @@ node_modules/
 .env.local
 .env.*.local
 
-.claude
-.claude/worktrees
+# Claude Code: share project config with the team, keep machine-local state out.
+# `.claude/*` (not `.claude`) is required — git does not descend into an
+# ignored directory, so the `!` re-inclusions below would never be evaluated.
+.claude/*
+!.claude/settings.json
+!.claude/rules/
+!.claude/skills/
+!.claude/agents/

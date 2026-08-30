@@ -21,8 +21,9 @@ const nextConfig = {
   // little cold-start time at the cost of unreadable production stack
   // traces (mangled names, no line mapping). Disabling it keeps server
   // errors legible in Netlify's logs.
-  // (Line-accurate server source maps, `experimental.serverSourceMaps`,
-  // don't exist yet on Next 14.2.14 — would need a Next 15 upgrade.)
+  // Next 15.5 does support `experimental.serverSourceMaps`, but it stays off
+  // on purpose: it enlarges the Netlify function bundle, and unminified
+  // server output is already enough to read a stack trace.
   experimental: {
     serverMinification: false,
   },
