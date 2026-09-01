@@ -9,7 +9,7 @@ export function HeroSection() {
       <Container padding="none" className="md:px-4">
         <div className="relative h-[650px] md:h-[650px] w-full rounded-none md:rounded-[2.5rem] overflow-hidden">
           <Image
-            src="/images/hero-image.jpg"
+            src="/images/curitiba-parque.jpg"
             alt="Imóveis Modernos Mitram"
             fill
             className="object-cover"
