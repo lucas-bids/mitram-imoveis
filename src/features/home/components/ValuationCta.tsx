@@ -3,6 +3,7 @@ import { Container } from "@/components/ui/Container";
 import { Heading } from "@/components/ui/Heading";
 import { Text } from "@/components/ui/Text";
 import { ContactPreferenceForm } from "@/features/contact/components/ContactPreferenceForm";
+import { NETLIFY_FORMS } from "@/features/contact/netlify";
 import { ImageGrid, ImageGridItem } from "./ImageGrid";
 import { SectionEyebrow } from "./SectionEyebrow";
 
@@ -76,7 +77,7 @@ export function ValuationCta() {
 
             {/* Form Integrated */}
             <div className="max-w-lg pt-2 md:pt-6">
-              <ContactPreferenceForm type="sell_land" submitLabel="Quero minha avaliação" />
+              <ContactPreferenceForm formName={NETLIFY_FORMS.sellLand} submitLabel="Quero minha avaliação" />
             </div>
           </div>
 

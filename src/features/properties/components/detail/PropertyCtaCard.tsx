@@ -4,6 +4,7 @@ import { cardClasses } from "@/components/ui/cardStyles";
 import { Heading } from "@/components/ui/Heading";
 import { Text } from "@/components/ui/Text";
 import { ContactPreferenceForm } from "@/features/contact/components/ContactPreferenceForm";
+import { NETLIFY_FORMS } from "@/features/contact/netlify";
 
 /** Valores e captura de lead em um cartão só — é a única chamada para ação da barra lateral. */
 export function PropertyCtaCard({ property, propertyUrl }: { property: PropertyDetail; propertyUrl: string }) {
@@ -42,7 +43,7 @@ export function PropertyCtaCard({ property, propertyUrl }: { property: PropertyD
           É rápido: deixe seu nome e telefone que um consultor da Mitram procura você.
         </Text>
         <ContactPreferenceForm
-          type="callback"
+          formName={NETLIFY_FORMS.callback}
           submitLabel="Quero ser contatado"
           hiddenFields={{ propertyTitle: property.title, propertyUrl }}
         />

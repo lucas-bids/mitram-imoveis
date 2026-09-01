@@ -2,46 +2,66 @@
 
 `src/features/contact/` — the public contact form and the property-scoped
 callback/scheduling form. Both are leads; neither writes to the database.
+Delivery is **Netlify Forms** — there is no server action and no SMTP.
 
 ## Flow
 
-`actions.ts::submitContactForm` (`"use server"`) is the single entry point for
-both forms, discriminated by the `type` field in the `FormData`. In order it:
+Everything is client-side. `hooks.ts::useContactFormSubmit(formName)` takes the
+form's `FormData` and hands it to `netlify.ts::submitToNetlifyForms`, which
+POSTs it url-encoded to `/__forms.html` with a `form-name` field. The hook owns
+the `loading` / `success` / `error` state and the pt-BR error string.
 
-1. **Rate limits** — see the limitation below.
-2. **Honeypot** — reads the `address_field` input. If it has any value the
-   action returns `{ success: true }` **without sending anything**. The fake
-   success is deliberate: a bot must not learn it was detected. Keep the field
-   visually hidden but present, and keep the fake-success behavior.
-3. **Extracts and validates** — requires `name`, at least one of `phone` /
-   `email`, and `consent`. Errors returned to the user are pt-BR strings.
-4. **Builds the email body** — for `type === "callback"` it includes the
-   property title and URL, so the lead is traceable to a listing.
-5. **Sends via SMTP.**
+There is **no server-side validation**: the browser's `required` attributes and
+Netlify's spam filtering are the only gates. Nothing user-supplied is
+interpolated into HTML by us any more.
 
-`types.ts` holds `ContactPreference` (`whatsapp | call`) and
-`CONTACT_PREFERENCE_LABELS`. The labels live there, not in the form component,
-because the server action needs the same pt-BR names for the email body.
+## The `public/__forms.html` contract
 
-Components: `ContactForm.tsx`, `ContactPreferenceForm.tsx`; shared client state
-in `hooks.ts`.
+Netlify parses **static HTML at deploy time** and cannot see React-rendered
+forms, so with the Next.js runtime v5 adapter the forms must also be declared
+in `public/__forms.html`. That file is not a page — it exists only to be
+parsed. See <https://opennext.js.org/netlify/forms>.
 
-## Email
+**Adding or renaming a field means editing two files**: the React component and
+`public/__forms.html`. A field the static form doesn't declare is dropped
+silently by Netlify — no error anywhere.
 
-`nodemailer` over SMTP, configured entirely by env: `SMTP_HOST`, `SMTP_PORT`
-(default 465), `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM`
-(falls back to `SMTP_USER`), and `CONTACT_RECIPIENT` as the destination.
+Three forms, named in `netlify.ts::NETLIFY_FORMS` so the dashboard separates
+them:
 
-## Known limitation: rate limiting
+| `NETLIFY_FORMS` key | Netlify name | Used by |
+| --- | --- | --- |
+| `contact` | `contato` | `ContactForm.tsx` (`/contato`) |
+| `callback` | `retorno-imovel` | `PropertyCtaCard.tsx` |
+| `sellLand` | `avaliacao-terreno` | `ValuationCta.tsx` |
 
-The rate limit is an **in-memory `Map` keyed by `x-forwarded-for`** — 3
-requests per 60 seconds. On Netlify this is per serverless instance, so it
-resets on cold start and is not shared across concurrent instances. **It is
-not a reliable defense**; treat it as basic friction only.
+`ContactPreferenceForm` submits `contactPreference` as the **pt-BR label**
+("WhatsApp" / "Ligação") from `types.ts::CONTACT_PREFERENCE_LABELS`, not the
+raw key, so the dashboard column is readable.
 
-`LEAD_RATE_LIMIT_SECRET` exists in `.env.example` but is **not read by any
-code today**. It is reserved for a future durable rate-limit store. Do not
-claim it is active, and do not wire it up as a side effect of unrelated work.
+## Local development
 
-Any change to lead handling is a good candidate for a `security-reviewer` pass:
-the input is unauthenticated, user-supplied, and interpolated into HTML email.
+Netlify only accepts submissions on the published site — `/__forms.html` is
+served by their forms layer, which `next dev` doesn't have.
+`submitToNetlifyForms` therefore short-circuits when
+`process.env.NODE_ENV === "development"`: it logs the payload via `logWarn`
+and returns success, so the success states are testable locally. Real
+submissions only ever land from a deployed Netlify site.
+
+## Spam protection
+
+The `address_field` honeypot input stays in both components and is wired via
+`data-netlify-honeypot="address_field"` in `public/__forms.html`. Netlify
+accepts a honeypot-filled submission and files it as spam, so a bot still never
+learns it was caught. Akismet filtering runs on top of that.
+
+The old in-memory rate limit disappeared with the server action; it was never
+reliable across serverless instances anyway. `LEAD_RATE_LIMIT_SECRET` remains
+in `.env.example` and is still read by no code.
+
+## Netlify setup (manual, one-off)
+
+Form detection must be enabled in the Netlify UI (**Forms → Enable form
+detection**) and the site redeployed *afterwards* — forms are only registered
+by a deploy that runs with detection on. Lead notifications are configured per
+form under **Configuration → Notifications → Form submission notifications**.

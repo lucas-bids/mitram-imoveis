@@ -83,13 +83,35 @@ Passos:
 4. (Importante) A variável `SUPABASE_SECRET_KEY` **nunca** deve possuir o prefixo `NEXT_PUBLIC_`.
 5. Após o deploy, atualize a variável `NEXT_PUBLIC_SITE_URL` com a URL final do site.
 
+### Formulários de contato (Netlify Forms)
+
+Os três formulários de lead do site usam o **Netlify Forms** — não há SMTP nem
+variáveis de e-mail para configurar.
+
+1. No painel do Netlify, vá em **Forms** e clique em **Enable form detection**.
+2. **Refaça o deploy.** Os formulários só são registrados por um deploy que
+   rodou *depois* da detecção estar ligada.
+3. Em **Configuration > Notifications > Form submission notifications**,
+   cadastre o e-mail que deve receber os leads de cada formulário: `contato`,
+   `retorno-imovel` e `avaliacao-terreno`.
+
+Os formulários são declarados em `public/__forms.html`, que existe apenas para
+o Netlify conseguir enxergá-los no momento do deploy — o parser dele lê HTML
+estático e não enxerga formulários renderizados pelo React. **Ao adicionar ou
+renomear um campo, atualize o componente e esse arquivo**, senão o Netlify
+descarta o campo silenciosamente.
+
+Submissões só são registradas no site publicado. Em `npm run dev` o envio é
+simulado: o payload aparece no console do navegador e a tela de sucesso é
+exibida normalmente.
+
 ### Supabase Auth Redirects
 No Supabase, vá em **Authentication > URL Configuration** e adicione:
 - A URL final do Netlify aos **Redirect URLs**.
 - A URL do `localhost:3000` para desenvolvimento.
 
 ## Funcionalidades e Limitações do MVP
-O MVP contempla a listagem pública, filtros na URL, integração com Google Maps, página de detalhes do imóvel com galeria, integração com o WhatsApp, e formulários de contato (com proteção básica e SMTP desacoplado).
+O MVP contempla a listagem pública, filtros na URL, integração com Google Maps, página de detalhes do imóvel com galeria, integração com o WhatsApp, e formulários de contato (via Netlify Forms, com honeypot e filtro de spam).
 O painel administrativo permite criar, duplicar, editar e alterar o status dos imóveis, bem como fazer o upload ordenável (drag & drop) das fotos do imóvel.
 
 ### Limitações do MVP
