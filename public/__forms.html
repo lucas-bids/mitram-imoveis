@@ -1,0 +1,45 @@
+<!--
+  Não é uma página do site.
+
+  O Netlify detecta formulários lendo o HTML estático no momento do deploy — ele
+  não enxerga formulários renderizados pelo React. Com o runtime v5 do Next.js a
+  única abordagem suportada é declarar os formulários aqui e enviar por AJAX para
+  /__forms.html (ver src/features/contact/netlify.ts).
+
+  Todo campo enviado pelos formulários React precisa existir aqui com o MESMO
+  `name`, senão o Netlify descarta o campo silenciosamente.
+-->
+<html lang="pt-BR">
+  <head><meta charset="utf-8" /></head>
+  <body>
+    <form name="contato" data-netlify="true" data-netlify-honeypot="address_field" hidden>
+      <input type="hidden" name="form-name" value="contato" />
+      <input name="address_field" type="text" />
+      <input name="name" type="text" />
+      <input name="email" type="email" />
+      <input name="phone" type="tel" />
+      <input name="message" type="text" />
+      <input name="consent" type="text" />
+    </form>
+
+    <form name="retorno-imovel" data-netlify="true" data-netlify-honeypot="address_field" hidden>
+      <input type="hidden" name="form-name" value="retorno-imovel" />
+      <input name="address_field" type="text" />
+      <input name="name" type="text" />
+      <input name="phone" type="tel" />
+      <input name="contactPreference" type="text" />
+      <input name="propertyTitle" type="text" />
+      <input name="propertyUrl" type="text" />
+      <input name="consent" type="text" />
+    </form>
+
+    <form name="avaliacao-terreno" data-netlify="true" data-netlify-honeypot="address_field" hidden>
+      <input type="hidden" name="form-name" value="avaliacao-terreno" />
+      <input name="address_field" type="text" />
+      <input name="name" type="text" />
+      <input name="phone" type="tel" />
+      <input name="contactPreference" type="text" />
+      <input name="consent" type="text" />
+    </form>
+  </body>
+</html>

@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { submitContactForm } from "@/features/contact/actions";
+import { NetlifyFormName, submitToNetlifyForms } from "@/features/contact/netlify";
 
-export function useContactFormSubmit(type: string) {
+export function useContactFormSubmit(formName: NetlifyFormName) {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
@@ -10,19 +10,15 @@ export function useContactFormSubmit(type: string) {
     e.preventDefault();
     setLoading(true);
     setError("");
-    
-    const formData = new FormData(e.currentTarget);
-    formData.append("type", type);
+
+    const form = e.currentTarget;
+    const formData = new FormData(form);
 
     try {
-      const result = await submitContactForm(formData);
-      if (result.success) {
-        setSuccess(true);
-        (e.target as HTMLFormElement).reset();
-      } else {
-        setError(result.error || "Ocorreu um erro ao enviar.");
-      }
-    } catch (err) {
+      await submitToNetlifyForms(formName, formData);
+      setSuccess(true);
+      form.reset();
+    } catch {
       setError("Falha de conexão. Tente novamente mais tarde.");
     } finally {
       setLoading(false);
