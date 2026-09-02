@@ -22,7 +22,7 @@ if (deployContext === 'production') {
   const isCanonical =
     !!siteUrl &&
     /^https:\/\//.test(siteUrl) &&
-    !/localhost|127\.0\.0\.1|\.netlify\.app/.test(siteUrl);
+    !/localhost|127\.0\.0\.1/.test(siteUrl);
 
   if (!isCanonical) {
     throw new Error(
