@@ -8,9 +8,7 @@ import { MessageCircle, Menu, X } from "lucide-react";
 import { buttonShapeClasses } from "@/components/ui/buttonStyles";
 import { Container } from "@/components/ui/Container";
 
-const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "5541996787173";
-const whatsappMessage = encodeURIComponent("Olá, gostaria de falar com um corretor da Mitram Imóveis.");
-const whatsappLink = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
+const whatsappLink = `https://wa.link/u5tx8b`;
 
 const brokerButtonClasses = buttonShapeClasses("md", "bg-mitram-whatsapp text-white shadow-md hover:bg-mitram-whatsappDark");
 
