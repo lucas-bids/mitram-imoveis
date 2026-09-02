@@ -1,11 +1,20 @@
-import { Phone, Mail, Instagram } from "lucide-react";
+import type { Metadata } from "next";
+import { Phone, Mail, Instagram, MapPin } from "lucide-react";
 import { ContactForm } from "@/features/contact/components/ContactForm";
 import { Heading } from "@/components/ui/Heading";
 import { Text } from "@/components/ui/Text";
+import { SITE } from "@/lib/site";
 
-export const metadata = {
-  title: "Contato | Mitram Imóveis",
-  description: "Entre em contato conosco.",
+const TITLE = "Contato";
+const DESCRIPTION =
+  `Fale com a ${SITE.name}: WhatsApp, telefone e e-mail para comprar, alugar ou anunciar um imóvel em ${SITE.address.locality} e região.`;
+
+export const metadata: Metadata = {
+  // Sem sufixo manual: o template do layout raiz acrescenta "| Mitram Imóveis".
+  title: TITLE,
+  description: DESCRIPTION,
+  alternates: { canonical: "/contato" },
+  openGraph: { url: "/contato", title: TITLE, description: DESCRIPTION },
 };
 
 export default function ContactPage() {
@@ -23,8 +32,13 @@ export default function ContactPage() {
                   <Heading as="h3" variant="h4">WhatsApp / Telefone</Heading>
                 </div>
                 <Text variant="bodySm" className="mb-1 ml-8">Nossa equipe está pronta para ajudar.</Text>
-                <p className="text-mitram-dark font-semibold ml-8">41 99678-7173</p>
-                <Text variant="caption" className="mt-1 ml-8">Segunda a Sexta das 8h às 18h.</Text>
+                <a
+                  href={`tel:${SITE.phone.e164}`}
+                  className="text-mitram-dark font-semibold ml-8 block hover:text-mitram-gold transition-colors"
+                >
+                  {SITE.phone.display}
+                </a>
+                <Text variant="caption" className="mt-1 ml-8">{SITE.openingHours.display}.</Text>
               </div>
 
               <div>
@@ -33,7 +47,26 @@ export default function ContactPage() {
                   <Heading as="h3" variant="h4">E-mail</Heading>
                 </div>
                 <Text variant="bodySm" className="mb-1 ml-8">Envie-nos um e-mail para propostas e parcerias.</Text>
-                <p className="text-mitram-dark font-semibold ml-8">lucas.vidal.andrade@gmail.com</p>
+                <a
+                  href={`mailto:${SITE.email}`}
+                  className="text-mitram-dark font-semibold ml-8 block break-all hover:text-mitram-gold transition-colors"
+                >
+                  {SITE.email}
+                </a>
+              </div>
+
+              <div>
+                <div className="flex items-center gap-3 mb-3">
+                  <MapPin size={20} className="text-gray-400" />
+                  <Heading as="h3" variant="h4">Endereço</Heading>
+                </div>
+                <Text variant="bodySm" className="mb-1 ml-8">Nosso escritório em {SITE.address.locality}.</Text>
+                {/* `not-italic` porque o browser italiciza <address> por padrão. */}
+                <address className="text-mitram-dark font-semibold ml-8 not-italic leading-relaxed">
+                  {SITE.address.street}
+                  <br />
+                  {SITE.address.locality}, {SITE.address.region} — CEP {SITE.address.postalCode}
+                </address>
               </div>
 
               <div>
@@ -43,12 +76,12 @@ export default function ContactPage() {
                 </div>
                 <Text variant="bodySm" className="mb-1 ml-8">Acompanhe nossos imóveis e novidades.</Text>
                 <a
-                  href="https://instagram.com/mitramimoveis"
+                  href={SITE.social.instagram}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-mitram-dark font-semibold ml-8 hover:text-mitram-gold transition-colors"
                 >
-                  @mitramimoveis
+                  {SITE.social.instagramHandle}
                 </a>
               </div>
             </div>

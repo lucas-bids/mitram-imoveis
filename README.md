@@ -116,15 +116,39 @@ O painel administrativo permite criar, duplicar, editar e alterar o status dos i
 
 ### Limitações do MVP
 - Importação automática do WordPress atual não contemplada.
-- SEO avançado como Sitemap em tempo real (embora conte com JSON-LD estático/dinâmico).
-- Sem integração nativa de Analytics ativa (apenas componentes base preparados).
+- Sem integração nativa de Analytics ativa. O aviso de cookies é informativo:
+  o site usa apenas cookies essenciais.
 - Paginação no painel administrativo foi mantida simplificada.
-- Preservação de URLs antigas não implementada.
+- Preservação de URLs antigas: a infraestrutura existe
+  (`src/lib/legacy-redirects.mjs`), mas o mapa está vazio até a auditoria de
+  URLs do site antigo ser feita.
+
+## SEO técnico
+
+Sitemap, robots, canonicals e dados estruturados são nativos do App Router — sem
+biblioteca de SEO.
+
+- `src/lib/site.ts` — fonte única do domínio canônico e dos dados do negócio.
+  **Nenhum outro módulo deve ler `NEXT_PUBLIC_SITE_URL`.**
+- `src/app/sitemap.ts` — revalida a cada hora; só imóveis `published`. O
+  `<lastmod>` vem de `properties.updated_at`, que só é confiável com a migração
+  `20260902000000_properties_updated_at.sql` aplicada.
+- `src/app/robots.ts` — em deploy preview/branch deploy devolve `Disallow: /`.
+- `next.config.mjs` — **quebra o build de produção** se `NEXT_PUBLIC_SITE_URL`
+  não for a origem https canônica, e emite `X-Robots-Tag: noindex` fora de
+  produção.
+
+Política de indexação: URLs de `/imoveis` com filtro são `noindex, follow` e
+apontam canonical para `/imoveis`; imóveis vendidos/alugados continuam
+acessíveis (200) porém `noindex`; rascunho/arquivado/lixeira respondem 404.
+
+No Netlify, defina `NEXT_PUBLIC_SITE_URL` **apenas no contexto de produção** —
+previews usam a URL do próprio deploy automaticamente.
 
 ### Melhorias Recomendadas (Fase 2)
 1. **Paginação Avançada**: Implementar paginação ou cursor-based load completo (Infinite Scroll nativo do banco) no painel administrativo e público.
-2. **Integração Analytics**: Implementar Google Analytics via `next/third-parties` atrelado ao consentimento dos cookies.
-3. **Sitemap Dinâmico**: Configurar `sitemap.ts` no App Router para atualizar imóveis para SEO automaticamente.
+2. **Integração Analytics**: Implementar Google Analytics via `next/third-parties` atrelado ao consentimento dos cookies. O aviso de cookies volta a ter duas ações no mesmo momento.
+3. **Mapa sob consentimento**: o Google Maps da página de imóvel carrega no primeiro paint. Trocar por um placeholder click-to-load (mesmo padrão do `YoutubeEmbed`) melhora privacidade e LCP.
 4. **Alarme / Favoritos**: Permitir que usuários salvem imóveis via local storage ou conta pública simples.
 5. **Integração Portais**: Criar Endpoint/API para gerar feed XML padrão de portais (ZAP, VivaReal).
 

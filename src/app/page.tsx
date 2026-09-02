@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import FeaturedPropertiesCarousel from "@/features/properties/components/FeaturedPropertiesCarousel";
 import QuickSearch from "@/features/search/components/QuickSearch";
@@ -11,6 +12,14 @@ import { ValuePropositions } from "@/features/home/components/ValuePropositions"
 import { AboutSection } from "@/features/home/components/AboutSection";
 import { ValuationCta } from "@/features/home/components/ValuationCta";
 import { TestimonialsSection } from "@/features/home/components/TestimonialsSection";
+
+// Sem `title` aqui de propósito: omiti-lo faz valer o `title.default` da raiz,
+// evitando tanto o sufixo de marca duplicado quanto um "Início | Mitram Imóveis"
+// redundante.
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+  openGraph: { url: "/" },
+};
 
 export const revalidate = 3600; // revalidate every hour
 

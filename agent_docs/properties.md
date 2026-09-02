@@ -28,8 +28,18 @@ media embed constants — **reuse these, don't rewrite the embed syntax**:
 - `PROPERTY_MEDIA_ALL` — detail queries (`*`)
 
 Readers: `getFeaturedProperties`, `getPublicProperties`, `getPropertyBySlug`,
-`getPropertyMetaBySlug` (metadata only), `getSimilarProperties`,
-`getFilterLookups`, `getAdminProperties`, `getTrashedProperties`.
+`getSimilarProperties`, `getSitemapProperties`, `getFilterLookups`,
+`getAdminProperties`, `getTrashedProperties`.
+
+`getPropertyBySlug` is wrapped in React `cache()` and is the **only** detail
+read: `generateMetadata` and the page both call it, so it costs one round trip
+and the status filter cannot drift between them. (The old `getPropertyMetaBySlug`
+was deleted precisely because it forgot that filter.) The public status filter is
+the shared `PUBLIC_STATUSES` constant — don't re-inline the literal array.
+
+`getSitemapProperties` is the exception: it filters `status = 'published'` only
+(sold/rented are `noindex`), selects four columns, and uses `createStaticClient()`
+so `sitemap.ts` stays cacheable.
 
 Display helpers are in `src/features/properties/format.ts` — `formatPrice`,
 `purposeLabel`, `statusLabel`, `coverImageUrl`, `locationLabel`. Use them

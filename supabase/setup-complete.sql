@@ -220,6 +220,26 @@ CREATE TRIGGER enforce_profile_role_change
   FOR EACH ROW
   EXECUTE FUNCTION public.prevent_profile_role_escalation();
 
+-- properties.updated_at precisa ser verdadeiro em todo caminho de escrita: o
+-- sitemap o usa como <lastmod>. Ver
+-- migrations/20260902000000_properties_updated_at.sql
+CREATE OR REPLACE FUNCTION public.set_updated_at()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  NEW.updated_at = now();
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS properties_set_updated_at ON public.properties;
+
+CREATE TRIGGER properties_set_updated_at
+  BEFORE UPDATE ON public.properties
+  FOR EACH ROW
+  EXECUTE FUNCTION public.set_updated_at();
+
 -- Property Types: Public can read active. Admin can read/write all.
 CREATE POLICY "Public can read active property types" ON property_types FOR SELECT USING (active = true);
 CREATE POLICY "Admins can manage property types" ON property_types FOR ALL USING (public.is_admin());

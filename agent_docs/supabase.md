@@ -2,13 +2,20 @@
 
 Client boundaries, the admin gate, and where database rules live.
 
-## The three clients
+## The four clients
 
 | Module | Use in | RLS |
 | --- | --- | --- |
 | `src/lib/supabase/server.ts` | Server Components, route handlers, server actions | Respects RLS |
 | `src/lib/supabase/client.ts` | Client Components only | Respects RLS (anon/authenticated) |
+| `src/lib/supabase/static.ts` | Cached routes that must not touch cookies — today only `src/app/sitemap.ts` | Respects RLS (anon) |
 | `src/lib/supabase/admin.ts` | Trusted server-side admin mutations | **Bypasses RLS** |
+
+`createStaticClient()` exists because `server.ts` calls `cookies()`, and that call
+is exactly what marks a route dynamic — using it in `sitemap.ts` would defeat
+`revalidate`. It uses the **publishable** key, so RLS still applies and the
+sitemap cannot leak a draft. It is not a substitute for `server.ts` anywhere a
+user session matters.
 
 `createAdminClient()` uses `SUPABASE_SECRET_KEY` and is **server-only** — never
 import it into a Client Component or any module reachable from one. It is
