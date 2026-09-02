@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Send } from "lucide-react";
 import { AlertMessage } from "@/components/ui/AlertMessage";
 import { buttonClasses } from "@/components/ui/buttonStyles";
@@ -71,9 +72,17 @@ export function ContactForm() {
 
       <div className="flex items-start gap-3 pt-1 md:pt-2">
         <input type="checkbox" id="lgpd-contact" name="consent" value="sim" required className={`mt-0.5 ${CHECKBOX_CLASSES}`} />
-        <Text as="label" variant="caption" htmlFor="lgpd-contact" className="leading-relaxed cursor-pointer select-none">
-          Concordo que a Mitram Imóveis armazene e processe meus dados pessoais de acordo com a LGPD (Lei Geral de Proteção de Dados),
-          exclusivamente para fins de atendimento e envio de informações relacionadas ao mercado imobiliário.
+        {/* O link fica fora do <label>: dentro dele, clicar em "Política de
+            Privacidade" também marcaria o checkbox. */}
+        <Text variant="caption" className="leading-relaxed">
+          <label htmlFor="lgpd-contact" className="cursor-pointer select-none">
+            Concordo que a Mitram Imóveis utilize meus dados pessoais para responder a esta
+            solicitação, conforme a
+          </label>{" "}
+          <Link href="/politica-de-privacidade" className="underline hover:text-mitram-dark">
+            Política de Privacidade
+          </Link>
+          .
         </Text>
       </div>
 

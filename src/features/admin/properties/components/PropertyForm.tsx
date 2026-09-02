@@ -413,6 +413,9 @@ export default function PropertyForm({ initialData, isEdit = false, lookups }: P
                   className={fieldClasses(!!errors.youtube_url)}
                 />
               </FormField>
+              {/* Preencher isto envia dados do visitante a um provedor externo.
+                  A política de privacidade (§10) afirma hoje que nenhum imóvel
+                  usa tour virtual — atualize-a antes de publicar um link aqui. */}
               <FormField label="Tour virtual (URL)" error={errors.virtual_tour_url?.message}>
                 <input
                   type="url"

@@ -64,6 +64,12 @@ export type PropertyDetail = {
   featured: boolean;
   cover_image_id: string | null;
   property_type_id: string | null;
+  // A consulta de detalhe faz `select("*")`, então estas colunas já vinham do
+  // banco — o tipo é que as declarava a menos. São a base do `lastModified` do
+  // sitemap e do `datePosted` do JSON-LD.
+  created_at: string;
+  updated_at: string | null;
+  published_at: string | null;
   property_types: { name: string } | null;
   neighborhoods: { name: string; cities: { name: string; state: string } | null } | null;
   property_media: PropertyMedia[] | null;

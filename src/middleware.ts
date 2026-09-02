@@ -6,14 +6,15 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * Feel free to modify this pattern to include more paths.
-     */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
-  ],
+  /*
+   * Só `/admin`. `updateSession` já retornava `NextResponse.next()` na primeira
+   * linha para qualquer caminho fora de /admin, então isto preserva o
+   * comportamento — mas evita invocar a função em toda requisição pública,
+   * incluindo /robots.txt, /sitemap.xml e os assets de metadata.
+   *
+   * Os dois padrões são explícitos de propósito: `/admin` sozinho (login e
+   * redirecionamento do admin autenticado) e tudo abaixo dele. Mexer aqui é
+   * uma alteração de segurança — ver agent_docs/supabase.md.
+   */
+  matcher: ['/admin', '/admin/:path*'],
 }
