@@ -111,7 +111,6 @@ trigger_checks AS (
     END AS status,
     NULL::text AS detail
 )
-)
 SELECT category, object, status, detail
 FROM (
   SELECT category, object, status, detail

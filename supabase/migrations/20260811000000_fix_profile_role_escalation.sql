@@ -10,6 +10,12 @@
 --
 -- Nothing in the application updates the profiles table from the client — it is
 -- only read (login screen and middleware) — so the policy is removed outright.
+--
+-- NOTE: 20260811000001_profiles_role_guard.sql runs immediately after this file
+-- and re-creates "Users can update own profile" in a column-constrained form
+-- (`role IS NOT DISTINCT FROM public.current_profile_role()`). That is the
+-- canonical end state — see security-check.sql. The REVOKE/GRANT below survives
+-- either way, and is what actually makes `role` unwritable via PostgREST.
 
 DROP POLICY IF EXISTS "Users can update own profile" ON public.profiles;
 

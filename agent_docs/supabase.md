@@ -47,7 +47,17 @@ silently open the panel — treat it as a security-relevant edit.
 - `setup-complete.sql` — the consolidated bootstrap run in the SQL Editor. **A
   new migration must also be reflected here**, or fresh projects diverge from
   migrated ones.
+- `apply-all.sql` — `\i` list of every migration, in filename order. A new
+  migration must be added here too.
 - `verify.sql` — post-setup assertions (8 tables, 3 enums, 2 buckets).
+- `security-check.sql` — read-only security audit: RLS on every public table,
+  `profiles.role` unwritable by anon/authenticated (checked with
+  `has_column_privilege`, so grants to `PUBLIC` count), guard trigger present
+  and enabled, `is_admin()`'s own body intact, and no write policy whose gating
+  expression omits `is_admin()`. Every row must read `OK`. That last check is a
+  substring test — it catches a missing gate, not an `OR`-ed one, so README §4.3
+  pairs it with a manual read of the policy expressions. Re-run after any
+  migration touching policies, grants or `profiles`.
 - `promote-admin.sql` — the only supported way to grant `role = 'admin'`.
 
 Storage buckets: `property-images` and `property-floorplans`, with policies in
@@ -56,15 +66,26 @@ Storage buckets: `property-images` and `property-floorplans`, with policies in
 ### Role-escalation hardening — do not regress
 
 An earlier `"Users can update own profile"` policy let an authenticated user
-run `update profiles set role = 'admin'` on their own row. Fixed by
-`20260811000000_fix_profile_role_escalation.sql` and enforced by both the
-UPDATE policy and the `enforce_profile_role_change` trigger
-(`20260811000000_profiles_role_guard.sql`). **Never add a policy or grant that
+run `update profiles set role = 'admin'` on their own row. Fixed by two
+migrations that run in this order and must stay in it:
+
+1. `20260811000000_fix_profile_role_escalation.sql` — drops the policy and, more
+   importantly, revokes the table-level UPDATE grant, re-granting only
+   `full_name` and `updated_at`. That grant is what actually makes `role`
+   unwritable through PostgREST.
+2. `20260811000001_profiles_role_guard.sql` — re-creates
+   `"Users can update own profile"` in a column-constrained form and adds the
+   `enforce_profile_role_change` trigger.
+
+So the canonical end state has **two** UPDATE policies on `profiles`, not one.
+`security-check.sql` asserts exactly that. **Never add a policy or grant that
 lets a non-admin write `profiles.role`.**
 
 Public signup must stay disabled in the Supabase dashboard — admins are created
-manually. `supabase/README.md` §4 is the operational source of truth for both
-of these production steps.
+manually, and while it is open every "authenticated can X" policy effectively
+reads "anyone can X". `supabase/README.md` §4 is the operational source of truth
+for the full pre-launch checklist; the SQL in this repo is not evidence about
+the live database.
 
 Any migration touching policies, grants or `profiles` warrants a
 `security-reviewer` pass.
