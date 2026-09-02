@@ -191,6 +191,17 @@ CREATE POLICY "Admins can update profiles" ON profiles FOR UPDATE
   WITH CHECK (public.is_admin());
 CREATE POLICY "Admins can insert profiles" ON profiles FOR INSERT WITH CHECK (public.is_admin());
 
+-- Defence in depth: make `role` unwritable through PostgREST, so a permissive
+-- policy added later cannot reopen the escalation path on its own.
+--
+-- The table-level UPDATE grant Supabase gives anon/authenticated covers every
+-- column, and a column-level REVOKE does not subtract from it — the table-level
+-- grant has to be dropped first and the allowed columns granted back. Mirrors
+-- migrations/20260811000000_fix_profile_role_escalation.sql; keep the two in
+-- sync. promote-admin.sql runs as postgres/service_role and is unaffected.
+REVOKE UPDATE ON public.profiles FROM anon, authenticated;
+GRANT UPDATE (full_name, updated_at) ON public.profiles TO authenticated;
+
 -- Defence in depth: reject role changes at the table itself, whatever path the
 -- write arrives through. auth.uid() is NULL for the service_role client and for
 -- SQL Editor sessions (postgres); both are trusted and must keep working, which
