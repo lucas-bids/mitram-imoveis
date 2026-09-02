@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "typecheck": "tsc --noEmit",
     "db:apply": "node scripts/apply-migrations.mjs"
   },
@@ -19,7 +19,6 @@
     "browser-image-compression": "^2.0.2",
     "lucide-react": "^0.446.0",
     "next": "15.5.23",
-    "nodemailer": "^9.0.5",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.53.0",
@@ -27,7 +26,6 @@
   },
   "devDependencies": {
     "@types/node": "^22.5.5",
-    "@types/nodemailer": "^8.0.1",
     "@types/react": "^18.3.8",
     "@types/react-dom": "^18.3.0",
     "autoprefixer": "^10.4.20",

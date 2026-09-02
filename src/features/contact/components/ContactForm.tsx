@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Send } from "lucide-react";
 import { AlertMessage } from "@/components/ui/AlertMessage";
 import { buttonClasses } from "@/components/ui/buttonStyles";
@@ -8,9 +9,10 @@ import { CHECKBOX_CLASSES, FormField, fieldClasses } from "@/components/ui/FormF
 import { Heading } from "@/components/ui/Heading";
 import { Text } from "@/components/ui/Text";
 import { useContactFormSubmit, useAutoResizeTextarea } from "@/features/contact/hooks";
+import { NETLIFY_FORMS } from "@/features/contact/netlify";
 
 export function ContactForm() {
-  const { loading, success, error, handleSubmit, setSuccess } = useContactFormSubmit("contact");
+  const { loading, success, error, handleSubmit, setSuccess } = useContactFormSubmit(NETLIFY_FORMS.contact);
   const handleResize = useAutoResizeTextarea();
 
   if (success) {
@@ -30,9 +32,16 @@ export function ContactForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
+    <form
+      name={NETLIFY_FORMS.contact}
+      method="POST"
+      data-netlify="true"
+      onSubmit={handleSubmit}
+      className="space-y-4 md:space-y-6"
+    >
       {error && <AlertMessage tone="error">{error}</AlertMessage>}
 
+      {/* Honeypot: o Netlify descarta como spam qualquer envio que preencha este campo. */}
       <input type="text" name="address_field" className="hidden" tabIndex={-1} autoComplete="off" />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
@@ -62,10 +71,18 @@ export function ContactForm() {
       </FormField>
 
       <div className="flex items-start gap-3 pt-1 md:pt-2">
-        <input type="checkbox" id="lgpd-contact" required className={`mt-0.5 ${CHECKBOX_CLASSES}`} />
-        <Text as="label" variant="caption" htmlFor="lgpd-contact" className="leading-relaxed cursor-pointer select-none">
-          Concordo que a Mitram Imóveis armazene e processe meus dados pessoais de acordo com a LGPD (Lei Geral de Proteção de Dados),
-          exclusivamente para fins de atendimento e envio de informações relacionadas ao mercado imobiliário.
+        <input type="checkbox" id="lgpd-contact" name="consent" value="sim" required className={`mt-0.5 ${CHECKBOX_CLASSES}`} />
+        {/* O link fica fora do <label>: dentro dele, clicar em "Política de
+            Privacidade" também marcaria o checkbox. */}
+        <Text variant="caption" className="leading-relaxed">
+          <label htmlFor="lgpd-contact" className="cursor-pointer select-none">
+            Concordo que a Mitram Imóveis utilize meus dados pessoais para responder a esta
+            solicitação, conforme a
+          </label>{" "}
+          <Link href="/politica-de-privacidade" className="underline hover:text-mitram-dark">
+            Política de Privacidade
+          </Link>
+          .
         </Text>
       </div>
 

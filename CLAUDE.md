@@ -1,55 +1,68 @@
 # CLAUDE.md
 
-Guidance for Claude Code when working in this repository.
+Always-relevant context for Mitram Imóveis. Domain detail lives elsewhere —
+see the routing table below.
 
 ## Project
 
-Mitram Imóveis — a real estate listing website (Next.js 14 App Router +
-Supabase), in Portuguese (pt-BR). Public site for browsing/searching
-property listings, plus an admin panel (`/admin`) for managing them.
-Deployed on Netlify.
-
-## Working style
-
-- Act as a senior fullstack developer / senior product designer — default
-  to production-quality decisions over quick hacks.
-- If a request is ambiguous, ask clarifying questions until ~95% confident
-  before writing code. Don't guess or fill gaps silently.
+Real estate listing site: **Next.js 15 (App Router) + Supabase**, deployed on
+Netlify. Public site for browsing/searching listings, plus an admin panel at
+`/admin`. All user-facing content is **pt-BR** — UI copy, form labels, error
+messages and README stay in Portuguese. Agent-facing docs are English.
 
 ## Commands
 
 ```bash
-npm run dev         # start dev server
-npm run build        # production build
-npm run lint          # next lint
-npm run typecheck      # tsc --noEmit
+npm run dev        # dev server
+npm run build      # production build
+npm run start      # serve the production build
+npm run lint       # eslint . --ext .js,.jsx,.ts,.tsx
+npm run typecheck  # tsc --noEmit
+npm run db:apply   # apply supabase/migrations/*.sql then seed.sql (needs DATABASE_URL)
 ```
 
 No test suite is configured in this repo.
 
-## Directory map
+## Security guardrails
 
-- `src/app/` — routes only (pages, layouts). Thin; imports from `src/features/`.
-- `src/features/` — domain logic by feature (`properties`, `search`,
-  `admin/properties`, `contact`, `home`). Each has `queries.ts`, `actions.ts`,
-  `schema.ts`, `types.ts`.
-- `src/components/` — generic cross-feature UI primitives + layout chrome.
-- `src/lib/supabase/` — the three Supabase client constructors.
-- `supabase/` — SQL migrations, seed data, DB source of truth.
+- `createAdminClient` (`src/lib/supabase/admin.ts`) uses the service-role key
+  and **bypasses RLS**. Server-only — never import it into a Client Component
+  or anything reachable from one. It is currently unused; keep it that way
+  unless a trusted server-side admin mutation genuinely needs it, and say so.
+- `SUPABASE_SECRET_KEY` must never gain a `NEXT_PUBLIC_` prefix. Nothing
+  secret belongs in a `NEXT_PUBLIC_*` variable.
+- Never read, print or modify `.env.local`. Use `.env.example` for the shape
+  of the environment.
+- Never run database mutations or deploy the site.
 
-## Guardrail
+## Conventions
 
-`src/lib/supabase/admin.ts` (`createAdminClient`) bypasses RLS. Server-only —
-never import into a Client Component. Use only for trusted admin mutations.
+- Reuse the existing read layer. Query shapes live in `features/*/queries.ts`
+  (e.g. the `PROPERTY_MEDIA_*` select constants) — extend them rather than
+  re-writing a Supabase select inside a component.
+- Validate at the boundary with zod (`schema.ts`), so bad data never
+  propagates inward.
+- Keep Supabase query shapes out of components; components consume the typed
+  result, not the query.
 
-## Reference docs
+## Verification
 
-Read the relevant file below before starting work that touches it — don't
-read all of them by default.
+Before reporting work as done, run `npm run lint`, `npm run typecheck` and
+`npm run build`. Report failures with their output rather than describing
+them. `npm run lint` currently emits one known warning in
+`src/features/home/components/TestimonialsCarousel.tsx`.
 
-- `agent_docs/code_conventions.md` — coding principles (Pragmatic
-  Programmer / Clean Code) to follow when writing or editing code.
-- `agent_docs/architecture.md` — property data model, search/filtering,
-  admin property form, contact/lead forms.
-- `agent_docs/styling.md` — Tailwind/brand color conventions.
-- `agent_docs/local_setup.md` — first-time environment setup steps.
+## Working style
+
+Act as a senior fullstack developer / senior product designer — default to
+production-quality decisions over quick hacks.
+
+Ask when an unresolved decision would materially change UX, data, security,
+architecture, or scope. Otherwise state the assumption and proceed.
+
+## Context routing
+
+@CONTEXT.md
+
+Load only the context the task actually needs. Do not read all of
+`agent_docs/` by default — pick the one file the routing table names.

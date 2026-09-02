@@ -191,6 +191,17 @@ CREATE POLICY "Admins can update profiles" ON profiles FOR UPDATE
   WITH CHECK (public.is_admin());
 CREATE POLICY "Admins can insert profiles" ON profiles FOR INSERT WITH CHECK (public.is_admin());
 
+-- Defence in depth: make `role` unwritable through PostgREST, so a permissive
+-- policy added later cannot reopen the escalation path on its own.
+--
+-- The table-level UPDATE grant Supabase gives anon/authenticated covers every
+-- column, and a column-level REVOKE does not subtract from it — the table-level
+-- grant has to be dropped first and the allowed columns granted back. Mirrors
+-- migrations/20260811000000_fix_profile_role_escalation.sql; keep the two in
+-- sync. promote-admin.sql runs as postgres/service_role and is unaffected.
+REVOKE UPDATE ON public.profiles FROM anon, authenticated;
+GRANT UPDATE (full_name, updated_at) ON public.profiles TO authenticated;
+
 -- Defence in depth: reject role changes at the table itself, whatever path the
 -- write arrives through. auth.uid() is NULL for the service_role client and for
 -- SQL Editor sessions (postgres); both are trusted and must keep working, which
@@ -219,6 +230,26 @@ CREATE TRIGGER enforce_profile_role_change
   BEFORE UPDATE ON public.profiles
   FOR EACH ROW
   EXECUTE FUNCTION public.prevent_profile_role_escalation();
+
+-- properties.updated_at precisa ser verdadeiro em todo caminho de escrita: o
+-- sitemap o usa como <lastmod>. Ver
+-- migrations/20260902000000_properties_updated_at.sql
+CREATE OR REPLACE FUNCTION public.set_updated_at()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  NEW.updated_at = now();
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS properties_set_updated_at ON public.properties;
+
+CREATE TRIGGER properties_set_updated_at
+  BEFORE UPDATE ON public.properties
+  FOR EACH ROW
+  EXECUTE FUNCTION public.set_updated_at();
 
 -- Property Types: Public can read active. Admin can read/write all.
 CREATE POLICY "Public can read active property types" ON property_types FOR SELECT USING (active = true);

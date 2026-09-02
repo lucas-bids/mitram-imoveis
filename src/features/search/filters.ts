@@ -14,6 +14,55 @@ export type PropertyFilters = {
   order: string;
 };
 
+/** Valor de `order` quando nada é escolhido — ver `parseFilters`. */
+export const DEFAULT_ORDER = "recentes";
+
+/**
+ * Todo parâmetro que transforma /imoveis numa variação facetada.
+ *
+ * O `satisfies` faz o compilador exigir uma entrada por chave de
+ * `PropertyFilters`: acrescentar um filtro sem atualizar esta lista quebra o
+ * build, em vez de silenciosamente deixar uma URL facetada indexável.
+ * `view` não faz parte de `PropertyFilters` (só a página o lê), por isso entra
+ * separado.
+ */
+const FILTER_KEYS = {
+  type: true,
+  purpose: true,
+  city: true,
+  neighborhood: true,
+  bedrooms: true,
+  suites: true,
+  parking_spaces: true,
+  features: true,
+  min_price: true,
+  max_price: true,
+  min_area: true,
+  max_area: true,
+  order: true,
+} satisfies Record<keyof PropertyFilters, true>;
+
+export const FACETED_PARAMS: readonly string[] = [...Object.keys(FILTER_KEYS), "view"];
+
+/**
+ * A URL representa uma variação facetada da listagem?
+ *
+ * `order=recentes` é o padrão do parser, então conta como "sem filtro" — do
+ * contrário um link que apenas carrega a ordenação padrão seria marcado como
+ * noindex à toa. Parâmetros desconhecidos (utm_*, gclid) são ignorados de
+ * propósito: o canonical já resolve, e marcar toda landing de campanha como
+ * noindex seria um tiro no pé.
+ */
+export function hasActiveFacets(searchParams: { [key: string]: string | string[] | undefined }): boolean {
+  return FACETED_PARAMS.some((key) => {
+    const raw = searchParams[key];
+    const value = Array.isArray(raw) ? raw[0] : raw;
+    if (!value) return false;
+    if (key === "order" && value === DEFAULT_ORDER) return false;
+    return true;
+  });
+}
+
 export function parseFilters(searchParams: URLSearchParams | { [key: string]: string | string[] | undefined }): PropertyFilters {
   const getParam = (key: string) => {
     if (searchParams instanceof URLSearchParams) return searchParams.get(key) || "";
@@ -34,7 +83,7 @@ export function parseFilters(searchParams: URLSearchParams | { [key: string]: st
     max_price: getParam("max_price"),
     min_area: getParam("min_area"),
     max_area: getParam("max_area"),
-    order: getParam("order") || "recentes",
+    order: getParam("order") || DEFAULT_ORDER,
   };
 }
 
