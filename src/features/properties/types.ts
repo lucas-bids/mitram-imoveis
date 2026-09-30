@@ -32,9 +32,15 @@ export type PropertyListItem = {
   property_media: PropertyMedia[] | null;
 };
 
+export type DisplayAddress = 'All' | 'Street' | 'Neighborhood';
+export type IptuPeriod = 'Yearly' | 'Monthly';
+
 // Represents what is returned by the detail query
 export type PropertyDetail = {
   id: string;
+  // O <ListingID> do feed OLX/ZAP/VivaReal. Já vinha do banco (a consulta de
+  // detalhe é `select("*")`), o tipo é que o declarava a menos.
+  internal_code: string;
   title: string;
   slug: string;
   purpose: PropertyPurpose;
@@ -58,12 +64,19 @@ export type PropertyDetail = {
   suites: number | null;
   bathrooms: number | null;
   parking_spaces: number | null;
+  floor: number | null;
+  building_floors: number | null;
+  year_built: number | null;
   furnished: boolean;
   youtube_url: string | null;
   virtual_tour_url: string | null;
   featured: boolean;
   cover_image_id: string | null;
   property_type_id: string | null;
+  // Campos do feed dos portais. Ver migration 20260922000000_olx_feed_fields.
+  olx_enabled: boolean;
+  display_address: DisplayAddress;
+  iptu_period: IptuPeriod;
   // A consulta de detalhe faz `select("*")`, então estas colunas já vinham do
   // banco — o tipo é que as declarava a menos. São a base do `lastModified` do
   // sitemap e do `datePosted` do JSON-LD.
@@ -86,6 +99,11 @@ export type AdminPropertyListItem = {
   price: number | null;
   featured: boolean;
   created_at: string;
-  property_types: { name: string } | null;
+  // Usados só para dizer na listagem se o imóvel está indo para os portais.
+  olx_enabled: boolean;
+  description: string | null;
+  property_types: { name: string; olx_property_type?: string | null } | null;
   neighborhoods: { name: string; cities: { name: string } | null } | null;
+  /** Só os ids: a listagem precisa do total de fotos, não do conteúdo delas. */
+  property_media: { id: string }[] | null;
 };

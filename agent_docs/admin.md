@@ -27,6 +27,9 @@ call `revalidatePath`.
 used for **both create and edit**; `PropertyFormValues` is its inferred type.
 
 - `internal_code` and `title` are required; `status` here excludes `trashed`.
+- `title` (10–100) and `description` (50–3000) carry the feed's length limits
+  **at every status**, so a published property can't drift out of the portal.
+  `internal_code` is read-only when `isEdit` — see `properties.md`.
 - Address fields (`street`, `number`, `neighborhood_id`, `city_id`, `state`,
   `postal_code`) are required.
 - A `superRefine` rejects null `latitude`/`longitude` with "Confirme o endereço
@@ -52,8 +55,14 @@ their own `mutations.ts`. Address also has `geocode.ts` and `states.ts`.
 `MEDIA_CONSTANTS`:
 
 - `MAX_IMAGES: 30`
+- `MIN_IMAGES_FOR_FEED: 5`
 - `STORAGE_BUCKET: "property-images"`
-- `COMPRESSION`: max 1 MB, max 1920px, WebP, web worker
+- `COMPRESSION`: max 1 MB, max 1920px, **JPEG**, web worker
+
+The format is JPEG, not WebP, because the OLX/ZAP/VivaReal feed only accepts
+JPG. This costs the public site nothing — Supabase URLs go through Next's
+image optimizer, which serves WebP/AVIF regardless. `scripts/backfill-jpeg-images.mjs`
+converts the pre-existing WebP objects.
 
 `ImageUpload.tsx` compresses with `browser-image-compression` before upload and
 reorders with `@hello-pangea/dnd` (`sort_order`). It takes a **`deferDbWrites`**

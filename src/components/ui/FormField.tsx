@@ -38,13 +38,15 @@ interface FormFieldProps {
   affix?: string;
   /** Selects e campos compostos não têm :placeholder-shown, então o rótulo fica sempre no alto. */
   alwaysFloat?: boolean;
+  /** Texto auxiliar abaixo do campo. Cede o lugar para `error` quando houver. */
+  hint?: string;
   className?: string;
   children: ReactNode;
 }
 
 // O rótulo ocupa o lugar do placeholder enquanto o campo está vazio e sobe ao receber foco ou valor.
 // O controle precisa vir como primeiro filho e usar fieldClasses(), que aplica a classe peer.
-export function FormField({ label, error, affix, alwaysFloat, className, children }: FormFieldProps) {
+export function FormField({ label, error, affix, alwaysFloat, hint, className, children }: FormFieldProps) {
   const floatOnFill =
     "peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-3 peer-focus:scale-75";
 
@@ -65,7 +67,11 @@ export function FormField({ label, error, affix, alwaysFloat, className, childre
           </span>
         )}
       </span>
-      {error && <span className="mt-1.5 block text-xs text-red-600">{error}</span>}
+      {error ? (
+        <span className="mt-1.5 block text-xs text-red-600">{error}</span>
+      ) : (
+        hint && <span className="mt-1.5 block text-xs text-gray-500">{hint}</span>
+      )}
     </label>
   );
 }

@@ -78,11 +78,17 @@ export default function PropertyForm({ initialData, isEdit = false, lookups }: P
   const inferredState = initialData?.state || lookups?.cities.find((city) => city.id === initialData?.city_id)?.state;
   const form = useForm<PropertyFormValues>({
     resolver: zodResolver(propertySchema),
+    // Os `default()` do zod só valem na validação, não no estado inicial do
+    // formulário — um checkbox sem defaultValue renderiza desmarcado e envia
+    // `false`. Por isso `olx_enabled` precisa vir explícito aqui.
     defaultValues: initialData ? { ...initialData, state: inferredState } : {
       status: "draft",
       purpose: "sale",
       featured: false,
       furnished: false,
+      olx_enabled: true,
+      display_address: "Street",
+      iptu_period: "Yearly",
     },
   });
 
@@ -224,11 +230,26 @@ export default function PropertyForm({ initialData, isEdit = false, lookups }: P
             <FormField label="Título do anúncio" error={errors.title?.message} className="md:col-span-2">
               <input {...register("title")} placeholder=" " className={fieldClasses(!!errors.title)} />
             </FormField>
-            <FormField label="Código do imóvel" error={errors.internal_code?.message} alwaysFloat>
+            {/* O código é o <ListingID> do feed OLX/ZAP/VivaReal: renomeá-lo
+                faria o portal excluir e recriar o anúncio, perdendo a idade e
+                o ranking dele. Por isso só é editável na criação — o banco
+                recusa a alteração de qualquer forma (trigger
+                enforce_internal_code_immutable). */}
+            <FormField
+              label="Código do imóvel"
+              error={errors.internal_code?.message}
+              alwaysFloat
+              hint={isEdit ? "Não pode ser alterado após o cadastro." : undefined}
+            >
               <input
                 {...register("internal_code")}
                 placeholder="Ex: AP-1234"
-                className={fieldClasses(!!errors.internal_code)}
+                readOnly={isEdit}
+                aria-readonly={isEdit || undefined}
+                className={fieldClasses(
+                  !!errors.internal_code,
+                  isEdit ? "cursor-not-allowed bg-gray-100 text-gray-500" : undefined,
+                )}
               />
             </FormField>
             <FormField label="Tipo de imóvel" error={errors.property_type_id?.message} alwaysFloat>
@@ -258,6 +279,19 @@ export default function PropertyForm({ initialData, isEdit = false, lookups }: P
               <input type="checkbox" {...register("featured")} className={CHECKBOX_CLASSES} />
               <span className="text-sm font-medium text-gray-700 transition-colors group-hover:text-mitram-dark">
                 Destaque na página inicial
+              </span>
+            </label>
+            <label className="group flex cursor-pointer items-start gap-3 md:col-span-2">
+              <input type="checkbox" {...register("olx_enabled")} className={`${CHECKBOX_CLASSES} mt-0.5`} />
+              <span className="text-sm">
+                <span className="font-medium text-gray-700 transition-colors group-hover:text-mitram-dark">
+                  Publicar no OLX, ZAP e VivaReal
+                </span>
+                <span className="mt-0.5 block text-xs text-gray-500">
+                  Desmarque se este imóvel já está anunciado manualmente no Canal Pro — o
+                  portal recusa o anúncio do feed por duplicidade. Só imóveis publicados,
+                  com 5 fotos ou mais, entram no feed.
+                </span>
               </span>
             </label>
           </div>
@@ -305,6 +339,17 @@ export default function PropertyForm({ initialData, isEdit = false, lookups }: P
                 {...register("iptu")}
                 className={`${fieldClasses(!!errors.iptu, FIELD_NUMBER)} pr-12`}
               />
+            </FormField>
+            {/* O feed precisa saber se o IPTU informado acima é anual ou mensal. */}
+            <FormField label="Período do IPTU" error={errors.iptu_period?.message} alwaysFloat>
+              <select
+                {...register("iptu_period")}
+                className={fieldClasses(!!errors.iptu_period, SELECT_EXTRA)}
+                style={SELECT_ARROW_STYLE}
+              >
+                <option value="Yearly">Anual</option>
+                <option value="Monthly">Mensal</option>
+              </select>
             </FormField>
           </div>
         </FormSection>
@@ -363,6 +408,30 @@ export default function PropertyForm({ initialData, isEdit = false, lookups }: P
                 placeholder=" "
                 {...register("parking_spaces")}
                 className={fieldClasses(!!errors.parking_spaces, FIELD_NUMBER)}
+              />
+            </FormField>
+            <FormField label="Andar da unidade" error={errors.floor?.message}>
+              <input
+                type="number"
+                placeholder=" "
+                {...register("floor")}
+                className={fieldClasses(!!errors.floor, FIELD_NUMBER)}
+              />
+            </FormField>
+            <FormField label="Andares do prédio" error={errors.building_floors?.message}>
+              <input
+                type="number"
+                placeholder=" "
+                {...register("building_floors")}
+                className={fieldClasses(!!errors.building_floors, FIELD_NUMBER)}
+              />
+            </FormField>
+            <FormField label="Ano de construção" error={errors.year_built?.message}>
+              <input
+                type="number"
+                placeholder=" "
+                {...register("year_built")}
+                className={fieldClasses(!!errors.year_built, FIELD_NUMBER)}
               />
             </FormField>
             <label className="group flex cursor-pointer items-center gap-3 self-end pb-3">

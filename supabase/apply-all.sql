@@ -18,4 +18,6 @@
 \i supabase/migrations/20260806000000_address_location.sql
 \i supabase/migrations/20260811000000_fix_profile_role_escalation.sql
 \i supabase/migrations/20260811000001_profiles_role_guard.sql
+\i supabase/migrations/20260902000000_properties_updated_at.sql
+\i supabase/migrations/20260922000000_olx_feed_fields.sql
 \i supabase/seed.sql

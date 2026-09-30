@@ -1,13 +1,25 @@
 import { createClient } from "@/lib/supabase/client";
 
+/**
+ * O formato é JPEG, e não WebP, porque o feed do OLX/ZAP/VivaReal só aceita
+ * JPG — o portal importa a URL para os servidores dele e rejeita WebP.
+ *
+ * Isso não piora o site: as URLs do Supabase passam pelo otimizador de imagem
+ * do Next (`next.config.mjs`), que serve WebP/AVIF ao navegador de qualquer
+ * jeito. Só o arquivo original no bucket fica maior.
+ */
 export const MEDIA_CONSTANTS = {
   MAX_IMAGES: 30,
+  /** Mínimo exigido pelo feed dos portais. Abaixo disso o imóvel não é enviado. */
+  MIN_IMAGES_FOR_FEED: 5,
   COMPRESSION: {
     maxSizeMB: 1,
     maxWidthOrHeight: 1920,
     useWebWorker: true,
-    fileType: "image/webp",
+    fileType: "image/jpeg",
   },
+  IMAGE_EXTENSION: "jpg",
+  IMAGE_CONTENT_TYPE: "image/jpeg",
   STORAGE_BUCKET: "property-images",
 };
 
@@ -16,7 +28,7 @@ export async function uploadMediaToStorage(file: File, fileName: string) {
   const { data, error } = await supabase.storage
     .from(MEDIA_CONSTANTS.STORAGE_BUCKET)
     .upload(fileName, file, {
-      contentType: "image/webp",
+      contentType: MEDIA_CONSTANTS.IMAGE_CONTENT_TYPE,
       upsert: false,
     });
   if (error) throw error;

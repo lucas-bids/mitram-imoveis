@@ -5,6 +5,7 @@ import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea
 import imageCompression from "browser-image-compression";
 import { X, GripVertical, Star, ImagePlus } from "lucide-react";
 import Image from "next/image";
+import { AlertMessage } from "@/components/ui/AlertMessage";
 import { buttonClasses } from "@/components/ui/buttonStyles";
 import { MEDIA_CONSTANTS, uploadMediaToStorage, insertMediaRecord, deleteMediaFromStorage, deleteMediaRecord, updateMediaSortOrder, updateCoverImage } from "@/features/admin/properties/components/media/mutations";
 
@@ -49,7 +50,7 @@ export default function ImageUpload({ propertyId, initialMedia, onMediaUpdate, d
     for (const file of files) {
       try {
         const compressedFile = await imageCompression(file, MEDIA_CONSTANTS.COMPRESSION);
-        const fileName = `${propertyId}/${Date.now()}-${Math.random().toString(36).substring(7)}.webp`;
+        const fileName = `${propertyId}/${Date.now()}-${Math.random().toString(36).substring(7)}.${MEDIA_CONSTANTS.IMAGE_EXTENSION}`;
         
         const publicUrl = await uploadMediaToStorage(compressedFile, fileName);
         const isCover = newMediaList.length === 0;
@@ -141,8 +142,22 @@ export default function ImageUpload({ propertyId, initialMedia, onMediaUpdate, d
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <label className="block text-sm font-medium text-mitram-grayDark">Imagens do Imóvel</label>
-        <span className="text-xs text-gray-500">{media.length} / 30 imagens</span>
+        <span className="text-xs text-gray-500">
+          {media.length} / {MEDIA_CONSTANTS.MAX_IMAGES} imagens
+        </span>
       </div>
+
+      {/* O mínimo de 5 fotos é regra do feed OLX/ZAP/VivaReal. Não bloqueia o
+          salvamento — as fotos são gravadas fora do formulário — mas um imóvel
+          abaixo disso simplesmente não é enviado ao portal, então o aviso
+          precisa ser visível aqui. */}
+      {media.length < MEDIA_CONSTANTS.MIN_IMAGES_FOR_FEED && (
+        <AlertMessage tone="info">
+          {media.length === 0
+            ? `Adicione ao menos ${MEDIA_CONSTANTS.MIN_IMAGES_FOR_FEED} fotos para que o imóvel possa ser anunciado no OLX, ZAP e VivaReal.`
+            : `Faltam ${MEDIA_CONSTANTS.MIN_IMAGES_FOR_FEED - media.length} foto(s) para o mínimo de ${MEDIA_CONSTANTS.MIN_IMAGES_FOR_FEED} exigido pelo OLX, ZAP e VivaReal. Com menos que isso o imóvel não é enviado aos portais.`}
+        </AlertMessage>
+      )}
 
       <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center text-center hover:bg-gray-50 transition-colors">
         <input
@@ -158,7 +173,10 @@ export default function ImageUpload({ propertyId, initialMedia, onMediaUpdate, d
           <ImagePlus size={18} />
           {uploading ? "Enviando..." : "Selecionar imagens"}
         </label>
-        <p className="text-xs text-gray-500 mt-2">JPG, PNG ou WEBP. Máx 30 imagens.</p>
+        <p className="text-xs text-gray-500 mt-2">
+          JPG, PNG ou WEBP. Máx {MEDIA_CONSTANTS.MAX_IMAGES} imagens. As fotos são
+          convertidas para JPG no envio.
+        </p>
       </div>
 
       {media.length > 0 && (
