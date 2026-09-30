@@ -15,6 +15,19 @@ export const PROPERTY_MEDIA_EMBED = "property_media!property_media_property_id_f
 export const PROPERTY_MEDIA_FIELDS = `${PROPERTY_MEDIA_EMBED} (public_url, is_cover, sort_order)`;
 export const PROPERTY_MEDIA_ALL = `${PROPERTY_MEDIA_EMBED} (*)`;
 
+/**
+ * Colunas que as regras do portal (`src/features/feed/rules.ts`) leem — o
+ * formato de `FeedRuleProperty`. Usado pelo feed e pela listagem do painel,
+ * que sinaliza imóveis publicados que o feed descartaria.
+ */
+export const FEED_RULE_FIELDS = `
+  internal_code, title, description, purpose, price, postal_code, state,
+  total_area, private_area, bedrooms, bathrooms, youtube_url, virtual_tour_url,
+  property_types (name, olx_property_type, olx_usage_type),
+  neighborhoods (name, cities (name, state)),
+  ${PROPERTY_MEDIA_EMBED} (public_url, is_cover, sort_order, media_type, alt_text)
+`;
+
 export async function getFeaturedProperties(): Promise<PropertyListItem[]> {
   const supabase = createClient();
   const { data, error } = await supabase
@@ -282,19 +295,7 @@ export async function getAdminProperties(): Promise<AdminPropertyListItem[]> {
   const supabase = createClient();
   const { data, error } = await supabase
     .from("properties")
-    .select(`
-      id,
-      internal_code,
-      title,
-      slug,
-      purpose,
-      status,
-      price,
-      featured,
-      created_at,
-      property_types (name),
-      neighborhoods (name, cities (name))
-    `)
+    .select(`id, slug, status, featured, created_at, ${FEED_RULE_FIELDS}`)
     .in("status", ["draft", "published", "archived", "sold", "rented"])
     .order("created_at", { ascending: false });
 

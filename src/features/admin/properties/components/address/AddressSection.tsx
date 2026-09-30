@@ -138,6 +138,24 @@ function AddressFields({ form, initialCities, initialNeighborhoods }: Props) {
         <FormField label="CEP" error={errors.postal_code?.message}>
           <input inputMode="numeric" placeholder=" " {...register("postal_code", { onChange: invalidateLocation })} className={fieldClasses(!!errors.postal_code)} />
         </FormField>
+        {/* Só afeta o anúncio nos portais (OLX/ZAP/VivaReal). O site continua
+            exibindo o endereço como sempre. */}
+        <FormField
+          label="Endereço exibido nos portais"
+          error={errors.display_address?.message}
+          className="md:col-span-3"
+          alwaysFloat
+        >
+          <select
+            {...register("display_address")}
+            className={fieldClasses(!!errors.display_address, SELECT_EXTRA)}
+            style={SELECT_ARROW_STYLE}
+          >
+            <option value="Street">Rua, sem o número</option>
+            <option value="All">Endereço completo, com número</option>
+            <option value="Neighborhood">Apenas o bairro</option>
+          </select>
+        </FormField>
       </div>
 
       <div className="mt-6 space-y-4">

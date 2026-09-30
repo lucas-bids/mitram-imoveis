@@ -13,6 +13,22 @@ function serializeError(error: unknown) {
       digest: (error as Error & { digest?: string }).digest,
     };
   }
+  // Erros do Supabase (PostgrestError, StorageError) são objetos simples, não
+  // instâncias de Error. Sem este ramo, `String(error)` vira "[object Object]"
+  // e a mensagem real — que é o único dado útil — se perde.
+  if (error !== null && typeof error === "object") {
+    const record = error as Record<string, unknown>;
+    const message = typeof record.message === "string" ? record.message : JSON.stringify(error);
+
+    return {
+      name: typeof record.name === "string" ? record.name : "ObjectError",
+      message,
+      code: record.code,
+      details: record.details,
+      hint: record.hint,
+    };
+  }
+
   return { name: "NonError", message: String(error) };
 }
 
@@ -35,8 +51,7 @@ function emit(level: LogLevel, scope: string, message: string, error?: unknown, 
 }
 
 export function logError(scope: string, error: unknown, context?: LogContext) {
-  const message = error instanceof Error ? error.message : String(error);
-  emit("error", scope, message, error, context);
+  emit("error", scope, serializeError(error).message, error, context);
 }
 
 export function logWarn(scope: string, message: string, context?: LogContext) {

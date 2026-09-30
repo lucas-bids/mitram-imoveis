@@ -1,3 +1,5 @@
+import type { FeedRuleProperty } from "@/features/feed/rules";
+
 export type PropertyPurpose = 'sale' | 'rent';
 export type PropertyStatus = 'draft' | 'published' | 'archived' | 'sold' | 'rented' | 'trashed';
 export type MediaType = 'image' | 'floorplan_image' | 'floorplan_pdf';
@@ -32,9 +34,15 @@ export type PropertyListItem = {
   property_media: PropertyMedia[] | null;
 };
 
+export type DisplayAddress = 'All' | 'Street' | 'Neighborhood';
+export type IptuPeriod = 'Yearly' | 'Monthly';
+
 // Represents what is returned by the detail query
 export type PropertyDetail = {
   id: string;
+  // O <ListingID> do feed OLX/ZAP/VivaReal. Já vinha do banco (a consulta de
+  // detalhe é `select("*")`), o tipo é que o declarava a menos.
+  internal_code: string;
   title: string;
   slug: string;
   purpose: PropertyPurpose;
@@ -58,12 +66,18 @@ export type PropertyDetail = {
   suites: number | null;
   bathrooms: number | null;
   parking_spaces: number | null;
+  floor: number | null;
+  building_floors: number | null;
+  year_built: number | null;
   furnished: boolean;
   youtube_url: string | null;
   virtual_tour_url: string | null;
   featured: boolean;
   cover_image_id: string | null;
   property_type_id: string | null;
+  // Campos do feed dos portais. Ver migration 20260922000000_olx_feed_fields.
+  display_address: DisplayAddress;
+  iptu_period: IptuPeriod;
   // A consulta de detalhe faz `select("*")`, então estas colunas já vinham do
   // banco — o tipo é que as declarava a menos. São a base do `lastModified` do
   // sitemap e do `datePosted` do JSON-LD.
@@ -76,16 +90,11 @@ export type PropertyDetail = {
   property_features: { features: { name: string } }[] | null;
 };
 
-export type AdminPropertyListItem = {
+/** Linha da listagem do painel; carrega o recorte das regras do portal para sinalizar "Fora do OLX". */
+export type AdminPropertyListItem = FeedRuleProperty & {
   id: string;
-  internal_code: string;
-  title: string;
   slug: string;
-  purpose: PropertyPurpose;
   status: PropertyStatus;
-  price: number | null;
   featured: boolean;
   created_at: string;
-  property_types: { name: string } | null;
-  neighborhoods: { name: string; cities: { name: string } | null } | null;
 };

@@ -25,7 +25,7 @@ lists.
 | Auth, RLS, migrations, storage buckets | `agent_docs/supabase.md` (+ `security-reviewer` agent) |
 | Contact / lead forms | `agent_docs/contact.md` (+ `security-reviewer` agent) |
 | UI, Tailwind, responsive layout, accessibility | `agent_docs/styling.md` (+ `ui-reviewer` agent) |
-| OLX / ZAP / VivaReal feed | `olx-zap-feed` skill |
+| OLX / ZAP / VivaReal feed | `olx-zap-feed` skill, then `src/features/feed/` |
 | Local setup, deployment | `README.md`, `supabase/README.md` |
 
 Pick the row, load that file, stop. Path-scoped rules in `.claude/rules/`
@@ -49,8 +49,12 @@ stage is only worth creating for a repeatable, sequential workflow that
 produces real artifacts and has human review gates between steps. Nothing here
 qualifies yet: normal feature work is a single-session task, not a pipeline.
 
-The one credible future candidate is the portal feed — map property fields →
-generate XML → validate the feed → review and publish. Scaffold it only once a
-feed generator actually exists in `src/`. Until then the `olx-zap-feed` skill
-covers the *knowledge* (field rules, validation script), which is Layer 3
-context, not a workflow.
+The one credible candidate was the portal feed — map property fields →
+generate XML → validate the feed → review and publish. The generator now
+exists (`src/features/feed/`, served at `/api/feed/olx.xml`), so the
+precondition is met — but it still doesn't qualify: generation is a single
+pure function over a query, with no human review gate between steps and no
+intermediate artifacts. The gates that exist are operational (publish a
+property, read the portal's daily report), not stages in a pipeline. The
+`olx-zap-feed` skill still covers the *knowledge* (field rules, validation
+script), which is Layer 3 context.

@@ -5,7 +5,9 @@ import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea
 import imageCompression from "browser-image-compression";
 import { X, GripVertical, Star, ImagePlus } from "lucide-react";
 import Image from "next/image";
+import { AlertMessage } from "@/components/ui/AlertMessage";
 import { buttonClasses } from "@/components/ui/buttonStyles";
+import { FEED_LIMITS } from "@/features/feed/limits";
 import { MEDIA_CONSTANTS, uploadMediaToStorage, insertMediaRecord, deleteMediaFromStorage, deleteMediaRecord, updateMediaSortOrder, updateCoverImage } from "@/features/admin/properties/components/media/mutations";
 
 export interface PropertyMedia {
@@ -26,13 +28,20 @@ interface ImageUploadProps {
    * The parent is responsible for persisting `media` once it does.
    */
   deferDbWrites?: boolean;
+  /**
+   * The property is published, so it must keep the portal's photo minimum:
+   * deleting is blocked once it would drop below `FEED_LIMITS.MIN_IMAGES`.
+   */
+  lockMinimum?: boolean;
 }
 
-export default function ImageUpload({ propertyId, initialMedia, onMediaUpdate, deferDbWrites = false }: ImageUploadProps) {
+export default function ImageUpload({ propertyId, initialMedia, onMediaUpdate, deferDbWrites = false, lockMinimum = false }: ImageUploadProps) {
   const [media, setMedia] = useState<PropertyMedia[]>(
     [...initialMedia].sort((a, b) => a.sort_order - b.sort_order)
   );
   const [uploading, setUploading] = useState(false);
+  const deleteLocked = lockMinimum && media.length <= FEED_LIMITS.MIN_IMAGES;
+  const deleteLockedMessage = `Imóvel publicado precisa de ao menos ${FEED_LIMITS.MIN_IMAGES} fotos. Envie outra antes de excluir esta.`;
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
@@ -49,7 +58,7 @@ export default function ImageUpload({ propertyId, initialMedia, onMediaUpdate, d
     for (const file of files) {
       try {
         const compressedFile = await imageCompression(file, MEDIA_CONSTANTS.COMPRESSION);
-        const fileName = `${propertyId}/${Date.now()}-${Math.random().toString(36).substring(7)}.webp`;
+        const fileName = `${propertyId}/${Date.now()}-${Math.random().toString(36).substring(7)}.${MEDIA_CONSTANTS.IMAGE_EXTENSION}`;
         
         const publicUrl = await uploadMediaToStorage(compressedFile, fileName);
         const isCover = newMediaList.length === 0;
@@ -115,6 +124,7 @@ export default function ImageUpload({ propertyId, initialMedia, onMediaUpdate, d
   };
 
   const handleDelete = async (id: string, path: string) => {
+    if (deleteLocked) return;
     if (!confirm("Tem certeza que deseja excluir esta imagem?")) return;
 
     await deleteMediaFromStorage(path);
@@ -141,8 +151,26 @@ export default function ImageUpload({ propertyId, initialMedia, onMediaUpdate, d
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <label className="block text-sm font-medium text-mitram-grayDark">Imagens do Imóvel</label>
-        <span className="text-xs text-gray-500">{media.length} / 30 imagens</span>
+        <span className="text-xs text-gray-500">
+          {media.length} / {MEDIA_CONSTANTS.MAX_IMAGES} imagens
+        </span>
       </div>
+
+      {/* O mínimo de 5 fotos é regra do feed OLX/ZAP/VivaReal. Rascunhos podem
+          ter menos; o schema bloqueia a publicação abaixo disso e, num imóvel
+          já publicado, a exclusão de fotos trava no mínimo. */}
+      {media.length < FEED_LIMITS.MIN_IMAGES && (
+        <AlertMessage tone="info">
+          {media.length === 0
+            ? `Adicione ao menos ${FEED_LIMITS.MIN_IMAGES} fotos. Sem elas o imóvel pode ser salvo como rascunho, mas não publicado (exigência do OLX, ZAP e VivaReal).`
+            : `Faltam ${FEED_LIMITS.MIN_IMAGES - media.length} foto(s) para o mínimo de ${FEED_LIMITS.MIN_IMAGES} exigido pelo OLX, ZAP e VivaReal. Até lá o imóvel só pode ser salvo como rascunho.`}
+        </AlertMessage>
+      )}
+      {deleteLocked && (
+        <p className="text-xs text-gray-500">
+          {`Imóvel publicado: a exclusão de fotos fica bloqueada enquanto houver ${FEED_LIMITS.MIN_IMAGES} ou menos. Para trocar uma foto, envie a nova antes.`}
+        </p>
+      )}
 
       <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center text-center hover:bg-gray-50 transition-colors">
         <input
@@ -158,7 +186,10 @@ export default function ImageUpload({ propertyId, initialMedia, onMediaUpdate, d
           <ImagePlus size={18} />
           {uploading ? "Enviando..." : "Selecionar imagens"}
         </label>
-        <p className="text-xs text-gray-500 mt-2">JPG, PNG ou WEBP. Máx 30 imagens.</p>
+        <p className="text-xs text-gray-500 mt-2">
+          JPG, PNG ou WEBP. Máx {MEDIA_CONSTANTS.MAX_IMAGES} imagens. As fotos são
+          convertidas para JPG no envio.
+        </p>
       </div>
 
       {media.length > 0 && (
@@ -197,8 +228,10 @@ export default function ImageUpload({ propertyId, initialMedia, onMediaUpdate, d
                             <button
                               type="button"
                               onClick={() => handleDelete(item.id, item.storage_path)}
-                              className="text-white hover:text-red-400 p-1"
-                              title="Excluir"
+                              disabled={deleteLocked}
+                              className="text-white hover:text-red-400 p-1 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:text-white"
+                              title={deleteLocked ? deleteLockedMessage : "Excluir"}
+                              aria-label={deleteLocked ? deleteLockedMessage : "Excluir imagem"}
                             >
                               <X size={20} />
                             </button>
