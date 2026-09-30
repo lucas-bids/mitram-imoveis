@@ -23,15 +23,35 @@ call `revalidatePath`.
 
 ## Validation
 
-`src/features/admin/properties/schema.ts` defines a single zod `propertySchema`
+`src/features/admin/properties/schema.ts` exports `buildPropertySchema(ctx)`,
 used for **both create and edit**; `PropertyFormValues` is its inferred type.
+`ctx` carries what the rules need beyond the form fields (photo count, each
+property type's `olx_property_type`); `PropertyForm.tsx` feeds it through a ref
+read by the resolver.
+
+- **Publishing enforces the portal rules.** When `status === "published"`,
+  `feedIssues` (`src/features/feed/rules.ts`) runs: ≥ 5 photos (error shown on
+  `status`), price > 0, area > 0 (lot area for land/farm/industrial), bedrooms
+  and bathrooms for residential types (studio ≥ 1 bedroom), and a property type
+  mapped to OLX. Drafts save incomplete. `rules.ts` is the single source: the
+  feed (`feedExclusionReason`) and the admin list use the same function.
+- Video must be YouTube; virtual tour must be HTTPS and not a URL shortener —
+  checked at every status. The feed omits an invalid link rather than the
+  listing.
 
 - `internal_code` and `title` are required; `status` here excludes `trashed`.
+- `title` (10–100) and `description` (50–3000) carry the feed's length limits
+  **at every status**, so a published property can't drift out of the portal.
+  The numbers come from `FEED_LIMITS` (`src/features/feed/limits.ts`).
+  `internal_code` is read-only when `isEdit` — see `properties.md`.
 - Address fields (`street`, `number`, `neighborhood_id`, `city_id`, `state`,
   `postal_code`) are required.
 - A `superRefine` rejects null `latitude`/`longitude` with "Confirme o endereço
   no mapa" — **the address must be confirmed on the map before saving**.
-- Numeric fields use `z.coerce.number()` because they arrive as form strings.
+- Numeric fields use `z.coerce.number()` because they arrive as form strings;
+  `bedrooms`, `bathrooms`, `floor`, `building_floors`, `year_built` use
+  `optionalNumber` so an empty input becomes `null`, not `0`.
+- CEP must have 8 digits (mask optional).
 
 Validation messages are pt-BR and user-facing. Slugs come from
 `slug.ts::generateSlug` (NFD-normalized, accent-stripped, hyphenated).
@@ -53,7 +73,20 @@ their own `mutations.ts`. Address also has `geocode.ts` and `states.ts`.
 
 - `MAX_IMAGES: 30`
 - `STORAGE_BUCKET: "property-images"`
-- `COMPRESSION`: max 1 MB, max 1920px, WebP, web worker
+- `COMPRESSION`: max 1 MB, max 1920px, **JPEG**, web worker
+
+The format is JPEG, not WebP, because the OLX/ZAP/VivaReal feed only accepts
+JPG. This costs the public site nothing — Supabase URLs go through Next's
+image optimizer, which serves WebP/AVIF regardless. `scripts/backfill-jpeg-images.mjs`
+converts the pre-existing WebP objects. The feed's 5-photo minimum is
+`FEED_LIMITS.MIN_IMAGES`. `ImageUpload.tsx` warns below it; the schema blocks
+publishing below it; and with `lockMinimum` (persisted status is `published`)
+deleting a photo is disabled at ≤ 5 — deletes write immediately, so the DB
+status, not the form's, decides.
+
+The admin list (`/admin/imoveis`) shows a "Fora do OLX" badge plus the reason
+on published properties the feed would drop (`getAdminProperties` selects
+`FEED_RULE_FIELDS`, shared with the feed query).
 
 `ImageUpload.tsx` compresses with `browser-image-compression` before upload and
 reorders with `@hello-pangea/dnd` (`sort_order`). It takes a **`deferDbWrites`**

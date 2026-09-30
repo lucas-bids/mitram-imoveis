@@ -3,7 +3,8 @@
 import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { PropertyFormValues, propertySchema } from "@/features/admin/properties/schema";
+import { PropertyFormValues, PropertySchemaContext, buildPropertySchema } from "@/features/admin/properties/schema";
+import type { PropertyTypeOption } from "@/features/admin/properties/queries";
 import { generateSlug } from "@/features/admin/properties/slug";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
@@ -23,7 +24,6 @@ import { useSectionNavigation } from "@/features/admin/properties/components/for
 import { FormSection } from "@/features/admin/properties/components/form/FormSection";
 import { FORM_SECTIONS } from "@/features/admin/properties/components/form/sections";
 
-import { FilterOption } from "@/features/search/filters";
 import { FeatureSelector, SelectedFeature } from "@/features/admin/properties/components/features/FeatureSelector";
 import { FeatureOption, addPropertyFeatures } from "@/features/admin/properties/components/features/mutations";
 import { AddressSection } from "@/features/admin/properties/components/address/AddressSection";
@@ -37,7 +37,7 @@ interface PropertyFormProps {
   };
   isEdit?: boolean;
   lookups?: {
-    propertyTypes: FilterOption[];
+    propertyTypes: PropertyTypeOption[];
     cities: CityOption[];
     neighborhoods: NeighborhoodOption[];
     features: FeatureOption[];
@@ -57,7 +57,7 @@ const FIELD_NUMBER =
 
 export default function PropertyForm({ initialData, isEdit = false, lookups }: PropertyFormProps) {
   const [loading, setLoading] = useState(false);
-  const [types] = useState<FilterOption[]>(lookups?.propertyTypes || []);
+  const [types] = useState<PropertyTypeOption[]>(lookups?.propertyTypes || []);
   const [media, setMedia] = useState<PropertyMedia[]>(initialData?.property_media || []);
   const [selectedFeatures, setSelectedFeatures] = useState<SelectedFeature[]>(
     (initialData?.property_features || []).map((pf) => pf.features),
@@ -76,13 +76,24 @@ export default function PropertyForm({ initialData, isEdit = false, lookups }: P
   const supabase = createClient();
 
   const inferredState = initialData?.state || lookups?.cities.find((city) => city.id === initialData?.city_id)?.state;
+  // As regras de publicação dependem de estado fora do formulário (fotos, tipo
+  // OLX). O resolver lê o ref a cada validação, então sempre vê o valor atual.
+  const schemaContext = useRef<PropertySchemaContext>({
+    imageCount: media.length,
+    olxTypeById: new Map(types.map((type) => [type.id, type.olx_property_type])),
+  });
+  schemaContext.current.imageCount = media.length;
+
   const form = useForm<PropertyFormValues>({
-    resolver: zodResolver(propertySchema),
+    resolver: (values, context, options) =>
+      zodResolver(buildPropertySchema(schemaContext.current))(values, context, options),
     defaultValues: initialData ? { ...initialData, state: inferredState } : {
       status: "draft",
       purpose: "sale",
       featured: false,
       furnished: false,
+      display_address: "Street",
+      iptu_period: "Yearly",
     },
   });
 
@@ -224,11 +235,26 @@ export default function PropertyForm({ initialData, isEdit = false, lookups }: P
             <FormField label="Título do anúncio" error={errors.title?.message} className="md:col-span-2">
               <input {...register("title")} placeholder=" " className={fieldClasses(!!errors.title)} />
             </FormField>
-            <FormField label="Código do imóvel" error={errors.internal_code?.message} alwaysFloat>
+            {/* O código é o <ListingID> do feed OLX/ZAP/VivaReal: renomeá-lo
+                faria o portal excluir e recriar o anúncio, perdendo a idade e
+                o ranking dele. Por isso só é editável na criação — o banco
+                recusa a alteração de qualquer forma (trigger
+                enforce_internal_code_immutable). */}
+            <FormField
+              label="Código do imóvel"
+              error={errors.internal_code?.message}
+              alwaysFloat
+              hint={isEdit ? "Não pode ser alterado após o cadastro." : undefined}
+            >
               <input
                 {...register("internal_code")}
                 placeholder="Ex: AP-1234"
-                className={fieldClasses(!!errors.internal_code)}
+                readOnly={isEdit}
+                aria-readonly={isEdit || undefined}
+                className={fieldClasses(
+                  !!errors.internal_code,
+                  isEdit ? "cursor-not-allowed bg-gray-100 text-gray-500" : undefined,
+                )}
               />
             </FormField>
             <FormField label="Tipo de imóvel" error={errors.property_type_id?.message} alwaysFloat>
@@ -306,6 +332,17 @@ export default function PropertyForm({ initialData, isEdit = false, lookups }: P
                 className={`${fieldClasses(!!errors.iptu, FIELD_NUMBER)} pr-12`}
               />
             </FormField>
+            {/* O feed precisa saber se o IPTU informado acima é anual ou mensal. */}
+            <FormField label="Período do IPTU" error={errors.iptu_period?.message} alwaysFloat>
+              <select
+                {...register("iptu_period")}
+                className={fieldClasses(!!errors.iptu_period, SELECT_EXTRA)}
+                style={SELECT_ARROW_STYLE}
+              >
+                <option value="Yearly">Anual</option>
+                <option value="Monthly">Mensal</option>
+              </select>
+            </FormField>
           </div>
         </FormSection>
 
@@ -363,6 +400,30 @@ export default function PropertyForm({ initialData, isEdit = false, lookups }: P
                 placeholder=" "
                 {...register("parking_spaces")}
                 className={fieldClasses(!!errors.parking_spaces, FIELD_NUMBER)}
+              />
+            </FormField>
+            <FormField label="Andar da unidade" error={errors.floor?.message}>
+              <input
+                type="number"
+                placeholder=" "
+                {...register("floor")}
+                className={fieldClasses(!!errors.floor, FIELD_NUMBER)}
+              />
+            </FormField>
+            <FormField label="Andares do prédio" error={errors.building_floors?.message}>
+              <input
+                type="number"
+                placeholder=" "
+                {...register("building_floors")}
+                className={fieldClasses(!!errors.building_floors, FIELD_NUMBER)}
+              />
+            </FormField>
+            <FormField label="Ano de construção" error={errors.year_built?.message}>
+              <input
+                type="number"
+                placeholder=" "
+                {...register("year_built")}
+                className={fieldClasses(!!errors.year_built, FIELD_NUMBER)}
               />
             </FormField>
             <label className="group flex cursor-pointer items-center gap-3 self-end pb-3">
@@ -439,6 +500,9 @@ export default function PropertyForm({ initialData, isEdit = false, lookups }: P
               initialMedia={media}
               onMediaUpdate={setMedia}
               deferDbWrites={!isEdit}
+              // Status gravado no banco, não o do formulário: a exclusão de
+              // foto é gravada na hora, antes de qualquer "Salvar".
+              lockMinimum={isEdit && initialData?.status === "published"}
             />
           )}
         </FormSection>

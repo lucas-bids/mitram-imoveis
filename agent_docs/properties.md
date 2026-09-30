@@ -10,6 +10,17 @@ surface. Admin-side editing is in `admin.md`.
 - `status`: `draft | published | archived | sold | rented | trashed`
 - `purpose`: `sale | rent`
 
+Portal feed columns (migration `20260922000000_olx_feed_fields.sql`):
+`display_address`, `iptu_period`, `year_built`, `building_floors`;
+`property_types.olx_property_type` / `olx_usage_type` and `features.olx_code`
+map the free-form tables onto VrSync's closed enums — an unmapped type keeps
+the property out of the feed rather than emitting an invalid listing.
+`internal_code` is the feed's `ListingID` and is **immutable after creation**,
+enforced by the `enforce_internal_code_immutable` trigger. There is no
+per-property opt-out: the XML is the portal's only source, so **every
+`published` property goes to the feed** (`olx_enabled` was dropped in
+`20261001000000_drop_olx_enabled.sql`).
+
 **Public queries always filter `.in("status", ["published", "sold", "rented"])`.**
 `draft`, `archived` and `trashed` must never reach a public page. Trashing is a
 soft delete — `status = 'trashed'` plus `deleted_at`; see `admin.md`.

@@ -374,19 +374,84 @@ BEGIN
   RETURN 'MIT-' || lpad(next_value::text, 4, '0');
 END;
 $$;
+
+-- ===========================================================================
+-- Campos do feed OLX/ZAP/VivaReal (VrSync)
+-- Espelho de supabase/migrations/20260922000000_olx_feed_fields.sql e
+-- 20261001000000_drop_olx_enabled.sql (o resultado final das duas).
+-- O mapeamento de tipos/características fica no fim do arquivo, depois do
+-- seed, porque depende das linhas que o seed insere.
+-- ===========================================================================
+
+ALTER TABLE property_types
+  ADD COLUMN IF NOT EXISTS olx_property_type text,
+  ADD COLUMN IF NOT EXISTS olx_usage_type text;
+
+ALTER TABLE property_types
+  DROP CONSTRAINT IF EXISTS property_types_olx_usage_type_check;
+ALTER TABLE property_types
+  ADD CONSTRAINT property_types_olx_usage_type_check
+  CHECK (olx_usage_type IS NULL OR olx_usage_type IN ('Residential', 'Commercial', 'Residential / Commercial'));
+
+ALTER TABLE features ADD COLUMN IF NOT EXISTS olx_code text;
+
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS display_address text NOT NULL DEFAULT 'Street';
+ALTER TABLE properties DROP CONSTRAINT IF EXISTS properties_display_address_check;
+ALTER TABLE properties
+  ADD CONSTRAINT properties_display_address_check
+  CHECK (display_address IN ('All', 'Street', 'Neighborhood'));
+
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS iptu_period text NOT NULL DEFAULT 'Yearly';
+ALTER TABLE properties DROP CONSTRAINT IF EXISTS properties_iptu_period_check;
+ALTER TABLE properties
+  ADD CONSTRAINT properties_iptu_period_check
+  CHECK (iptu_period IN ('Yearly', 'Monthly'));
+
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS year_built integer;
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS building_floors integer;
+
+-- internal_code é o <ListingID> do feed: renomear exclui e recria o anúncio no
+-- portal. A escrita de imóveis roda client-side sob RLS, então a trava precisa
+-- estar no banco. auth.uid() é NULL para service_role/SQL Editor.
+CREATE OR REPLACE FUNCTION public.prevent_internal_code_change()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  IF NEW.internal_code IS DISTINCT FROM OLD.internal_code
+     AND auth.uid() IS NOT NULL THEN
+    RAISE EXCEPTION 'O código do imóvel não pode ser alterado depois do cadastro.'
+      USING ERRCODE = 'integrity_constraint_violation';
+  END IF;
+
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS enforce_internal_code_immutable ON public.properties;
+
+CREATE TRIGGER enforce_internal_code_immutable
+  BEFORE UPDATE ON public.properties
+  FOR EACH ROW
+  EXECUTE FUNCTION public.prevent_internal_code_change();
+
 -- Insert default Admin (password handled by Supabase Auth, but we can't create Auth easily in pure SQL without pgcrypto/extensions, usually we do it via Dashboard)
 -- So the seed will insert types, cities, neighborhoods, features, and properties.
 
 -- We assume an admin user exists or we create properties without checking auth (bypassing RLS or running as superuser)
 
 -- Property Types
-INSERT INTO property_types (id, name, slug, sort_order) VALUES
-('11111111-1111-1111-1111-111111111111', 'Casa', 'casa', 1),
-('22222222-2222-2222-2222-222222222222', 'Apartamento', 'apartamento', 2),
-('33333333-3333-3333-3333-333333333333', 'Sobrado', 'sobrado', 3),
-('44444444-4444-4444-4444-444444444444', 'Terreno', 'terreno', 4),
-('55555555-5555-5555-5555-555555555555', 'Chácara', 'chacara', 5),
-('66666666-6666-6666-6666-666666666666', 'Casa em condomínio', 'casa-em-condominio', 6)
+-- olx_property_type/olx_usage_type mapeiam para os enums fechados do VrSync.
+-- Tipo sem mapeamento não entra no feed (ver migration 20260922000000).
+INSERT INTO property_types (id, name, slug, sort_order, olx_property_type, olx_usage_type) VALUES
+('11111111-1111-1111-1111-111111111111', 'Casa', 'casa', 1, 'Residential / Home', 'Residential'),
+('22222222-2222-2222-2222-222222222222', 'Apartamento', 'apartamento', 2, 'Residential / Apartment', 'Residential'),
+('33333333-3333-3333-3333-333333333333', 'Sobrado', 'sobrado', 3, 'Residential / Sobrado', 'Residential'),
+('44444444-4444-4444-4444-444444444444', 'Terreno', 'terreno', 4, 'Residential / Land Lot', 'Residential'),
+('55555555-5555-5555-5555-555555555555', 'Chácara', 'chacara', 5, 'Residential / Farm Ranch', 'Residential'),
+('66666666-6666-6666-6666-666666666666', 'Casa em condomínio', 'casa-em-condominio', 6, 'Residential / Condo', 'Residential')
 ON CONFLICT (slug) DO NOTHING;
 
 -- Cities
@@ -405,13 +470,15 @@ INSERT INTO neighborhoods (id, city_id, name, slug) VALUES
 ON CONFLICT (city_id, slug) DO NOTHING;
 
 -- Features
-INSERT INTO features (id, name, slug) VALUES
-('cccc1111-cccc-1111-cccc-1111cccc1111', 'Churrasqueira', 'churrasqueira'),
-('cccc2222-cccc-2222-cccc-2222cccc2222', 'Piscina', 'piscina'),
-('cccc3333-cccc-3333-cccc-3333cccc3333', 'Elevador', 'elevador'),
-('cccc4444-cccc-4444-cccc-4444cccc4444', 'Sacada', 'sacada'),
-('cccc5555-cccc-5555-cccc-5555cccc5555', 'Área de serviço', 'area-de-servico'),
-('cccc6666-cccc-6666-cccc-6666cccc6666', 'Portaria 24h', 'portaria-24h')
+-- olx_code mapeia para a lista fechada de Features do VrSync. Característica
+-- sem código é apenas omitida do anúncio, não invalida o imóvel.
+INSERT INTO features (id, name, slug, olx_code) VALUES
+('cccc1111-cccc-1111-cccc-1111cccc1111', 'Churrasqueira', 'churrasqueira', 'BBQ'),
+('cccc2222-cccc-2222-cccc-2222cccc2222', 'Piscina', 'piscina', 'Pool'),
+('cccc3333-cccc-3333-cccc-3333cccc3333', 'Elevador', 'elevador', 'Elevator'),
+('cccc4444-cccc-4444-cccc-4444cccc4444', 'Sacada', 'sacada', 'Balcony'),
+('cccc5555-cccc-5555-cccc-5555cccc5555', 'Área de serviço', 'area-de-servico', 'Laundry'),
+('cccc6666-cccc-6666-cccc-6666cccc6666', 'Portaria 24h', 'portaria-24h', 'Concierge 24h')
 ON CONFLICT (slug) DO NOTHING;
 
 -- Properties
@@ -469,3 +536,58 @@ ON CONFLICT DO NOTHING;
 
 -- Insert bucket if we could (must be done in console or through API usually, but SQL can be used if extension pg_net is available or direct insert to storage.buckets)
 -- INSERT INTO storage.buckets (id, name, public) VALUES ('property-images', 'property-images', true) ON CONFLICT DO NOTHING;
+
+-- Property Media
+-- Seis fotos por imóvel publicado. O número não é decorativo: o feed
+-- OLX/ZAP/VivaReal exige no mínimo 5 imagens por anúncio, então sem estas
+-- linhas nenhum imóvel local passaria na geração do feed e o XML sairia vazio.
+--
+-- As URLs apontam para um placeholder do próprio site — em desenvolvimento não
+-- há objetos no bucket, e o que importa aqui é a contagem e a ordenação.
+--
+-- Os imóveis são endereçados pelos UUIDs fixos do seed, e não por faixa de
+-- internal_code: `npm run db:apply` também roda em produção, e lá pode existir
+-- um imóvel real com código MIT-0001. Casar por UUID é o que garante que este
+-- bloco só toca as linhas de demonstração.
+INSERT INTO property_media (property_id, storage_path, public_url, media_type, alt_text, sort_order, is_cover)
+SELECT
+  p.id,
+  'seed/' || p.internal_code || '-' || g.n || '.jpg',
+  '/images/keys-on-table.jpg',
+  'image',
+  'Foto ' || g.n || ' de ' || p.title,
+  g.n - 1,
+  g.n = 1
+FROM properties p
+CROSS JOIN generate_series(1, 6) AS g(n)
+WHERE p.id IN (
+  'dddd1111-dddd-1111-dddd-1111dddd1111', 'dddd2222-dddd-2222-dddd-2222dddd2222',
+  'dddd3333-dddd-3333-dddd-3333dddd3333', 'dddd4444-dddd-4444-dddd-4444dddd4444',
+  'dddd5555-dddd-5555-dddd-5555dddd5555', 'dddd6666-dddd-6666-dddd-6666dddd6666',
+  'dddd7777-dddd-7777-dddd-7777dddd7777', 'dddd8888-dddd-8888-dddd-8888dddd8888',
+  'dddd9999-dddd-9999-dddd-9999dddd9999'
+)
+  AND NOT EXISTS (SELECT 1 FROM property_media m WHERE m.property_id = p.id);
+
+-- A capa também é referenciada por properties.cover_image_id.
+UPDATE properties p
+SET cover_image_id = m.id
+FROM property_media m
+WHERE m.property_id = p.id
+  AND m.is_cover
+  AND p.cover_image_id IS NULL
+  AND m.storage_path LIKE 'seed/%';
+
+-- Descrições do seed tinham ~20 caracteres, abaixo do mínimo de 50 exigido
+-- pelo feed (e agora pelo propertySchema). Completa as curtas.
+UPDATE properties
+SET description = description ||
+  ' Imóvel de demonstração cadastrado pelo seed, com texto longo o suficiente para atender ao mínimo exigido pelos portais.'
+WHERE id IN (
+  'dddd1111-dddd-1111-dddd-1111dddd1111', 'dddd2222-dddd-2222-dddd-2222dddd2222',
+  'dddd3333-dddd-3333-dddd-3333dddd3333', 'dddd4444-dddd-4444-dddd-4444dddd4444',
+  'dddd5555-dddd-5555-dddd-5555dddd5555', 'dddd6666-dddd-6666-dddd-6666dddd6666',
+  'dddd7777-dddd-7777-dddd-7777dddd7777', 'dddd8888-dddd-8888-dddd-8888dddd8888',
+  'dddd9999-dddd-9999-dddd-9999dddd9999'
+)
+  AND length(coalesce(description, '')) < 50;
