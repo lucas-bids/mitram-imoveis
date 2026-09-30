@@ -1,6 +1,16 @@
 import { SITE, SITE_URL, absoluteUrl } from "@/lib/site";
 import { BRAZILIAN_STATES } from "@/features/admin/properties/components/address/states";
-import { FEED_LIMITS } from "./limits";
+import { LOT_AREA_TYPES } from "./limits";
+import {
+  feedArea,
+  feedExclusionReason,
+  imageMedia,
+  plainText,
+  positiveInt,
+  ruleInputFromProperty,
+  virtualTourUrlIssue,
+  youtubeUrlIssue,
+} from "./rules";
 import type { FeedBuildResult, FeedExclusion, FeedMedia, FeedProperty } from "./types";
 
 /**
@@ -16,18 +26,8 @@ import type { FeedBuildResult, FeedExclusion, FeedMedia, FeedProperty } from "./
  *
  * Um imóvel que não atende a alguma regra é **omitido**, nunca emitido
  * inválido: um anúncio quebrado derruba a nota de qualidade da carga inteira.
+ * As regras vivem em `rules.ts`, compartilhadas com o painel.
  */
-
-const { MIN_IMAGES, MIN_TITLE, MAX_TITLE, MIN_DESCRIPTION, MAX_DESCRIPTION } = FEED_LIMITS;
-
-/** Tipos cuja área relevante é a do lote, não a área útil. */
-const LOT_AREA_TYPES = new Set([
-  "Residential / Land Lot",
-  "Residential / Farm Ranch",
-  "Residential / Agricultural",
-  "Commercial / Land Lot",
-  "Commercial / Industrial",
-]);
 
 const STATE_NAMES = new Map<string, string>(BRAZILIAN_STATES.map(([uf, name]) => [uf, name]));
 
@@ -48,18 +48,6 @@ function cdata(value: string): string {
   return `<![CDATA[${value.replace(/]]>/g, "]]]]><![CDATA[>")}]]>`;
 }
 
-/** Remove tags HTML e normaliza espaços. Title e Description não aceitam HTML. */
-function plainText(value: string): string {
-  return value.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
-}
-
-/** Inteiro positivo, ou null. Preços e áreas do VrSync não aceitam decimais. */
-function positiveInt(value: number | null | undefined): number | null {
-  if (value === null || value === undefined) return null;
-  const rounded = Math.round(value);
-  return Number.isFinite(rounded) && rounded > 0 ? rounded : null;
-}
-
 /** Inteiro >= 0, ou null. Para contagens, onde `0` é uma resposta válida. */
 function countInt(value: number | null | undefined): number | null {
   if (value === null || value === undefined) return null;
@@ -70,13 +58,6 @@ function countInt(value: number | null | undefined): number | null {
 function tag(name: string, value: string | number | null, attrs = ""): string {
   if (value === null || value === "") return "";
   return `<${name}${attrs}>${value}</${name}>`;
-}
-
-/** Só fotos de verdade: plantas baixas e PDFs não podem ir para `<Media>`. */
-function imageMedia(media: FeedMedia[] | null): FeedMedia[] {
-  return (media ?? [])
-    .filter((item) => (item.media_type ?? "image") === "image" && !!item.public_url)
-    .sort((a, b) => Number(b.is_cover) - Number(a.is_cover) || a.sort_order - b.sort_order);
 }
 
 function locationBlock(property: FeedProperty): string {
@@ -105,7 +86,7 @@ function mediaBlock(property: FeedProperty, images: FeedMedia[]): string {
   const items: string[] = [];
 
   // Um vídeo por imóvel, no máximo, e antes das fotos (como nos exemplos da doc).
-  if (property.youtube_url) {
+  if (property.youtube_url && !youtubeUrlIssue(property.youtube_url)) {
     items.push(`<Item medium="video">${escapeXml(property.youtube_url)}</Item>`);
   }
 
@@ -172,11 +153,8 @@ function detailsBlock(property: FeedProperty, olxPropertyType: string): string {
   if (LOT_AREA_TYPES.has(olxPropertyType)) {
     parts.push(tag("LotArea", positiveInt(property.total_area), ` unit="square metres"`));
   } else {
-    // `private_area` é a área útil. Boa parte do acervo só preencheu "área
-    // total", então ela entra como fallback — sem isso esses imóveis sairiam
-    // sem nenhuma área, o que o portal recusa.
     parts.push(
-      tag("LivingArea", positiveInt(property.private_area ?? property.total_area), ` unit="square metres"`),
+      tag("LivingArea", feedArea(olxPropertyType, property.total_area, property.private_area), ` unit="square metres"`),
     );
   }
 
@@ -196,44 +174,6 @@ function detailsBlock(property: FeedProperty, olxPropertyType: string): string {
   return `<Details>${parts.filter(Boolean).join("")}</Details>`;
 }
 
-/**
- * Motivo pelo qual o imóvel não pode virar `<Listing>`, ou null se puder.
- * Todas as checagens são regras do portal, não preferências nossas.
- */
-function rejectionReason(property: FeedProperty, images: FeedMedia[]): string | null {
-  const title = plainText(property.title ?? "");
-  const description = plainText(property.description ?? "");
-
-  if (!property.internal_code) return "sem código interno (ListingID)";
-  if (title.length < MIN_TITLE || title.length > MAX_TITLE) {
-    return `título com ${title.length} caracteres (exigido entre ${MIN_TITLE} e ${MAX_TITLE})`;
-  }
-  if (description.length < MIN_DESCRIPTION || description.length > MAX_DESCRIPTION) {
-    return `descrição com ${description.length} caracteres (exigido entre ${MIN_DESCRIPTION} e ${MAX_DESCRIPTION})`;
-  }
-  if (!property.property_types?.olx_property_type) {
-    return `tipo "${property.property_types?.name ?? "?"}" sem mapeamento OLX (property_types.olx_property_type)`;
-  }
-  if (!property.postal_code) return "sem CEP";
-  if (!property.neighborhoods?.name) return "sem bairro";
-  if (!property.neighborhoods?.cities?.name) return "sem cidade";
-  if (!(property.neighborhoods?.cities?.state || property.state)) return "sem estado";
-  if (images.length < MIN_IMAGES) {
-    return `${images.length} foto(s); o portal exige ao menos ${MIN_IMAGES}`;
-  }
-  if (positiveInt(property.price) === null) {
-    return property.purpose === "sale" ? "sem preço de venda" : "sem valor de aluguel";
-  }
-
-  const olxType = property.property_types.olx_property_type;
-  const area = LOT_AREA_TYPES.has(olxType)
-    ? positiveInt(property.total_area)
-    : positiveInt(property.private_area ?? property.total_area);
-  if (area === null) return "sem área informada";
-
-  return null;
-}
-
 function listingXml(property: FeedProperty, images: FeedMedia[]): string {
   const olxPropertyType = property.property_types!.olx_property_type!;
   const transactionType = property.purpose === "sale" ? "For Sale" : "For Rent";
@@ -250,7 +190,7 @@ function listingXml(property: FeedProperty, images: FeedMedia[]): string {
     `<DetailViewUrl>${escapeXml(absoluteUrl(`/imovel/${property.slug}`))}</DetailViewUrl>`,
   ];
 
-  if (property.virtual_tour_url) {
+  if (property.virtual_tour_url && !virtualTourUrlIssue(property.virtual_tour_url)) {
     parts.push(`<VirtualTourLink>${escapeXml(property.virtual_tour_url)}</VirtualTourLink>`);
   }
 
@@ -280,7 +220,7 @@ export function buildVrSyncFeed(properties: FeedProperty[], now = new Date()): F
 
   for (const property of properties) {
     const images = imageMedia(property.property_media);
-    const reason = rejectionReason(property, images);
+    const reason = feedExclusionReason(ruleInputFromProperty(property));
 
     if (reason) {
       excluded.push({ internal_code: property.internal_code, title: property.title, reason });

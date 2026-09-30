@@ -1,3 +1,5 @@
+import type { FeedRuleProperty } from "@/features/feed/rules";
+
 export type PropertyPurpose = 'sale' | 'rent';
 export type PropertyStatus = 'draft' | 'published' | 'archived' | 'sold' | 'rented' | 'trashed';
 export type MediaType = 'image' | 'floorplan_image' | 'floorplan_pdf';
@@ -88,16 +90,11 @@ export type PropertyDetail = {
   property_features: { features: { name: string } }[] | null;
 };
 
-export type AdminPropertyListItem = {
+/** Linha da listagem do painel; carrega o recorte das regras do portal para sinalizar "Fora do OLX". */
+export type AdminPropertyListItem = FeedRuleProperty & {
   id: string;
-  internal_code: string;
-  title: string;
   slug: string;
-  purpose: PropertyPurpose;
   status: PropertyStatus;
-  price: number | null;
   featured: boolean;
   created_at: string;
-  property_types: { name: string } | null;
-  neighborhoods: { name: string; cities: { name: string } | null } | null;
 };

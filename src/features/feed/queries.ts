@@ -1,5 +1,5 @@
 import { createStaticClient } from "@/lib/supabase/static";
-import { PROPERTY_MEDIA_EMBED } from "@/features/properties/queries";
+import { FEED_RULE_FIELDS } from "@/features/properties/queries";
 import { logError } from "@/lib/logger";
 import type { FeedProperty } from "./types";
 
@@ -26,14 +26,10 @@ export async function getFeedProperties(): Promise<FeedProperty[]> {
   const { data, error } = await supabase
     .from("properties")
     .select(`
-      id, internal_code, title, slug, purpose, price, condominium_fee,
-      iptu, iptu_period, description, street, number, complement, state,
-      postal_code, latitude, longitude, display_address, total_area,
-      private_area, bedrooms, suites, bathrooms, parking_spaces, floor,
-      building_floors, year_built, furnished, youtube_url, virtual_tour_url,
-      property_types (name, olx_property_type, olx_usage_type),
-      neighborhoods (name, cities (name, state)),
-      ${PROPERTY_MEDIA_EMBED} (public_url, is_cover, sort_order, media_type, alt_text),
+      id, slug, condominium_fee, iptu, iptu_period, street, number,
+      complement, latitude, longitude, display_address, suites,
+      parking_spaces, floor, building_floors, year_built, furnished,
+      ${FEED_RULE_FIELDS},
       property_features (features (olx_code))
     `)
     .eq("status", "published")
