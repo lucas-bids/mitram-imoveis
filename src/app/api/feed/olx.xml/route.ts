@@ -25,11 +25,11 @@ export async function GET() {
     const properties = await getFeedProperties();
     const { xml, included, excluded } = buildVrSyncFeed(properties);
 
-    // Um imóvel habilitado no painel que não entrou no arquivo é quase sempre
+    // Um imóvel publicado que não entrou no arquivo é quase sempre
     // um erro de cadastro (poucas fotos, descrição curta, tipo sem mapeamento).
     // Sem este log a ausência é invisível até o relatório diário do portal.
     if (excluded.length > 0) {
-      logWarn("feed/olx", `${excluded.length} imóvel(is) habilitado(s) ficaram fora do feed`, {
+      logWarn("feed/olx", `${excluded.length} imóvel(is) publicado(s) ficaram fora do feed`, {
         included,
         excluded,
       });

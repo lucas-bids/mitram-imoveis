@@ -377,7 +377,8 @@ $$;
 
 -- ===========================================================================
 -- Campos do feed OLX/ZAP/VivaReal (VrSync)
--- Espelho de supabase/migrations/20260922000000_olx_feed_fields.sql.
+-- Espelho de supabase/migrations/20260922000000_olx_feed_fields.sql e
+-- 20261001000000_drop_olx_enabled.sql (o resultado final das duas).
 -- O mapeamento de tipos/características fica no fim do arquivo, depois do
 -- seed, porque depende das linhas que o seed insere.
 -- ===========================================================================
@@ -394,11 +395,6 @@ ALTER TABLE property_types
 
 ALTER TABLE features ADD COLUMN IF NOT EXISTS olx_code text;
 
--- Ordem proposital: o primeiro ALTER preenche linhas existentes com false, o
--- segundo faz todo INSERT futuro nascer true.
-ALTER TABLE properties ADD COLUMN IF NOT EXISTS olx_enabled boolean NOT NULL DEFAULT false;
-ALTER TABLE properties ALTER COLUMN olx_enabled SET DEFAULT true;
-
 ALTER TABLE properties ADD COLUMN IF NOT EXISTS display_address text NOT NULL DEFAULT 'Street';
 ALTER TABLE properties DROP CONSTRAINT IF EXISTS properties_display_address_check;
 ALTER TABLE properties
@@ -413,8 +409,6 @@ ALTER TABLE properties
 
 ALTER TABLE properties ADD COLUMN IF NOT EXISTS year_built integer;
 ALTER TABLE properties ADD COLUMN IF NOT EXISTS building_floors integer;
-
-CREATE INDEX IF NOT EXISTS idx_properties_olx_enabled ON properties(olx_enabled);
 
 -- internal_code é o <ListingID> do feed: renomear exclui e recria o anúncio no
 -- portal. A escrita de imóveis roda client-side sob RLS, então a trava precisa

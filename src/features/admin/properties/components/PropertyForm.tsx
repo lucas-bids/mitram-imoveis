@@ -78,15 +78,11 @@ export default function PropertyForm({ initialData, isEdit = false, lookups }: P
   const inferredState = initialData?.state || lookups?.cities.find((city) => city.id === initialData?.city_id)?.state;
   const form = useForm<PropertyFormValues>({
     resolver: zodResolver(propertySchema),
-    // Os `default()` do zod só valem na validação, não no estado inicial do
-    // formulário — um checkbox sem defaultValue renderiza desmarcado e envia
-    // `false`. Por isso `olx_enabled` precisa vir explícito aqui.
     defaultValues: initialData ? { ...initialData, state: inferredState } : {
       status: "draft",
       purpose: "sale",
       featured: false,
       furnished: false,
-      olx_enabled: true,
       display_address: "Street",
       iptu_period: "Yearly",
     },
@@ -279,19 +275,6 @@ export default function PropertyForm({ initialData, isEdit = false, lookups }: P
               <input type="checkbox" {...register("featured")} className={CHECKBOX_CLASSES} />
               <span className="text-sm font-medium text-gray-700 transition-colors group-hover:text-mitram-dark">
                 Destaque na página inicial
-              </span>
-            </label>
-            <label className="group flex cursor-pointer items-start gap-3 md:col-span-2">
-              <input type="checkbox" {...register("olx_enabled")} className={`${CHECKBOX_CLASSES} mt-0.5`} />
-              <span className="text-sm">
-                <span className="font-medium text-gray-700 transition-colors group-hover:text-mitram-dark">
-                  Publicar no OLX, ZAP e VivaReal
-                </span>
-                <span className="mt-0.5 block text-xs text-gray-500">
-                  Desmarque se este imóvel já está anunciado manualmente no Canal Pro — o
-                  portal recusa o anúncio do feed por duplicidade. Só imóveis publicados,
-                  com 5 fotos ou mais, entram no feed.
-                </span>
               </span>
             </label>
           </div>

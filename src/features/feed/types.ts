@@ -59,7 +59,7 @@ export type FeedProperty = {
 };
 
 /**
- * Por que um imóvel habilitado no painel não entrou no arquivo. Serve tanto
+ * Por que um imóvel publicado não entrou no arquivo. Serve tanto
  * para o log da rota quanto para explicar a ausência a quem cadastrou.
  */
 export type FeedExclusion = {

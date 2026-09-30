@@ -74,7 +74,6 @@ export type PropertyDetail = {
   cover_image_id: string | null;
   property_type_id: string | null;
   // Campos do feed dos portais. Ver migration 20260922000000_olx_feed_fields.
-  olx_enabled: boolean;
   display_address: DisplayAddress;
   iptu_period: IptuPeriod;
   // A consulta de detalhe faz `select("*")`, então estas colunas já vinham do
@@ -99,11 +98,6 @@ export type AdminPropertyListItem = {
   price: number | null;
   featured: boolean;
   created_at: string;
-  // Usados só para dizer na listagem se o imóvel está indo para os portais.
-  olx_enabled: boolean;
-  description: string | null;
-  property_types: { name: string; olx_property_type?: string | null } | null;
+  property_types: { name: string } | null;
   neighborhoods: { name: string; cities: { name: string } | null } | null;
-  /** Só os ids: a listagem precisa do total de fotos, não do conteúdo delas. */
-  property_media: { id: string }[] | null;
 };

@@ -10,8 +10,6 @@ import { createClient } from "@/lib/supabase/client";
  */
 export const MEDIA_CONSTANTS = {
   MAX_IMAGES: 30,
-  /** Mínimo exigido pelo feed dos portais. Abaixo disso o imóvel não é enviado. */
-  MIN_IMAGES_FOR_FEED: 5,
   COMPRESSION: {
     maxSizeMB: 1,
     maxWidthOrHeight: 1920,

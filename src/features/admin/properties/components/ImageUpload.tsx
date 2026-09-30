@@ -7,6 +7,7 @@ import { X, GripVertical, Star, ImagePlus } from "lucide-react";
 import Image from "next/image";
 import { AlertMessage } from "@/components/ui/AlertMessage";
 import { buttonClasses } from "@/components/ui/buttonStyles";
+import { FEED_LIMITS } from "@/features/feed/limits";
 import { MEDIA_CONSTANTS, uploadMediaToStorage, insertMediaRecord, deleteMediaFromStorage, deleteMediaRecord, updateMediaSortOrder, updateCoverImage } from "@/features/admin/properties/components/media/mutations";
 
 export interface PropertyMedia {
@@ -151,11 +152,11 @@ export default function ImageUpload({ propertyId, initialMedia, onMediaUpdate, d
           salvamento — as fotos são gravadas fora do formulário — mas um imóvel
           abaixo disso simplesmente não é enviado ao portal, então o aviso
           precisa ser visível aqui. */}
-      {media.length < MEDIA_CONSTANTS.MIN_IMAGES_FOR_FEED && (
+      {media.length < FEED_LIMITS.MIN_IMAGES && (
         <AlertMessage tone="info">
           {media.length === 0
-            ? `Adicione ao menos ${MEDIA_CONSTANTS.MIN_IMAGES_FOR_FEED} fotos para que o imóvel possa ser anunciado no OLX, ZAP e VivaReal.`
-            : `Faltam ${MEDIA_CONSTANTS.MIN_IMAGES_FOR_FEED - media.length} foto(s) para o mínimo de ${MEDIA_CONSTANTS.MIN_IMAGES_FOR_FEED} exigido pelo OLX, ZAP e VivaReal. Com menos que isso o imóvel não é enviado aos portais.`}
+            ? `Adicione ao menos ${FEED_LIMITS.MIN_IMAGES} fotos para que o imóvel possa ser anunciado no OLX, ZAP e VivaReal.`
+            : `Faltam ${FEED_LIMITS.MIN_IMAGES - media.length} foto(s) para o mínimo de ${FEED_LIMITS.MIN_IMAGES} exigido pelo OLX, ZAP e VivaReal. Com menos que isso o imóvel não é enviado aos portais.`}
         </AlertMessage>
       )}
 

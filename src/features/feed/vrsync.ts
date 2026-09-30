@@ -1,6 +1,6 @@
 import { SITE, SITE_URL, absoluteUrl } from "@/lib/site";
 import { BRAZILIAN_STATES } from "@/features/admin/properties/components/address/states";
-import { FEED_LIMITS } from "./eligibility";
+import { FEED_LIMITS } from "./limits";
 import type { FeedBuildResult, FeedExclusion, FeedMedia, FeedProperty } from "./types";
 
 /**

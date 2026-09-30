@@ -292,11 +292,8 @@ export async function getAdminProperties(): Promise<AdminPropertyListItem[]> {
       price,
       featured,
       created_at,
-      olx_enabled,
-      description,
-      property_types (name, olx_property_type),
-      neighborhoods (name, cities (name)),
-      ${PROPERTY_MEDIA_EMBED} (id)
+      property_types (name),
+      neighborhoods (name, cities (name))
     `)
     .in("status", ["draft", "published", "archived", "sold", "rented"])
     .order("created_at", { ascending: false });

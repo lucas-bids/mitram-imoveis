@@ -4,7 +4,6 @@ import { formatPrice, purposeLabel, statusLabel, locationLabel } from "@/feature
 import { AdminPropertyListItem } from "@/features/properties/types";
 import { getAdminProperties } from "@/features/properties/queries";
 import { movePropertyToTrash } from "@/features/admin/properties/actions";
-import { adminFeedStatus } from "@/features/feed/eligibility";
 
 import { AdminPageHeader } from "@/features/admin/components/AdminPageHeader";
 import { AdminTable } from "@/features/admin/components/AdminTable";
@@ -15,29 +14,6 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminDashboard() {
   const properties = await getAdminProperties();
-
-  /**
-   * Só aparece quando há algo a dizer: um imóvel publicado que está indo para
-   * os portais, ou um que deveria ir e está travado por cadastro incompleto.
-   * "Desativado" e "não publicado" são escolhas deliberadas, não problemas, e
-   * não merecem um selo cada um na listagem.
-   */
-  const getFeedBadge = (prop: AdminPropertyListItem) => {
-    const feed = adminFeedStatus({
-      status: prop.status,
-      olx_enabled: prop.olx_enabled,
-      title: prop.title,
-      description: prop.description,
-      image_count: prop.property_media?.length ?? 0,
-      olx_property_type: prop.property_types?.olx_property_type ?? null,
-    });
-
-    if (feed.state === "enviado") return <Badge tone="blue">No OLX</Badge>;
-    if (feed.state === "bloqueado") {
-      return <Badge tone="yellow">{`OLX: ${feed.reason}`}</Badge>;
-    }
-    return null;
-  };
 
   const getStatusBadge = (status: string) => {
     const label = statusLabel(status);
@@ -75,7 +51,6 @@ export default async function AdminDashboard() {
                 <div className="flex flex-col gap-1 items-start">
                   {getStatusBadge(prop.status)}
                   {prop.featured && <Badge tone="gold">Destaque</Badge>}
-                  {getFeedBadge(prop)}
                 </div>
               </td>
               <td className="px-6 py-4 text-sm text-gray-900">

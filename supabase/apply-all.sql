@@ -20,4 +20,5 @@
 \i supabase/migrations/20260811000001_profiles_role_guard.sql
 \i supabase/migrations/20260902000000_properties_updated_at.sql
 \i supabase/migrations/20260922000000_olx_feed_fields.sql
+\i supabase/migrations/20261001000000_drop_olx_enabled.sql
 \i supabase/seed.sql

@@ -54,7 +54,7 @@ generate XML → validate the feed → review and publish. The generator now
 exists (`src/features/feed/`, served at `/api/feed/olx.xml`), so the
 precondition is met — but it still doesn't qualify: generation is a single
 pure function over a query, with no human review gate between steps and no
-intermediate artifacts. The gates that exist are operational (enable a
+intermediate artifacts. The gates that exist are operational (publish a
 property, read the portal's daily report), not stages in a pipeline. The
 `olx-zap-feed` skill still covers the *knowledge* (field rules, validation
 script), which is Layer 3 context.

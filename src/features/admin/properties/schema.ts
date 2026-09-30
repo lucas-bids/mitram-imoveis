@@ -1,4 +1,7 @@
 import { z } from "zod";
+import { FEED_LIMITS } from "@/features/feed/limits";
+
+const { MIN_TITLE, MAX_TITLE, MIN_DESCRIPTION, MAX_DESCRIPTION } = FEED_LIMITS;
 
 /**
  * Inputs numéricos do formulário chegam como string, e um campo vazio chega
@@ -13,14 +16,14 @@ const optionalNumber = z.preprocess(
 
 export const propertySchema = z.object({
   internal_code: z.string().trim().min(1, "Informe o código do imóvel").max(50, "Máximo de 50 caracteres"),
-  // 10-100 caracteres é a regra do feed VrSync (OLX/ZAP/VivaReal) para Title.
-  // Validar aqui, e não só na geração do feed, evita que um imóvel publicado
-  // saia silenciosamente do portal por causa de uma edição de título.
+  // Limites do Title no feed VrSync (OLX/ZAP/VivaReal). Validar aqui, e não só
+  // na geração do feed, evita que um imóvel publicado saia silenciosamente do
+  // portal por causa de uma edição de título.
   title: z
     .string()
     .trim()
-    .min(10, "Título deve ter no mínimo 10 caracteres")
-    .max(100, "Título deve ter no máximo 100 caracteres"),
+    .min(MIN_TITLE, `Título deve ter no mínimo ${MIN_TITLE} caracteres`)
+    .max(MAX_TITLE, `Título deve ter no máximo ${MAX_TITLE} caracteres`),
   purpose: z.enum(["sale", "rent"], { required_error: "Selecione a finalidade" }),
   // A coluna é NOT NULL no banco; antes isto era opcional e o insert quebrava
   // no Postgres em vez de no formulário.
@@ -31,12 +34,12 @@ export const propertySchema = z.object({
   iptu: z.coerce.number().optional().nullable(),
   // O VrSync exige saber se o IPTU informado é anual ou mensal.
   iptu_period: z.enum(["Yearly", "Monthly"]).default("Yearly"),
-  // 50-3.000 caracteres: mesma regra do Description do feed.
+  // Mesma regra do Description do feed.
   description: z
     .string()
     .trim()
-    .min(50, "Descrição deve ter no mínimo 50 caracteres")
-    .max(3000, "Descrição deve ter no máximo 3.000 caracteres"),
+    .min(MIN_DESCRIPTION, `Descrição deve ter no mínimo ${MIN_DESCRIPTION} caracteres`)
+    .max(MAX_DESCRIPTION, `Descrição deve ter no máximo ${MAX_DESCRIPTION.toLocaleString("pt-BR")} caracteres`),
   street: z.string().trim().min(1, "Informe a rua"),
   number: z.string().trim().min(1, "Informe o número"),
   complement: z.string().optional().nullable(),
@@ -61,9 +64,6 @@ export const propertySchema = z.object({
   youtube_url: z.string().url().optional().nullable().or(z.literal("")),
   virtual_tour_url: z.string().url().optional().nullable().or(z.literal("")),
   featured: z.boolean().default(false),
-  // Opt-out: imóvel novo nasce habilitado, imóvel antigo nasceu desabilitado
-  // pela migration (ver 20260922000000_olx_feed_fields.sql).
-  olx_enabled: z.boolean().default(true),
 }).superRefine((data, context) => {
   if (data.latitude === null) context.addIssue({ code: z.ZodIssueCode.custom, path: ["latitude"], message: "Confirme o endereço no mapa" });
   if (data.longitude === null) context.addIssue({ code: z.ZodIssueCode.custom, path: ["longitude"], message: "Confirme o endereço no mapa" });

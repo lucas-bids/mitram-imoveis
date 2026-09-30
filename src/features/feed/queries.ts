@@ -7,16 +7,15 @@ import type { FeedProperty } from "./types";
 export const FEED_MAX_LISTINGS = 50000;
 
 /**
- * Imóveis elegíveis ao feed dos portais.
+ * Imóveis elegíveis ao feed dos portais: todo imóvel publicado.
  *
- * Dois filtros explícitos, e nenhum deles vem de graça da RLS:
+ * O XML é a única fonte de anúncios do portal — a carga substitui tudo o que
+ * existe lá —, então não há seleção por imóvel.
  *
- * - `status = 'published'` — e **não** `PUBLIC_STATUSES`. Imóveis vendidos e
- *   alugados continuam visíveis no site, mas não podem seguir anunciados no
- *   portal. A policy anônima deixa os três passarem, então o filtro precisa
- *   estar aqui.
- * - `olx_enabled = true` — o opt-out por imóvel. Todo imóvel que já existia
- *   quando a migration rodou nasceu `false`.
+ * O filtro é `status = 'published'` e **não** `PUBLIC_STATUSES`. Imóveis
+ * vendidos e alugados continuam visíveis no site, mas não podem seguir
+ * anunciados no portal. A policy anônima deixa os três passarem, então o
+ * filtro precisa estar aqui.
  *
  * Usa `createStaticClient()` pelo mesmo motivo do sitemap: sem `cookies()`, a
  * rota continua cacheável.
@@ -38,7 +37,6 @@ export async function getFeedProperties(): Promise<FeedProperty[]> {
       property_features (features (olx_code))
     `)
     .eq("status", "published")
-    .eq("olx_enabled", true)
     .order("updated_at", { ascending: false })
     .limit(FEED_MAX_LISTINGS);
 
