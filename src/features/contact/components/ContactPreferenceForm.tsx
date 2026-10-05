@@ -2,7 +2,7 @@
 
 import { useId, useState } from "react";
 import Link from "next/link";
-import { MessageCircle, Mail, Send } from "lucide-react";
+import { MessageCircle, Phone, Send } from "lucide-react";
 import { buttonClasses } from "@/components/ui/buttonStyles";
 import { cardClasses } from "@/components/ui/cardStyles";
 import { CHECKBOX_CLASSES, FormField, fieldClasses } from "@/components/ui/FormField";
@@ -11,12 +11,18 @@ import { useContactFormSubmit } from "@/features/contact/hooks";
 import { NetlifyFormName } from "@/features/contact/netlify";
 import { CONTACT_PREFERENCE_LABELS, ContactPreference } from "@/features/contact/types";
 
-const PREFERENCE_ICONS: Record<ContactPreference, typeof Mail> = {
+const PREFERENCE_ICONS: Record<ContactPreference, typeof Phone> = {
   whatsapp: MessageCircle,
-  email: Mail,
+  call: Phone,
 };
 
-const PREFERENCE_ORDER: ContactPreference[] = ["whatsapp", "email"];
+const PREFERENCE_ORDER: ContactPreference[] = ["whatsapp", "call"];
+
+// Complemento da frase de sucesso — "por Ligação" não soaria natural.
+const SUCCESS_CHANNEL: Record<ContactPreference, string> = {
+  whatsapp: "pelo WhatsApp",
+  call: "por telefone",
+};
 
 interface ContactPreferenceFormProps {
   /** Formulário de destino no Netlify — decide em qual lista o lead cai (ver features/contact/netlify.ts). */
@@ -27,13 +33,11 @@ interface ContactPreferenceFormProps {
 }
 
 /**
- * Formulário de captura de lead com preferência de retorno (WhatsApp ou e-mail).
+ * Formulário de captura de lead com preferência de retorno (WhatsApp ou ligação).
  *
- * O campo de e-mail só é montado quando essa é a preferência escolhida: pedir
- * e-mail a quem quer resposta por WhatsApp é atrito puro, e um campo vazio
- * enviado ao Netlify só suja a lista. Todo campo enviado daqui precisa existir
- * com o mesmo `name` em `public/__forms.html`, senão o Netlify o descarta em
- * silêncio.
+ * Os dois canais usam o mesmo telefone, então a preferência só muda o valor de
+ * `contactPreference`. Todo campo enviado daqui precisa existir com o mesmo
+ * `name` em `public/__forms.html`, senão o Netlify o descarta em silêncio.
  */
 export function ContactPreferenceForm({ formName, submitLabel, hiddenFields }: ContactPreferenceFormProps) {
   const { loading, success, error, handleSubmit, setSuccess } = useContactFormSubmit(formName);
@@ -45,7 +49,7 @@ export function ContactPreferenceForm({ formName, submitLabel, hiddenFields }: C
       <div className="bg-mitram-successLight text-mitram-success p-4 rounded-lg text-center">
         <p className="font-semibold">Recebemos seu contato!</p>
         <p className="text-sm mt-2">
-          Em breve um consultor da Mitram fala com você por {CONTACT_PREFERENCE_LABELS[preference]}.
+          Em breve um consultor da Mitram fala com você {SUCCESS_CHANNEL[preference]}.
         </p>
         <button
           onClick={() => setSuccess(false)}
@@ -118,19 +122,6 @@ export function ContactPreferenceForm({ formName, submitLabel, hiddenFields }: C
           })}
         </div>
       </div>
-
-      {preference === "email" && (
-        <FormField label="Seu e-mail *">
-          <input
-            type="email"
-            name="email"
-            required
-            autoComplete="email"
-            placeholder=" "
-            className={fieldClasses()}
-          />
-        </FormField>
-      )}
 
       <div className="flex items-start gap-3 pt-2">
         <input type="checkbox" id={lgpdId} name="consent" value="sim" required className={`mt-0.5 ${CHECKBOX_CLASSES}`} />

@@ -13,3 +13,9 @@ node_modules/
 !.claude/rules/
 !.claude/skills/
 !.claude/agents/
+
+# local backups & generated files
+backups/
+supabase/.temp/
+feed.xml
+feed-prod.xml
