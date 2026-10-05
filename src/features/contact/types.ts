@@ -1,15 +1,14 @@
 /**
  * Como o lead prefere ser retornado pelo corretor.
  *
- * São os dois canais que a Mitram de fato usa. "Ligação" existia aqui antes e
- * foi removida: oferecer um canal que ninguém atende é uma promessa quebrada no
- * primeiro contato.
+ * São os dois canais que a Mitram de fato usa. Ambos usam o telefone que o
+ * formulário já pede, então nenhum campo extra é necessário.
  */
-export type ContactPreference = "whatsapp" | "email";
+export type ContactPreference = "whatsapp" | "call";
 
 // Rótulos ficam aqui — e não no formulário — porque o mesmo texto é exibido ao
 // usuário e enviado ao Netlify Forms como valor de `contactPreference`.
 export const CONTACT_PREFERENCE_LABELS: Record<ContactPreference, string> = {
   whatsapp: "WhatsApp",
-  email: "E-mail",
+  call: "Ligação",
 };
