@@ -7,8 +7,9 @@ see the routing table below.
 
 Real estate listing site: **Next.js 15 (App Router) + Supabase**, deployed on
 Netlify. Public site for browsing/searching listings, plus an admin panel at
-`/admin`. All user-facing content is **pt-BR** — UI copy, form labels, error
-messages and README stay in Portuguese. Agent-facing docs are English.
+`/admin`. All user-facing content is **pt-BR** — UI copy, form labels and error
+messages stay in Portuguese. The root `README.md` is English (it doubles as a
+portfolio piece). Agent-facing docs are English.
 
 ## Commands
 

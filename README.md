@@ -1,154 +1,215 @@
-# Mitram Imóveis MVP
+# Mitram Imóveis
 
-Projeto do novo website da Mitram Imóveis, desenvolvido com Next.js (App Router) e Supabase.
+Website and listings platform for **Mitram Imóveis**, a real estate agency
+serving Curitiba and the surrounding region in Brazil. The project replaces the
+agency's previous WordPress site with a custom application built on
+**Next.js 15 (App Router) + Supabase**, live at
+[mitramimoveis.com.br](https://mitramimoveis.com.br).
 
-## Pré-requisitos
+The system has two sides:
 
-- Node.js (v18+)
-- Conta no Supabase
-- Conta no Google Cloud (para a chave do Maps)
-- Conta no Netlify para Deploy
+- **Public website** — property search with filters, list or map view, a
+  detail page with gallery, video and location, and lead capture through
+  contact forms and WhatsApp.
+- **Admin panel** (`/admin`) — full property management, photo handling,
+  listing status control, and automatic syndication to the OLX, ZAP Imóveis
+  and VivaReal portals.
 
-## Configuração do Ambiente Local
+---
 
-1. Copie o arquivo de exemplo e crie o `.env.local`:
-   ```bash
-   cp .env.example .env.local
-   ```
-2. Preencha as variáveis em `.env.local` com os valores reais (Publishable Key, Secret Key, etc.).
-3. Instale as dependências:
-   ```bash
-   npm install
-   ```
-4. Suba o servidor de desenvolvimento:
-   ```bash
-   npm run dev
-   ```
+## Tech stack
 
-### Scripts disponíveis
+| Layer | Technology |
+| --- | --- |
+| Framework | Next.js 15 (App Router, Server Components, Server Actions) |
+| Language | TypeScript |
+| Database & auth | Supabase (PostgreSQL, Row Level Security, Auth, Storage) |
+| Styling | Tailwind CSS |
+| Forms & validation | React Hook Form + Zod |
+| Maps | Google Maps Platform (`@vis.gl/react-google-maps`) |
+| Hosting | Netlify (SSR via serverless functions, Netlify Forms) |
 
-```bash
-npm run dev        # servidor de desenvolvimento
-npm run build      # build de produção
-npm run start      # serve o build de produção
-npm run lint       # eslint . --ext .js,.jsx,.ts,.tsx
-npm run typecheck  # tsc --noEmit
-npm run db:apply   # aplica as migrations e o seed (requer DATABASE_URL)
+---
+
+## Features
+
+### Public website
+
+- **Faceted search** by property type, purpose, city, neighborhood, bedrooms,
+  suites, parking spaces, amenities, price range and area. All search state
+  lives in the URL — shareable, works with browser history, and never
+  duplicated in client state.
+- **List or map view**: results can be browsed on an interactive map with a
+  marker per property.
+- **Property page** with photo gallery, YouTube video, virtual tour, location
+  map, amenities and breadcrumbs.
+- **Lead capture** through three forms (general contact, callback about a
+  specific property, and land valuation) plus a WhatsApp shortcut with a
+  pre-filled message.
+- Cookie notice and privacy policy page.
+
+### Admin panel
+
+- Authentication with Supabase Auth, including password recovery and reset.
+- **Full property CRUD**, including duplicating an existing listing as the
+  starting point for a new one.
+- **Listing lifecycle**: draft, published, sold, rented, archived and trash —
+  with restore or permanent deletion.
+- **Photo upload** with in-browser compression before upload and
+  drag-and-drop ordering.
+- **Map-confirmed addresses**: a property can only be saved after its location
+  has been visually confirmed on a map, guaranteeing reliable coordinates for
+  the public map and the portals.
+
+### Portal syndication (OLX / ZAP / VivaReal)
+
+The `/api/feed/olx.xml` endpoint generates a **VrSync** (GrupoZap) XML feed of
+every published property, which the portals ingest daily.
+
+The portals' requirements (minimum photo count, title and description length,
+areas, bedrooms per property type, valid video URLs, and more) are centralized
+in a single module (`src/features/feed/rules.ts`) used in three places:
+
+1. **In the property form**, to block publishing an incomplete listing;
+2. **In the admin listing table**, to flag properties excluded from the portal;
+3. **In the feed itself**, to decide what gets sent.
+
+As a result, the admin panel never accepts a listing that the portal would
+later silently reject.
+
+---
+
+## Engineering decisions
+
+**Security enforced in the database, not just the app.** Permissions are
+applied through PostgreSQL **Row Level Security** policies. Visitors can only
+read properties with a public status; only users with `role = 'admin'` can
+write. Dedicated migrations prevent users from escalating their own role, and
+the service-role key (which bypasses RLS) is not used anywhere in the
+application.
+
+**Technical SEO built on the App Router**, with no third-party SEO library:
+
+- `sitemap.xml` revalidated hourly, with each property's real `<lastmod>`;
+- structured data (JSON-LD) for the organization and for each listing;
+- canonicals and an indexing policy per listing state: filtered `/imoveis`
+  URLs are `noindex, follow` with a canonical to the main listing; sold or
+  rented properties stay reachable but `noindex`; drafts and trashed listings
+  return 404;
+- deploy previews are blocked from indexing (`robots.txt` and `X-Robots-Tag`);
+- the production build **fails** if the site's canonical URL is misconfigured.
+
+**Validation at the boundary.** Every input — forms, URL filters, feed data —
+goes through Zod schemas before moving further in. Search filters are typed so
+that adding a new parameter without handling its indexing behavior breaks the
+build.
+
+**Domain-oriented structure.** Routes in `src/app/` are thin and delegate to
+modules in `src/features/`, each owning its queries, schemas and components.
+Supabase query shapes live in `queries.ts` modules, never inside components.
+
+**Forms without an email backend.** Leads go through Netlify Forms with a
+honeypot and spam filtering — no SMTP server or extra credentials to maintain.
+
+**Migration from the previous site.** The project includes infrastructure for
+301 redirects from legacy URLs (`src/lib/legacy-redirects.mjs`). Since the
+portals only accept JPEG, new uploads are stored in that format, and a script
+(`scripts/backfill-jpeg-images.mjs`) converts the existing library without
+leaving broken images if it is interrupted.
+
+---
+
+## Project structure
+
+```
+src/
+├── app/            # Routes (pages, layouts, route handlers) — thin layer
+├── features/       # Domain modules
+│   ├── properties/     # Reading and displaying properties
+│   ├── search/         # Filters and URL search state
+│   ├── admin/          # Admin: form, media, address, lifecycle
+│   ├── feed/           # VrSync feed and portal rules
+│   ├── contact/        # Lead forms
+│   └── home/           # Home page content and components
+├── components/     # Shared UI primitives and layout
+└── lib/            # Supabase clients, SEO, logger, utilities
+supabase/           # SQL migrations, seed and setup scripts (database source of truth)
+scripts/            # Migration runner and media maintenance
 ```
 
-Não há suíte de testes configurada neste projeto.
+The user interface is in Brazilian Portuguese, so routes, form names and UI
+copy are in Portuguese.
 
-## Configuração do Supabase
+---
 
-Consulte o guia detalhado em [`supabase/README.md`](supabase/README.md).
+## Running locally
 
-Resumo:
+### Prerequisites
 
-1. Execute `supabase/setup-complete.sql` no SQL Editor **ou** `npm run db:apply`
-   com `DATABASE_URL` definido — o script aplica `supabase/migrations/*.sql` em
-   ordem de nome de arquivo e, em seguida, `supabase/seed.sql`.
-2. Crie o usuário admin em **Authentication > Users** e execute
-   `supabase/promote-admin.sql` (substituindo o e-mail) para definir
-   `profiles.role = 'admin'`.
-3. Em **Authentication > URL Configuration**, adicione `http://localhost:3000/**`
-   (e depois o domínio de produção) aos **Redirect URLs**.
-4. Antes de publicar, aplique o endurecimento de segurança descrito na seção 4
-   do [`supabase/README.md`](supabase/README.md) — desabilitar o cadastro
-   público e aplicar a migration contra escalação de privilégio.
+- Node.js 18+
+- A Supabase project
+- A Google Maps API key
 
-## Google Maps
+### Installation
 
-A chave de API precisa estar restrita por HTTP Referrers no painel do Google Cloud.
-Domínios permitidos sugeridos:
-- `http://localhost:3000/*`
-- Domínio temporário do Netlify
-- Domínio final da Mitram
+```bash
+cp .env.example .env.local   # fill in your environment's values
+npm install
+npm run dev
+```
 
-## Deploy no Netlify
+### Scripts
 
-O projeto está pronto para ser hospedado no Netlify.
+```bash
+npm run dev        # development server
+npm run build      # production build
+npm run start      # serve the production build
+npm run lint       # ESLint
+npm run typecheck  # type checking (tsc --noEmit)
+npm run db:apply   # apply migrations and seed (requires DATABASE_URL)
+```
 
-Passos:
-1. Conecte o repositório ao Netlify.
-2. Confirme as configurações de build:
-   - **Build command:** `npm run build`
-   - **Publish directory:** `.next`
+### Database
 
-   O runtime oficial do Next.js no Netlify detecta o framework e preenche esses
-   valores automaticamente. Este é um site SSR/híbrido — as rotas dinâmicas,
-   o middleware e as Server Actions rodam como funções serverless.
-   `out` **não** se aplica aqui: aquele diretório só existe em projetos com
-   `output: 'export'` (exportação estática), o que este projeto não usa.
-3. No painel do Netlify, vá em **Site Settings > Environment Variables** e cadastre as variáveis de `.env.example` com seus valores de produção.
-4. (Importante) A variável `SUPABASE_SECRET_KEY` **nunca** deve possuir o prefixo `NEXT_PUBLIC_`.
-5. Após o deploy, atualize a variável `NEXT_PUBLIC_SITE_URL` com a URL final do site.
+The full guide is in [`supabase/README.md`](supabase/README.md). In short:
 
-### Formulários de contato (Netlify Forms)
+1. Run `supabase/setup-complete.sql` in the SQL Editor **or** `npm run db:apply`
+   with `DATABASE_URL` set — the script applies `supabase/migrations/*.sql` in
+   order, then `supabase/seed.sql`.
+2. Create the admin user under **Authentication > Users** and run
+   `supabase/promote-admin.sql` (replacing the email).
+3. Under **Authentication > URL Configuration**, add `http://localhost:3000/**`
+   and the production domain to **Redirect URLs**.
+4. Apply the security hardening described in section 4 of
+   [`supabase/README.md`](supabase/README.md) — public sign-up disabled and
+   privilege-escalation protection.
 
-Os três formulários de lead do site usam o **Netlify Forms** — não há SMTP nem
-variáveis de e-mail para configurar.
+---
 
-1. No painel do Netlify, vá em **Forms** e clique em **Enable form detection**.
-2. **Refaça o deploy.** Os formulários só são registrados por um deploy que
-   rodou *depois* da detecção estar ligada.
-3. Em **Configuration > Notifications > Form submission notifications**,
-   cadastre o e-mail que deve receber os leads de cada formulário: `contato`,
-   `retorno-imovel` e `avaliacao-terreno`.
+## Deployment
 
-Os formulários são declarados em `public/__forms.html`, que existe apenas para
-o Netlify conseguir enxergá-los no momento do deploy — o parser dele lê HTML
-estático e não enxerga formulários renderizados pelo React. **Ao adicionar ou
-renomear um campo, atualize o componente e esse arquivo**, senão o Netlify
-descarta o campo silenciosamente.
+The site runs on **Netlify** with the official Next.js runtime: dynamic routes,
+middleware and Server Actions run as serverless functions.
 
-Submissões só são registradas no site publicado. Em `npm run dev` o envio é
-simulado: o payload aparece no console do navegador e a tela de sucesso é
-exibida normalmente.
+1. Connect the repository to Netlify (build command `npm run build`; the
+   runtime detects the rest).
+2. Under **Site Settings > Environment Variables**, add the variables from
+   `.env.example`. Set `NEXT_PUBLIC_SITE_URL` **only in the production
+   context** — previews use their own deploy URL.
+3. `SUPABASE_SECRET_KEY` must **never** get a `NEXT_PUBLIC_` prefix.
+4. Restrict the Google Maps key by HTTP referrer to the site's domains.
 
-### Supabase Auth Redirects
-No Supabase, vá em **Authentication > URL Configuration** e adicione:
-- A URL final do Netlify aos **Redirect URLs**.
-- A URL do `localhost:3000` para desenvolvimento.
+### Netlify Forms
 
-## Funcionalidades e Limitações do MVP
-O MVP contempla a listagem pública, filtros na URL, integração com Google Maps, página de detalhes do imóvel com galeria, integração com o WhatsApp, e formulários de contato (via Netlify Forms, com honeypot e filtro de spam).
-O painel administrativo permite criar, duplicar, editar e alterar o status dos imóveis, bem como fazer o upload ordenável (drag & drop) das fotos do imóvel.
+1. Under **Forms**, turn on **Enable form detection** and redeploy.
+2. Under **Notifications**, set the destination email for each form:
+   `contato`, `retorno-imovel` and `avaliacao-terreno`.
 
-### Limitações do MVP
-- Importação automática do WordPress atual não contemplada.
-- Sem integração nativa de Analytics ativa. O aviso de cookies é informativo:
-  o site usa apenas cookies essenciais.
-- Paginação no painel administrativo foi mantida simplificada.
-- Preservação de URLs antigas: a infraestrutura existe
-  (`src/lib/legacy-redirects.mjs`), mas o mapa está vazio até a auditoria de
-  URLs do site antigo ser feita.
+The forms are also declared in `public/__forms.html`, because Netlify detects
+forms from static HTML at deploy time. **When adding or renaming a field,
+update both the component and that file.** Under `npm run dev`, submissions are
+simulated and the payload is logged to the browser console.
 
-## SEO técnico
+---
 
-Sitemap, robots, canonicals e dados estruturados são nativos do App Router — sem
-biblioteca de SEO.
-
-- `src/lib/site.ts` — fonte única do domínio canônico e dos dados do negócio.
-  **Nenhum outro módulo deve ler `NEXT_PUBLIC_SITE_URL`.**
-- `src/app/sitemap.ts` — revalida a cada hora; só imóveis `published`. O
-  `<lastmod>` vem de `properties.updated_at`, que só é confiável com a migração
-  `20260902000000_properties_updated_at.sql` aplicada.
-- `src/app/robots.ts` — em deploy preview/branch deploy devolve `Disallow: /`.
-- `next.config.mjs` — **quebra o build de produção** se `NEXT_PUBLIC_SITE_URL`
-  não for a origem https canônica, e emite `X-Robots-Tag: noindex` fora de
-  produção.
-
-Política de indexação: URLs de `/imoveis` com filtro são `noindex, follow` e
-apontam canonical para `/imoveis`; imóveis vendidos/alugados continuam
-acessíveis (200) porém `noindex`; rascunho/arquivado/lixeira respondem 404.
-
-No Netlify, defina `NEXT_PUBLIC_SITE_URL` **apenas no contexto de produção** —
-previews usam a URL do próprio deploy automaticamente.
-
-### Melhorias Recomendadas (Fase 2)
-1. **Paginação Avançada**: Implementar paginação ou cursor-based load completo (Infinite Scroll nativo do banco) no painel administrativo e público.
-2. **Integração Analytics**: Implementar Google Analytics via `next/third-parties` atrelado ao consentimento dos cookies. O aviso de cookies volta a ter duas ações no mesmo momento.
-3. **Mapa sob consentimento**: o Google Maps da página de imóvel carrega no primeiro paint. Trocar por um placeholder click-to-load (mesmo padrão do `YoutubeEmbed`) melhora privacidade e LCP.
-4. **Alarme / Favoritos**: Permitir que usuários salvem imóveis via local storage ou conta pública simples.
-5. **Integração Portais**: Criar Endpoint/API para gerar feed XML padrão de portais (ZAP, VivaReal).
-
+Developed by [Lucas Vidal](https://github.com/lucas-bids).
