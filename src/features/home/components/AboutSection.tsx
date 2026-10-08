@@ -15,13 +15,19 @@ export function AboutSection() {
           <div>
             <SectionEyebrow>DESDE 2013 NO MERCADO IMOBILIÁRIO</SectionEyebrow>
             <Heading variant="h2">
-            Experiência que traz segurança para cada decisão.
+              Experiência que traz segurança para cada decisão.
             </Heading>
           </div>
           <Text variant="lead">
-          À frente da Mitram, Bruno Andrade reúne mais de 12 anos de experiência e centenas de móveis vendidos. Sua formação em Administração, Gestão Financeira, Finanças Corporativas e avaliação de imóveis proporciona uma visão completa dos processos, da documentação e dos aspectos financeiros de cada negociação, garantindo um atendimento transparente, criterioso e seguro em todas as etapas.
+
+            A Mitram atua em Curitiba com um modelo de atendimento próximo, criterioso e personalizado. Ao longo dos anos, foram centenas de negócios realizados entre apartamentos, casas, terrenos, imóveis comerciais e oportunidades de investimento.
+            Hoje, aproximadamente 60% dos nossos negócios têm origem em indicações de clientes e parceiros.
+            <br /><br />
+            À frente da Mitram está Bruno Andrade, profissional com formação em Administração e Gestão Financeira, pós-graduação em Finanças Corporativas e atuação como Perito Judicial. Uma combinação de experiência de mercado e conhecimento técnico para conduzir decisões imobiliárias com mais segurança.
+
+
           </Text>
-          
+
           <ul className="space-y-3 md:space-y-4">
             {[
               "Condições flexíveis e processos transparentes",
@@ -44,7 +50,7 @@ export function AboutSection() {
             </Link>
           </div>
         </div>
-        
+
         <div className="flex-1 w-full">
           <ImageGrid className="grid-rows-2 h-[360px] md:h-[600px]">
             {/* Tall image */}
