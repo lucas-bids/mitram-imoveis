@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/client";
+import { PROPERTY_IMAGES_BUCKET } from "@/features/admin/properties/storage";
 
 /**
  * O formato é JPEG, e não WebP, porque o feed do OLX/ZAP/VivaReal só aceita
@@ -18,7 +19,7 @@ export const MEDIA_CONSTANTS = {
   },
   IMAGE_EXTENSION: "jpg",
   IMAGE_CONTENT_TYPE: "image/jpeg",
-  STORAGE_BUCKET: "property-images",
+  STORAGE_BUCKET: PROPERTY_IMAGES_BUCKET,
 };
 
 export async function uploadMediaToStorage(file: File, fileName: string) {

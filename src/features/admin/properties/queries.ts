@@ -1,3 +1,4 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
 import { CityOption, NeighborhoodOption } from "@/features/admin/properties/components/address/types";
 
@@ -24,4 +25,24 @@ export async function getPropertyFormLookups() {
     neighborhoods: (neighborhoods || []) as NeighborhoodOption[],
     features: features || [],
   };
+}
+
+/**
+ * Caminhos no bucket das fotos de um imóvel. Recebe o client porque é chamado
+ * pela server action de exclusão definitiva, que precisa ler os caminhos antes
+ * de apagar o imóvel — depois disso o cascade leva as linhas embora e não há
+ * mais como saber quais arquivos eram dele (a pasta nem sempre é o id do
+ * imóvel: fotos de um imóvel novo sobem numa pasta com id provisório).
+ */
+export async function getPropertyMediaStoragePaths(
+  supabase: SupabaseClient,
+  propertyId: string,
+): Promise<string[]> {
+  const { data, error } = await supabase
+    .from("property_media")
+    .select("storage_path")
+    .eq("property_id", propertyId);
+
+  if (error) throw error;
+  return (data ?? []).map((row) => row.storage_path as string);
 }
