@@ -1,4 +1,4 @@
-export type ButtonVariant = "primary" | "secondary" | "gold" | "inverse";
+export type ButtonVariant = "primary" | "secondary" | "gold" | "inverse" | "danger";
 export type ButtonSize = "lg" | "md" | "sm";
 
 // A borda existe em todas as variantes para que primário e secundário tenham a mesma altura.
@@ -16,6 +16,7 @@ const BUTTON_VARIANTS: Record<ButtonVariant, string> = {
   secondary: "border-mitram-dark text-mitram-dark hover:bg-mitram-dark hover:text-white",
   gold: "border-transparent bg-mitram-gold text-white shadow-md hover:bg-mitram-goldDark",
   inverse: "border-transparent bg-white text-mitram-dark shadow-md hover:bg-gray-100",
+  danger: "border-mitram-error text-mitram-error hover:bg-mitram-error hover:text-white",
 };
 
 export function buttonClasses(variant: ButtonVariant, size: ButtonSize = "lg", extra?: string) {

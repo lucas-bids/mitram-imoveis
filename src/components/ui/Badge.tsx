@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 
-export type BadgeTone = "gold" | "red" | "green" | "gray" | "blue" | "purple" | "yellow";
+export type BadgeTone = "gold" | "red" | "redLight" | "green" | "gray" | "blue" | "purple" | "yellow";
 
 interface BadgeProps {
   tone: BadgeTone;
@@ -10,6 +10,7 @@ interface BadgeProps {
 const TONE_CLASSES: Record<BadgeTone, string> = {
   gold: "bg-mitram-gold/90 text-white backdrop-blur-md shadow-sm",
   red: "bg-mitram-error/90 text-white backdrop-blur-md shadow-sm",
+  redLight: "bg-mitram-errorLight text-mitram-error",
   green: "bg-mitram-successLight text-mitram-success",
   gray: "bg-gray-100 text-gray-800",
   blue: "bg-mitram-infoLight text-mitram-info",

@@ -28,8 +28,13 @@ No test suite is configured in this repo.
 
 - `createAdminClient` (`src/lib/supabase/admin.ts`) uses the service-role key
   and **bypasses RLS**. Server-only — never import it into a Client Component
-  or anything reachable from one. It is currently unused; keep it that way
-  unless a trusted server-side admin mutation genuinely needs it, and say so.
+  or anything reachable from one. Its only importer is
+  `src/features/admin/users/server.ts` (Auth Admin API + audit log, always
+  after `getAdminActor()`); don't add another unless a trusted server-side
+  admin mutation genuinely needs it, and say so.
+- Two roles: `admin` (everything, incl. users) and `editor` (all content, no
+  users). Content policies use `is_staff()`; `profiles` and the audit log use
+  `is_admin()`. See `agent_docs/supabase.md` → "Roles".
 - `SUPABASE_SECRET_KEY` must never gain a `NEXT_PUBLIC_` prefix. Nothing
   secret belongs in a `NEXT_PUBLIC_*` variable.
 - Never read, print or modify `.env.local`. Use `.env.example` for the shape

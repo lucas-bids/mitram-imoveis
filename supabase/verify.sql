@@ -10,14 +10,16 @@ WITH expected_tables AS (
     'features',
     'properties',
     'property_features',
-    'property_media'
+    'property_media',
+    'user_management_events'
   ]) AS object_name
 ),
 expected_enums AS (
   SELECT unnest(ARRAY[
     'property_purpose',
     'property_status',
-    'media_type'
+    'media_type',
+    'user_management_action'
   ]) AS object_name
 ),
 expected_buckets AS (
@@ -92,7 +94,7 @@ function_checks AS (
     END AS status,
     NULL::text AS detail
   FROM (
-    SELECT unnest(ARRAY['is_admin', 'handle_new_user', 'generate_internal_code']) AS object_name
+    SELECT unnest(ARRAY['is_admin', 'is_staff', 'protect_last_admin', 'admin_update_profile', 'admin_revoke_sessions', 'my_access', 'handle_new_user', 'generate_internal_code']) AS object_name
   ) fn
   LEFT JOIN pg_proc p ON p.proname = fn.object_name
   LEFT JOIN pg_namespace n ON n.oid = p.pronamespace AND n.nspname = 'public'

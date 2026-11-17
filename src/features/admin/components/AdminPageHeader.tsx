@@ -12,7 +12,7 @@ export function AdminPageHeader({ title, description, children }: AdminPageHeade
   return (
     <div className="mb-6">
       {children}
-      <Heading as="h1" variant="h3" className="mt-2">{title}</Heading>
+      <Heading as="h1" variant="h3" className="mt-2 break-words">{title}</Heading>
       {description && <Text variant="bodySm" className="mt-1">{description}</Text>}
     </div>
   );

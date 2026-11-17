@@ -23,6 +23,7 @@ lists.
 | Public listings, property detail, search & filters | `agent_docs/properties.md` |
 | Admin CRUD, status changes, trash, image management | `agent_docs/admin.md`, then `agent_docs/properties.md` and `agent_docs/supabase.md` as needed |
 | Auth, RLS, migrations, storage buckets | `agent_docs/supabase.md` (+ `security-reviewer` agent) |
+| User management, roles (admin/editor), passwords | `agent_docs/admin.md` → "Users", then `agent_docs/supabase.md` → "Roles" (+ `security-reviewer` agent) |
 | Contact / lead forms | `agent_docs/contact.md` (+ `security-reviewer` agent) |
 | UI, Tailwind, responsive layout, accessibility | `agent_docs/styling.md` (+ `ui-reviewer` agent) |
 | OLX / ZAP / VivaReal feed | `olx-zap-feed` skill, then `src/features/feed/` |
