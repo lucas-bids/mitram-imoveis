@@ -9,8 +9,8 @@ O banco **não é criado automaticamente** só por existir os arquivos no reposi
 1. Abra o [Supabase SQL Editor](https://supabase.com/dashboard/project/cvfqzmprnwkxqnzqhtpj/sql/new).
 2. Cole e execute o conteúdo completo de [`supabase/setup-complete.sql`](setup-complete.sql).
 3. Execute [`supabase/verify.sql`](verify.sql) para confirmar:
-   - 8 tabelas com status `OK`
-   - 3 enums (`property_purpose`, `property_status`, `media_type`)
+   - 9 tabelas com status `OK`
+   - 4 enums (`property_purpose`, `property_status`, `media_type`, `user_management_action`)
    - 2 buckets (`property-images`, `property-floorplans`)
 4. Execute [`supabase/security-check.sql`](security-check.sql) e confirme
    que toda linha saiu com `status = 'OK'` (detalhes em §4.3).
@@ -43,14 +43,69 @@ O banco **não é criado automaticamente** só por existir os arquivos no reposi
    SELECT id, role, full_name FROM profiles WHERE role = 'admin';
    ```
 
-### 3. Configurar Auth redirects
+### 3. Auth sem e-mail: configuração no dashboard
 
-Em **Authentication > URL Configuration**:
+O painel **não usa e-mail** em nenhum fluxo: não há convite, confirmação nem
+"esqueci minha senha". O admin cria usuários já com senha e é quem redefine
+senhas, tudo em `/admin/usuarios`. O e-mail é só o identificador de login.
 
-- **Site URL:** `http://localhost:3000` (dev) e depois o domínio do Netlify/produção
-- **Redirect URLs:**
-  - `http://localhost:3000/**`
-  - `https://seu-dominio.netlify.app/**`
+Mesmo sem telas, a API pública do Auth (`/recover`, `/otp`) continua aceitando
+pedidos de e-mail de quem tiver a chave publicável. Feche isso na origem:
+
+1. **Authentication > Rate Limits:** coloque o limite de envio de e-mails no
+   menor valor permitido.
+2. **Authentication > URL Configuration:** **Site URL** = domínio de produção;
+   **Redirect URLs** vazia (nenhuma tela do painel recebe redirect do Auth). Um
+   link de e-mail perdido cai na home pública, que não lê sessão, e não loga
+   ninguém no painel.
+3. **Authentication > Providers > Email:** mantenha o provedor ligado (é o
+   login por e-mail + senha), com **"Allow new users to sign up" desligado**
+   (§4.1). Em **Password requirements**: mínimo **8** caracteres, **"Letters and
+   digits"** — a mesma regra que o painel valida.
+4. **SMTP:** não é necessário. Não configure.
+
+### 3.1 Usuários e papéis
+
+Depois do primeiro administrador (§2), os demais são criados pelo painel em
+`/admin/usuarios`. Dois papéis:
+
+- **Administrador**: tudo, inclusive criar, editar, redefinir senha, desativar
+  e excluir usuários.
+- **Editor**: todo o conteúdo (imóveis, cidades, bairros, características,
+  mídia, lixeira), sem acesso a usuários.
+
+Pré-requisitos (no projeto real, **antes** de publicar o código), no SQL Editor:
+
+1. [`migrations/20261116000000_user_roles.sql`](migrations/20261116000000_user_roles.sql)
+2. [`migrations/20261117000000_admin_managed_passwords.sql`](migrations/20261117000000_admin_managed_passwords.sql)
+
+Ambas idempotentes. O middleware passa a chamar `public.my_access()`; sem as
+migrations ninguém entra no painel (falha fechado). Depois rode
+`security-check.sql` (§4.3).
+
+`SUPABASE_SECRET_KEY` precisa estar no Netlify. É usada **só no servidor**
+(`src/features/admin/users/server.ts`), para a Admin API do Auth e para gravar
+o log de auditoria. Nunca com prefixo `NEXT_PUBLIC_`.
+
+Garantias no banco (não dependem do código da aplicação):
+
+- Escrita de conteúdo exige `is_staff()` (admin ou editor **ativo**); `profiles`
+  e o log `user_management_events` exigem `is_admin()` (admin **ativo**).
+- **Corte instantâneo de sessões:** redefinir a senha (ou desativar) grava
+  `profiles.sessions_valid_after`. Todo token cujo login (`amr` do JWT) é
+  anterior a esse instante é recusado por `is_staff()`/`is_admin()` e pelo
+  middleware — inclusive abas já abertas. O próximo login passa normalmente.
+- Conta desativada perde o acesso no próximo comando; o painel também a bane
+  no Auth (impede novo login).
+- O trigger `enforce_last_admin` impede rebaixar, desativar ou excluir o último
+  administrador ativo, por qualquer caminho (inclusive service role).
+- O log de auditoria é somente inclusão (trigger `enforce_audit_append_only`) e
+  nunca registra senhas.
+
+**Último admin esqueceu a senha:** não há recuperação pelo painel. Em
+**Authentication > Users**, abra o usuário e defina uma nova senha pelo
+dashboard; depois, em SQL, `UPDATE public.profiles SET sessions_valid_after =
+date_trunc('second', now()) WHERE id = '<id>';` se quiser derrubar sessões antigas.
 
 ### 4. Checklist de segurança (obrigatório antes de publicar)
 
@@ -108,15 +163,19 @@ Execute [`supabase/security-check.sql`](security-check.sql) no SQL Editor.
 É somente leitura. **Toda linha precisa sair com `status = 'OK'`** — as que não
 saírem aparecem no topo do resultado. Ele confere:
 
-- RLS ligada nas 8 tabelas públicas;
+- RLS ligada em todas as tabelas públicas (9 esperadas);
 - as policies de UPDATE de `profiles` e a trava da coluna `role`;
-- que `anon`/`authenticated` não têm grant de escrita em `profiles.role`;
-- os triggers `enforce_profile_role_change` e `on_auth_user_created`;
-- que `is_admin`, `current_profile_role`, `prevent_profile_role_escalation` e
-  `handle_new_user` são `SECURITY DEFINER` com `search_path` fixo;
-- que nenhuma policy de escrita (tabelas públicas ou `storage.objects`) passa
-  sem `is_admin()`;
-- quantas contas existem sem `role = 'admin'` — resíduo de cadastro aberto.
+- que `anon`/`authenticated` não têm grant de escrita em `profiles.role`,
+  `profiles.deactivated_at` nem em `user_management_events`;
+- os triggers `enforce_profile_role_change`, `enforce_last_admin`,
+  `enforce_audit_append_only` e `on_auth_user_created`;
+- que `is_admin`, `is_staff`, `current_profile_role`,
+  `prevent_profile_role_escalation`, `protect_last_admin` e `handle_new_user`
+  são `SECURITY DEFINER` com `search_path` fixo, e o corpo de `is_admin`/`is_staff`;
+- que nenhuma policy de escrita de conteúdo (tabelas públicas ou
+  `storage.objects`) passa sem `is_staff()`/`is_admin()`, e que `profiles` e o
+  log de auditoria exigem `is_admin()`;
+- quantas contas existem sem papel — resíduo de convite falho ou cadastro aberto.
 
 Rode-o de novo sempre que uma migration mexer em policies, grants ou `profiles`.
 
@@ -132,12 +191,13 @@ WHERE (schemaname = 'public' OR (schemaname = 'storage' AND tablename = 'objects
 ORDER BY schemaname, tablename, policyname;
 ```
 
-Toda linha deve ser gated por `public.is_admin()` e nada mais, com a única
-exceção de `profiles."Users can update own profile"`, que trava a coluna `role`.
+Toda linha de conteúdo deve ser gated por `public.is_staff()` e nada mais; as
+de `profiles` por `public.is_admin()`, com a única exceção de
+`profiles."Users can update own profile"`, que trava a coluna `role`.
 
 #### 4.4 Limpar contas indevidas
 
-Se 4.3 apontou perfis sem `role = 'admin'`, confira em **Authentication > Users**
+Se 4.3 apontou perfis sem papel, confira em **Authentication > Users**
 e apague o que não for legítimo:
 
 ```sql
@@ -153,8 +213,9 @@ Faça login em `/admin/login` com o administrador real, confirme o redirecioname
 para `/admin/imoveis` e faça um upload de imagem — isso prova que as policies de
 storage continuaram intactas.
 
-Promoção de administrador continua sendo feita apenas via
-[`promote-admin.sql`](promote-admin.sql) no SQL Editor.
+O **primeiro** administrador continua sendo criado via
+[`promote-admin.sql`](promote-admin.sql) no SQL Editor; os seguintes, pelo
+painel em `/admin/usuarios` (§3.1).
 
 ### 5. O que foi corrigido nesta fase
 

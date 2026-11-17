@@ -437,6 +437,477 @@ CREATE TRIGGER enforce_internal_code_immutable
   FOR EACH ROW
   EXECUTE FUNCTION public.prevent_internal_code_change();
 
+-- ===========================================================================
+-- Papéis admin/editor, desativação e auditoria de usuários
+-- Espelho de supabase/migrations/20261116000000_user_roles.sql. Substitui as
+-- policies "Admins can manage ..." acima por "Staff can manage ..." (is_staff)
+-- e redefine is_admin() para exigir conta ativa.
+-- ===========================================================================
+
+ALTER TABLE public.profiles DROP CONSTRAINT IF EXISTS profiles_role_check;
+ALTER TABLE public.profiles
+  ADD CONSTRAINT profiles_role_check CHECK (role IN ('admin', 'editor'));
+
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS deactivated_at timestamptz;
+
+REVOKE UPDATE ON public.profiles FROM anon, authenticated;
+GRANT UPDATE (full_name, updated_at) ON public.profiles TO authenticated;
+
+CREATE OR REPLACE FUNCTION public.is_admin()
+RETURNS boolean
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
+STABLE
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.profiles
+    WHERE id = auth.uid()
+      AND role = 'admin'
+      AND deactivated_at IS NULL
+  );
+$$;
+
+CREATE OR REPLACE FUNCTION public.is_staff()
+RETURNS boolean
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
+STABLE
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.profiles
+    WHERE id = auth.uid()
+      AND role IN ('admin', 'editor')
+      AND deactivated_at IS NULL
+  );
+$$;
+
+REVOKE ALL ON FUNCTION public.is_staff() FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.is_staff() TO anon, authenticated, service_role;
+
+DROP POLICY IF EXISTS "Admins can manage property types" ON public.property_types;
+DROP POLICY IF EXISTS "Staff can manage property types" ON public.property_types;
+CREATE POLICY "Staff can manage property types" ON public.property_types FOR ALL
+  USING (public.is_staff()) WITH CHECK (public.is_staff());
+
+DROP POLICY IF EXISTS "Admins can manage cities" ON public.cities;
+DROP POLICY IF EXISTS "Staff can manage cities" ON public.cities;
+CREATE POLICY "Staff can manage cities" ON public.cities FOR ALL
+  USING (public.is_staff()) WITH CHECK (public.is_staff());
+
+DROP POLICY IF EXISTS "Admins can manage neighborhoods" ON public.neighborhoods;
+DROP POLICY IF EXISTS "Staff can manage neighborhoods" ON public.neighborhoods;
+CREATE POLICY "Staff can manage neighborhoods" ON public.neighborhoods FOR ALL
+  USING (public.is_staff()) WITH CHECK (public.is_staff());
+
+DROP POLICY IF EXISTS "Admins can manage features" ON public.features;
+DROP POLICY IF EXISTS "Staff can manage features" ON public.features;
+CREATE POLICY "Staff can manage features" ON public.features FOR ALL
+  USING (public.is_staff()) WITH CHECK (public.is_staff());
+
+DROP POLICY IF EXISTS "Admins can manage properties" ON public.properties;
+DROP POLICY IF EXISTS "Staff can manage properties" ON public.properties;
+CREATE POLICY "Staff can manage properties" ON public.properties FOR ALL
+  USING (public.is_staff()) WITH CHECK (public.is_staff());
+
+DROP POLICY IF EXISTS "Admins can manage property features" ON public.property_features;
+DROP POLICY IF EXISTS "Staff can manage property features" ON public.property_features;
+CREATE POLICY "Staff can manage property features" ON public.property_features FOR ALL
+  USING (public.is_staff()) WITH CHECK (public.is_staff());
+
+DROP POLICY IF EXISTS "Admins can manage property media" ON public.property_media;
+DROP POLICY IF EXISTS "Staff can manage property media" ON public.property_media;
+CREATE POLICY "Staff can manage property media" ON public.property_media FOR ALL
+  USING (public.is_staff()) WITH CHECK (public.is_staff());
+
+DROP POLICY IF EXISTS "Admins can upload property storage" ON storage.objects;
+DROP POLICY IF EXISTS "Staff can upload property storage" ON storage.objects;
+CREATE POLICY "Staff can upload property storage"
+ON storage.objects FOR INSERT
+WITH CHECK (
+  bucket_id IN ('property-images', 'property-floorplans')
+  AND public.is_staff()
+);
+
+DROP POLICY IF EXISTS "Admins can update property storage" ON storage.objects;
+DROP POLICY IF EXISTS "Staff can update property storage" ON storage.objects;
+CREATE POLICY "Staff can update property storage"
+ON storage.objects FOR UPDATE
+USING (
+  bucket_id IN ('property-images', 'property-floorplans')
+  AND public.is_staff()
+)
+WITH CHECK (
+  bucket_id IN ('property-images', 'property-floorplans')
+  AND public.is_staff()
+);
+
+DROP POLICY IF EXISTS "Admins can delete property storage" ON storage.objects;
+DROP POLICY IF EXISTS "Staff can delete property storage" ON storage.objects;
+CREATE POLICY "Staff can delete property storage"
+ON storage.objects FOR DELETE
+USING (
+  bucket_id IN ('property-images', 'property-floorplans')
+  AND public.is_staff()
+);
+
+CREATE OR REPLACE FUNCTION public.prevent_profile_role_escalation()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  IF (NEW.role IS DISTINCT FROM OLD.role
+      OR NEW.deactivated_at IS DISTINCT FROM OLD.deactivated_at)
+     AND auth.uid() IS NOT NULL
+     AND NOT public.is_admin() THEN
+    RAISE EXCEPTION 'Somente administradores podem alterar papel ou status de usuários.'
+      USING ERRCODE = 'insufficient_privilege';
+  END IF;
+
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS enforce_profile_role_change ON public.profiles;
+CREATE TRIGGER enforce_profile_role_change
+  BEFORE UPDATE ON public.profiles
+  FOR EACH ROW
+  EXECUTE FUNCTION public.prevent_profile_role_escalation();
+
+CREATE OR REPLACE FUNCTION public.protect_last_admin()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  remaining integer;
+BEGIN
+  IF OLD.role = 'admin'
+     AND OLD.deactivated_at IS NULL
+     AND (
+       TG_OP = 'DELETE'
+       OR NEW.role IS DISTINCT FROM 'admin'
+       OR NEW.deactivated_at IS NOT NULL
+     ) THEN
+    PERFORM pg_advisory_xact_lock(hashtext('public.profiles:last_admin'));
+
+    SELECT count(*) INTO remaining
+    FROM public.profiles
+    WHERE role = 'admin'
+      AND deactivated_at IS NULL
+      AND id <> OLD.id;
+
+    IF remaining = 0 THEN
+      RAISE EXCEPTION 'Não é possível remover, rebaixar ou desativar o último administrador ativo.'
+        USING ERRCODE = 'check_violation', HINT = 'last_admin';
+    END IF;
+  END IF;
+
+  IF TG_OP = 'DELETE' THEN
+    RETURN OLD;
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS enforce_last_admin ON public.profiles;
+CREATE TRIGGER enforce_last_admin
+  BEFORE UPDATE OR DELETE ON public.profiles
+  FOR EACH ROW
+  EXECUTE FUNCTION public.protect_last_admin();
+
+-- Única porta para admins alterarem role/deactivated_at (o grant por coluna
+-- continua travando as duas para authenticated). Triggers seguem valendo.
+CREATE OR REPLACE FUNCTION public.admin_update_profile(
+  target_id uuid,
+  new_full_name text DEFAULT NULL,
+  new_role text DEFAULT NULL,
+  set_deactivated boolean DEFAULT NULL
+)
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  IF auth.uid() IS NULL OR NOT public.is_admin() THEN
+    RAISE EXCEPTION 'Somente administradores podem gerenciar usuários.'
+      USING ERRCODE = 'insufficient_privilege';
+  END IF;
+
+  IF new_role IS NOT NULL AND new_role NOT IN ('admin', 'editor') THEN
+    RAISE EXCEPTION 'Papel inválido.' USING ERRCODE = 'invalid_parameter_value';
+  END IF;
+
+  IF new_full_name IS NOT NULL AND length(btrim(new_full_name)) NOT BETWEEN 2 AND 100 THEN
+    RAISE EXCEPTION 'Nome inválido.' USING ERRCODE = 'invalid_parameter_value';
+  END IF;
+
+  UPDATE public.profiles
+  SET
+    full_name = COALESCE(btrim(new_full_name), full_name),
+    role = COALESCE(new_role, role),
+    deactivated_at = CASE
+      WHEN set_deactivated IS NULL THEN deactivated_at
+      WHEN set_deactivated THEN COALESCE(deactivated_at, now())
+      ELSE NULL
+    END,
+    updated_at = now()
+  WHERE id = target_id;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Perfil não encontrado.' USING ERRCODE = 'no_data_found';
+  END IF;
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.admin_update_profile(uuid, text, text, boolean) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.admin_update_profile(uuid, text, text, boolean) TO authenticated;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'user_management_action') THEN
+    CREATE TYPE public.user_management_action AS ENUM (
+      'invited',
+      'updated',
+      'email_changed',
+      'password_reset_sent',
+      'deactivated',
+      'reactivated',
+      'deleted',
+      'created',
+      'password_set'
+    );
+  END IF;
+END $$;
+
+CREATE TABLE IF NOT EXISTS public.user_management_events (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  actor_id uuid,
+  actor_email text,
+  target_id uuid,
+  target_email text,
+  action public.user_management_action NOT NULL,
+  details jsonb NOT NULL DEFAULT '{}'::jsonb,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_user_management_events_created_at
+  ON public.user_management_events (created_at DESC);
+
+ALTER TABLE public.user_management_events ENABLE ROW LEVEL SECURITY;
+
+REVOKE ALL ON public.user_management_events FROM PUBLIC, anon, authenticated;
+GRANT SELECT ON public.user_management_events TO authenticated;
+
+DROP POLICY IF EXISTS "Admins can read user management events" ON public.user_management_events;
+CREATE POLICY "Admins can read user management events"
+  ON public.user_management_events FOR SELECT
+  USING (public.is_admin());
+
+CREATE OR REPLACE FUNCTION public.prevent_audit_mutation()
+RETURNS trigger
+LANGUAGE plpgsql
+SET search_path = public
+AS $$
+BEGIN
+  RAISE EXCEPTION 'O log de auditoria é somente inclusão.'
+    USING ERRCODE = 'insufficient_privilege';
+END;
+$$;
+
+DROP TRIGGER IF EXISTS enforce_audit_append_only ON public.user_management_events;
+CREATE TRIGGER enforce_audit_append_only
+  BEFORE UPDATE OR DELETE ON public.user_management_events
+  FOR EACH ROW
+  EXECUTE FUNCTION public.prevent_audit_mutation();
+
+-- ===========================================================================
+-- Senhas definidas pelo admin (sem e-mail) e corte instantâneo de sessões
+-- Espelho de supabase/migrations/20261117000000_admin_managed_passwords.sql.
+-- Redefine is_admin()/is_staff() acima para recusar tokens anteriores ao corte.
+-- ===========================================================================
+
+ALTER TYPE public.user_management_action ADD VALUE IF NOT EXISTS 'created';
+ALTER TYPE public.user_management_action ADD VALUE IF NOT EXISTS 'password_set';
+
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS sessions_valid_after timestamptz;
+
+REVOKE UPDATE ON public.profiles FROM anon, authenticated;
+GRANT UPDATE (full_name, updated_at) ON public.profiles TO authenticated;
+
+CREATE OR REPLACE FUNCTION public.current_session_auth_time()
+RETURNS bigint
+LANGUAGE sql
+STABLE
+SET search_path = public
+AS $$
+  SELECT max((entry ->> 'timestamp')::bigint)
+  FROM jsonb_array_elements(coalesce(auth.jwt() -> 'amr', '[]'::jsonb)) AS entry;
+$$;
+
+CREATE OR REPLACE FUNCTION public.is_admin()
+RETURNS boolean
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
+STABLE
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.profiles
+    WHERE id = auth.uid()
+      AND role = 'admin'
+      AND deactivated_at IS NULL
+      AND (
+        sessions_valid_after IS NULL
+        OR public.current_session_auth_time() >= extract(epoch FROM sessions_valid_after)
+      )
+  );
+$$;
+
+CREATE OR REPLACE FUNCTION public.is_staff()
+RETURNS boolean
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
+STABLE
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.profiles
+    WHERE id = auth.uid()
+      AND role IN ('admin', 'editor')
+      AND deactivated_at IS NULL
+      AND (
+        sessions_valid_after IS NULL
+        OR public.current_session_auth_time() >= extract(epoch FROM sessions_valid_after)
+      )
+  );
+$$;
+
+CREATE OR REPLACE FUNCTION public.my_access()
+RETURNS TABLE (role text, active boolean, session_current boolean)
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
+STABLE
+AS $$
+  SELECT
+    p.role,
+    p.deactivated_at IS NULL,
+    p.sessions_valid_after IS NULL
+      OR coalesce(public.current_session_auth_time() >= extract(epoch FROM p.sessions_valid_after), false)
+  FROM public.profiles p
+  WHERE p.id = auth.uid();
+$$;
+
+REVOKE ALL ON FUNCTION public.my_access() FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.my_access() TO authenticated;
+
+CREATE OR REPLACE FUNCTION public.admin_revoke_sessions(target_id uuid)
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  IF auth.uid() IS NULL OR NOT public.is_admin() THEN
+    RAISE EXCEPTION 'Somente administradores podem gerenciar usuários.'
+      USING ERRCODE = 'insufficient_privilege';
+  END IF;
+
+  UPDATE public.profiles
+  SET sessions_valid_after = date_trunc('second', now()),
+      updated_at = now()
+  WHERE id = target_id;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Perfil não encontrado.' USING ERRCODE = 'no_data_found';
+  END IF;
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.admin_revoke_sessions(uuid) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.admin_revoke_sessions(uuid) TO authenticated;
+
+-- Desativar também corta as sessões, na mesma escrita.
+CREATE OR REPLACE FUNCTION public.admin_update_profile(
+  target_id uuid,
+  new_full_name text DEFAULT NULL,
+  new_role text DEFAULT NULL,
+  set_deactivated boolean DEFAULT NULL
+)
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  IF auth.uid() IS NULL OR NOT public.is_admin() THEN
+    RAISE EXCEPTION 'Somente administradores podem gerenciar usuários.'
+      USING ERRCODE = 'insufficient_privilege';
+  END IF;
+
+  IF new_role IS NOT NULL AND new_role NOT IN ('admin', 'editor') THEN
+    RAISE EXCEPTION 'Papel inválido.' USING ERRCODE = 'invalid_parameter_value';
+  END IF;
+
+  IF new_full_name IS NOT NULL AND length(btrim(new_full_name)) NOT BETWEEN 2 AND 100 THEN
+    RAISE EXCEPTION 'Nome inválido.' USING ERRCODE = 'invalid_parameter_value';
+  END IF;
+
+  UPDATE public.profiles
+  SET
+    full_name = COALESCE(btrim(new_full_name), full_name),
+    role = COALESCE(new_role, role),
+    deactivated_at = CASE
+      WHEN set_deactivated IS NULL THEN deactivated_at
+      WHEN set_deactivated THEN COALESCE(deactivated_at, now())
+      ELSE NULL
+    END,
+    sessions_valid_after = CASE
+      WHEN set_deactivated IS TRUE THEN date_trunc('second', now())
+      ELSE sessions_valid_after
+    END,
+    updated_at = now()
+  WHERE id = target_id;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Perfil não encontrado.' USING ERRCODE = 'no_data_found';
+  END IF;
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.admin_update_profile(uuid, text, text, boolean) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.admin_update_profile(uuid, text, text, boolean) TO authenticated;
+
+CREATE OR REPLACE FUNCTION public.prevent_profile_role_escalation()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  IF (NEW.role IS DISTINCT FROM OLD.role
+      OR NEW.deactivated_at IS DISTINCT FROM OLD.deactivated_at
+      OR NEW.sessions_valid_after IS DISTINCT FROM OLD.sessions_valid_after)
+     AND auth.uid() IS NOT NULL
+     AND NOT public.is_admin() THEN
+    RAISE EXCEPTION 'Somente administradores podem alterar papel ou status de usuários.'
+      USING ERRCODE = 'insufficient_privilege';
+  END IF;
+
+  RETURN NEW;
+END;
+$$;
+
 -- Insert default Admin (password handled by Supabase Auth, but we can't create Auth easily in pure SQL without pgcrypto/extensions, usually we do it via Dashboard)
 -- So the seed will insert types, cities, neighborhoods, features, and properties.
 

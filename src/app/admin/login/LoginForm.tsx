@@ -4,12 +4,16 @@ import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import Image from "next/image";
-import Link from "next/link";
 import { LogIn } from "lucide-react";
 import { AlertMessage } from "@/components/ui/AlertMessage";
 import { buttonClasses } from "@/components/ui/buttonStyles";
 import { FormField, fieldClasses } from "@/components/ui/FormField";
 import { Heading } from "@/components/ui/Heading";
+import { panelDenial, type SessionAccess } from "@/features/admin/users/roles";
+
+const UNAUTHORIZED_MESSAGE = "Sua conta não possui permissão de acesso ao painel.";
+const DEACTIVATED_MESSAGE = "Sua conta está desativada. Fale com um administrador.";
+const SESSION_EXPIRED_MESSAGE = "Sua sessão foi encerrada por um administrador. Entre novamente.";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
@@ -21,8 +25,13 @@ export default function LoginForm() {
   const supabase = createClient();
 
   useEffect(() => {
-    if (searchParams.get("error") === "unauthorized") {
-      setError("Sua conta não possui permissão de administrador.");
+    const reason = searchParams.get("error");
+    if (reason === "unauthorized") {
+      setError(UNAUTHORIZED_MESSAGE);
+    } else if (reason === "deactivated") {
+      setError(DEACTIVATED_MESSAGE);
+    } else if (reason === "session_expired") {
+      setError(SESSION_EXPIRED_MESSAGE);
     }
   }, [searchParams]);
 
@@ -37,20 +46,22 @@ export default function LoginForm() {
     });
 
     if (signInError || !data.user) {
-      setError("Credenciais inválidas. Verifique seu e-mail e senha.");
+      // Conta desativada também é banida no Auth; o login falha com user_banned.
+      setError(
+        signInError?.code === "user_banned"
+          ? DEACTIVATED_MESSAGE
+          : "Credenciais inválidas. Verifique seu e-mail e senha."
+      );
       setLoading(false);
       return;
     }
 
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", data.user.id)
-      .maybeSingle();
+    const { data: access } = await supabase.rpc("my_access").maybeSingle<SessionAccess>();
 
-    if (!profile || profile.role !== "admin") {
+    const denial = panelDenial(access);
+    if (denial) {
       await supabase.auth.signOut();
-      setError("Sua conta não possui permissão de administrador.");
+      setError(denial === "deactivated" ? DEACTIVATED_MESSAGE : UNAUTHORIZED_MESSAGE);
       setLoading(false);
       return;
     }
@@ -105,12 +116,6 @@ export default function LoginForm() {
               className={fieldClasses()}
             />
           </FormField>
-
-          <div className="flex justify-end">
-            <Link href="/admin/recuperar-senha" className="text-sm text-mitram-gold hover:underline">
-              Esqueceu a senha?
-            </Link>
-          </div>
 
           <button type="submit" disabled={loading} className={buttonClasses("primary", "md", "w-full")}>
             <LogIn size={18} />

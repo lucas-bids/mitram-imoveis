@@ -8,10 +8,15 @@
 -- Complementa verify.sql: aquele confere que o schema existe, este confere que
 -- ele está fechado.
 --
--- Limite conhecido: os itens 5 e 6 detectam a *presença* de is_admin() na
--- expressão da policy, não que ela seja a única condição. Uma policy escrita
--- como `USING (public.is_admin() OR true)` passaria. Rode a consulta de revisão
+-- Limite conhecido: os itens 5 e 6 detectam a *presença* do gate (is_staff()
+-- no conteúdo, is_admin() em profiles e na auditoria) na expressão da policy,
+-- não que ele seja a única condição. Uma policy escrita como
+-- `USING (public.is_staff() OR true)` passaria. Rode a consulta de revisão
 -- manual do README §4.3 uma vez para ler as expressões com os próprios olhos.
+--
+-- Papéis: admin (tudo, inclusive usuários) e editor (todo o conteúdo). Escrita
+-- de conteúdo passa por is_staff(); profiles e user_management_events, só por
+-- is_admin(). Ver migration 20261116000000_user_roles.sql.
 
 WITH expected_tables AS (
   SELECT unnest(ARRAY[
@@ -22,14 +27,17 @@ WITH expected_tables AS (
     'features',
     'properties',
     'property_features',
-    'property_media'
+    'property_media',
+    'user_management_events'
   ]) AS object_name
 ),
 
 -- Gates das policies, normalizados uma vez só.
---   using_ok  -> a expressão USING (governa SELECT/UPDATE/DELETE) cita is_admin
---   check_ok  -> a expressão WITH CHECK (governa INSERT/UPDATE) cita is_admin;
+--   using_ok  -> a expressão USING (governa SELECT/UPDATE/DELETE) cita o gate
+--   check_ok  -> a expressão WITH CHECK (governa INSERT/UPDATE) cita o gate;
 --                quando ausente, o Postgres reaproveita o USING.
+-- Em profiles e user_management_events o gate aceito é só is_admin(): um
+-- is_staff() ali deixaria editores gerenciarem usuários.
 policy_gates AS (
   SELECT
     schemaname,
@@ -39,12 +47,21 @@ policy_gates AS (
     permissive,
     qual,
     with_check,
-    coalesce(qual, '') LIKE '%is_admin%' AS using_ok,
-    coalesce(with_check, qual, '') LIKE '%is_admin%' AS check_ok
+    CASE
+      WHEN schemaname = 'public' AND tablename IN ('profiles', 'user_management_events')
+        THEN coalesce(qual, '') LIKE '%is_admin%'
+      ELSE coalesce(qual, '') LIKE '%is_admin%' OR coalesce(qual, '') LIKE '%is_staff%'
+    END AS using_ok,
+    CASE
+      WHEN schemaname = 'public' AND tablename IN ('profiles', 'user_management_events')
+        THEN coalesce(with_check, qual, '') LIKE '%is_admin%'
+      ELSE coalesce(with_check, qual, '') LIKE '%is_admin%'
+        OR coalesce(with_check, qual, '') LIKE '%is_staff%'
+    END AS check_ok
   FROM pg_policies
 ),
 
--- Policies de escrita que não passam por is_admin(). Cada comando é avaliado
+-- Policies de escrita que não passam pelo gate. Cada comando é avaliado
 -- pela expressão que realmente o governa: um `FOR ALL USING (true) WITH CHECK
 -- (is_admin())` libera DELETE de tudo e precisa aparecer aqui.
 open_write_policies AS (
@@ -130,7 +147,7 @@ profile_selfupdate_checks AS (
 open_write_policy_checks AS (
   SELECT
     'policy'::text,
-    'public: escrita sem is_admin()'::text,
+    'public: escrita sem is_staff()/is_admin()'::text,
     CASE WHEN count(*) = 0 THEN 'OK' ELSE 'ABERTO' END::text,
     coalesce(
       string_agg(
@@ -148,7 +165,7 @@ open_write_policy_checks AS (
 storage_write_policy_checks AS (
   SELECT
     'policy'::text,
-    'storage.objects: escrita sem is_admin()'::text,
+    'storage.objects: escrita sem is_staff()/is_admin()'::text,
     CASE WHEN count(*) = 0 THEN 'OK' ELSE 'ABERTO' END::text,
     coalesce(
       string_agg(
@@ -204,6 +221,60 @@ grant_checks AS (
       ELSE 'GRANT DEMAIS REVOGADO'
     END::text,
     NULL::text
+  UNION ALL
+  -- Desativar uma conta é ato de admin; o próprio usuário não pode se reativar.
+  SELECT
+    'grant'::text,
+    'profiles.deactivated_at gravável por anon/authenticated'::text,
+    CASE
+      WHEN to_regrole('anon') IS NULL OR to_regrole('authenticated') IS NULL
+        THEN 'ROLES DA API AUSENTES'
+      WHEN to_regclass('public.profiles') IS NULL
+        OR NOT EXISTS (
+          SELECT 1 FROM information_schema.columns
+          WHERE table_schema = 'public' AND table_name = 'profiles' AND column_name = 'deactivated_at'
+        )
+        THEN 'COLUNA AUSENTE'
+      WHEN has_column_privilege('anon', 'public.profiles', 'deactivated_at', 'UPDATE')
+        OR has_column_privilege('authenticated', 'public.profiles', 'deactivated_at', 'UPDATE')
+        THEN 'GRAVÁVEL'
+      ELSE 'OK'
+    END::text,
+    NULL::text
+  UNION ALL
+  -- Corte de sessões: o usuário não pode desfazer o próprio corte.
+  SELECT
+    'grant'::text,
+    'profiles.sessions_valid_after gravável por anon/authenticated'::text,
+    CASE
+      WHEN to_regrole('anon') IS NULL OR to_regrole('authenticated') IS NULL
+        THEN 'ROLES DA API AUSENTES'
+      WHEN NOT EXISTS (
+          SELECT 1 FROM information_schema.columns
+          WHERE table_schema = 'public' AND table_name = 'profiles' AND column_name = 'sessions_valid_after'
+        )
+        THEN 'COLUNA AUSENTE'
+      WHEN has_column_privilege('anon', 'public.profiles', 'sessions_valid_after', 'UPDATE')
+        OR has_column_privilege('authenticated', 'public.profiles', 'sessions_valid_after', 'UPDATE')
+        THEN 'GRAVÁVEL'
+      ELSE 'OK'
+    END::text,
+    NULL::text
+  UNION ALL
+  -- Log de auditoria: só o service_role insere; ninguém altera nem apaga.
+  SELECT
+    'grant'::text,
+    'user_management_events gravável por anon/authenticated'::text,
+    CASE
+      WHEN to_regrole('anon') IS NULL OR to_regrole('authenticated') IS NULL
+        THEN 'ROLES DA API AUSENTES'
+      WHEN to_regclass('public.user_management_events') IS NULL THEN 'AUSENTE'
+      WHEN has_table_privilege('anon', 'public.user_management_events', 'INSERT, UPDATE, DELETE, TRUNCATE')
+        OR has_table_privilege('authenticated', 'public.user_management_events', 'INSERT, UPDATE, DELETE, TRUNCATE')
+        THEN 'GRAVÁVEL'
+      ELSE 'OK'
+    END::text,
+    NULL::text
 ),
 
 -- 8. Triggers de defesa em profundidade. Presente mas DESABILITADO conta como
@@ -220,6 +291,8 @@ trigger_checks AS (
     (t.rel || coalesce(' tgenabled=' || g.tgenabled::text, ''))::text
   FROM (VALUES
     ('enforce_profile_role_change', 'public.profiles'),
+    ('enforce_last_admin', 'public.profiles'),
+    ('enforce_audit_append_only', 'public.user_management_events'),
     ('on_auth_user_created', 'auth.users')
   ) AS t(tgname, rel)
   LEFT JOIN (
@@ -251,8 +324,13 @@ function_checks AS (
   FROM (
     SELECT unnest(ARRAY[
       'is_admin',
+      'is_staff',
       'current_profile_role',
       'prevent_profile_role_escalation',
+      'protect_last_admin',
+      'admin_update_profile',
+      'admin_revoke_sessions',
+      'my_access',
       'handle_new_user'
     ]) AS object_name
   ) f
@@ -261,15 +339,22 @@ function_checks AS (
    AND p.pronamespace = 'public'::regnamespace
 ),
 
--- 10. Todo o modelo de autorização se reduz a is_admin(). Se alguém redefinir o
---     corpo dela, todas as checagens acima continuam verdes. Confere o corpo.
+-- 10. Todo o modelo de autorização se reduz a is_admin() e is_staff(). Se
+--     alguém redefinir o corpo delas, todas as checagens acima continuam
+--     verdes. Confere os corpos: is_staff() não pode aceitar outro papel, e as
+--     duas precisam recusar contas desativadas.
 is_admin_body_checks AS (
   SELECT
     'function'::text,
-    'is_admin(): corpo confere role admin'::text,
+    'is_admin(): corpo confere role admin ativo'::text,
     CASE
       WHEN p.oid IS NULL THEN 'AUSENTE'
-      WHEN p.prosrc LIKE '%auth.uid()%' AND p.prosrc LIKE '%''admin''%' THEN 'OK'
+      WHEN p.prosrc LIKE '%auth.uid()%'
+        AND p.prosrc LIKE '%''admin''%'
+        AND p.prosrc NOT LIKE '%''editor''%'
+        AND p.prosrc LIKE '%deactivated_at IS NULL%'
+        AND p.prosrc LIKE '%sessions_valid_after%'
+        THEN 'OK'
       ELSE 'CORPO INESPERADO'
     END::text,
     replace(coalesce(p.prosrc, '(ausente)'), E'\n', ' ')::text
@@ -277,27 +362,65 @@ is_admin_body_checks AS (
   LEFT JOIN pg_proc p
     ON p.proname = 'is_admin'
    AND p.pronamespace = 'public'::regnamespace
+  UNION ALL
+  SELECT
+    'function'::text,
+    'is_staff(): corpo confere admin/editor ativo'::text,
+    CASE
+      WHEN p.oid IS NULL THEN 'AUSENTE'
+      WHEN p.prosrc LIKE '%auth.uid()%'
+        AND p.prosrc LIKE '%role IN (''admin'', ''editor'')%'
+        AND p.prosrc LIKE '%deactivated_at IS NULL%'
+        AND p.prosrc LIKE '%sessions_valid_after%'
+        THEN 'OK'
+      ELSE 'CORPO INESPERADO'
+    END::text,
+    replace(coalesce(p.prosrc, '(ausente)'), E'\n', ' ')::text
+  FROM (SELECT 1) one
+  LEFT JOIN pg_proc p
+    ON p.proname = 'is_staff'
+   AND p.pronamespace = 'public'::regnamespace
+  UNION ALL
+  -- A RPC de admin ignora o grant por coluna; ela precisa checar is_admin()
+  -- e não pode ser executável por anon.
+  SELECT
+    'function'::text,
+    'admin_update_profile(): exige is_admin() e não é pública'::text,
+    CASE
+      WHEN p.oid IS NULL THEN 'AUSENTE'
+      WHEN p.prosrc NOT LIKE '%NOT public.is_admin()%' THEN 'SEM GATE'
+      WHEN to_regrole('anon') IS NOT NULL AND has_function_privilege('anon', p.oid, 'EXECUTE')
+        THEN 'EXECUTÁVEL POR ANON'
+      ELSE 'OK'
+    END::text,
+    NULL::text
+  FROM (SELECT 1) one
+  LEFT JOIN pg_proc p
+    ON p.proname = 'admin_update_profile'
+   AND p.pronamespace = 'public'::regnamespace
 ),
 
--- 11. Contas. Só o painel /admin usa o Auth e os administradores são criados à
---     mão, então todo perfil sem role = 'admin' é resíduo de cadastro público
---     aberto e precisa ser revisado em Authentication > Users (README §4.4).
+-- 11. Contas. Usuários são criados por convite no painel (/admin/usuarios), e
+--     o papel é atribuído logo em seguida. Perfil sem papel é resíduo (convite
+--     que falhou no meio, ou cadastro público aberto) e precisa ser revisado
+--     em Authentication > Users (README §4.4).
 account_checks AS (
   SELECT
     'conta'::text,
-    'perfis que não são admin'::text,
+    'perfis sem papel (sem acesso)'::text,
     CASE WHEN count(*) = 0 THEN 'OK' ELSE 'REVISAR' END::text,
     (count(*)::text || ' conta(s) — cadastro público deve estar desligado')::text
   FROM public.profiles
-  WHERE role IS DISTINCT FROM 'admin'
+  WHERE role IS NULL
   UNION ALL
   SELECT
     'conta'::text,
-    'administradores'::text,
+    'administradores ativos'::text,
     CASE WHEN count(*) > 0 THEN 'OK' ELSE 'NENHUM ADMIN' END::text,
     (count(*)::text || ' conta(s)')::text
   FROM public.profiles
   WHERE role = 'admin'
+    AND deactivated_at IS NULL
 )
 
 SELECT category, object, status, detail

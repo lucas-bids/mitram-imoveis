@@ -97,3 +97,34 @@ id is known. Cover selection goes through `updateCoverImage`.
 Deleting media must remove **both** the storage object
 (`deleteMediaFromStorage`) and the row (`deleteMediaRecord`) — dropping only
 one leaves an orphan.
+
+## Users
+
+`/admin/usuarios` (admin only) lives in `src/features/admin/users/`:
+
+- `roles.ts` — pure role helpers (`canAccessPanel`, `canManageUsers`), shared
+  by middleware, login and UI. UX only; RLS is the authority.
+- `schema.ts` — zod for create / update / set-password / ids. Password rule:
+  8–72 chars, at least one letter and one digit (`PASSWORD_RULE_HINT`); must
+  match Supabase's dashboard password requirements.
+- `server.ts` (`server-only`) — `getAdminActor()` / `requireAdminPage()`, reads
+  (`listUsers`, `getUser`, `getUserEvents`), Auth Admin API wrappers and
+  `recordEvent`. The only importer of `createAdminClient`.
+- `actions.ts` (`"use server"`) — `createUser`, `updateUser`,
+  `setUserPassword`, `deactivateUser`, `reactivateUser`, `deleteUser`. Each
+  re-authorizes, validates, writes `profiles` via RPC (admin's own session),
+  and audits.
+
+Rules: **no email in any flow.** The admin creates users with a password typed
+twice (`email_confirm: true`); the email is only a login identifier. The role
+is set by `admin_update_profile` after creation, never from user metadata
+(rollback deletes the auth user on failure). Password reset = admin types a new
+one; `admin_revoke_sessions` then cuts every existing session instantly (a
+self-reset signs the admin out). No forced change on next login. Deactivate =
+`deactivated_at` + session cutoff (same write) + Auth ban. Email change is
+immediate and sends nothing. The last active admin is protected by the DB
+trigger `enforce_last_admin`. Properties are never touched by user deletion.
+The audit log never stores passwords.
+
+Editors share every content capability with admins — the property flows above
+work unchanged for both, because content policies use `is_staff()`.
