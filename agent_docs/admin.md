@@ -17,9 +17,16 @@ constraint. The same is true of media writes (`media/mutations.ts`) and address
 `src/features/admin/properties/actions.ts` (`"use server"`) covers **only**
 lifecycle transitions: `movePropertyToTrash`, `restorePropertyFromTrash`,
 `deletePropertyPermanently`. These use the RLS-respecting server client and
-call `revalidatePath`.
+call `revalidatePath`. `deletePropertyPermanently` removes the property's
+storage objects **before** deleting the row — the `property_media` rows cascade
+with it, and they are the only record of which files belonged to the property
+(new-property uploads live under a provisional folder id, so the folder is not
+a reliable key). If reading paths or removing files fails, it aborts and the
+property stays in the trash. The bucket name is `PROPERTY_IMAGES_BUCKET`
+(`storage.ts`), importable from both server and client code.
 
-`queries.ts` exposes `getPropertyFormLookups()` for the form's select options.
+`queries.ts` exposes `getPropertyFormLookups()` for the form's select options
+and `getPropertyMediaStoragePaths(client, id)` for the permanent delete.
 
 ## Validation
 
