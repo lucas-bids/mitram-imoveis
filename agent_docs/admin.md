@@ -28,6 +28,10 @@ property stays in the trash. The bucket name is `PROPERTY_IMAGES_BUCKET`
 `queries.ts` exposes `getPropertyFormLookups()` for the form's select options
 and `getPropertyMediaStoragePaths(client, id)` for the permanent delete.
 
+`/admin/imoveis/[id]/duplicar` reuses `PropertyForm` as a create: it clears
+`id`, `slug`, `internal_code` and media, forces `status: "draft"`, and trims the
+title so the " (Cópia)" suffix fits `FEED_LIMITS.MAX_TITLE`.
+
 ## Validation
 
 `src/features/admin/properties/schema.ts` exports `buildPropertySchema(ctx)`,

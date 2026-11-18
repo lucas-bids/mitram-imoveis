@@ -36,15 +36,14 @@ them:
 | `sellLand` | `avaliacao-terreno` | `ValuationCta.tsx` |
 
 `ContactPreferenceForm` submits `contactPreference` as the **pt-BR label**
-("WhatsApp" / "E-mail") from `types.ts::CONTACT_PREFERENCE_LABELS`, not the raw
-key, so the dashboard column is readable. "Ligação" was removed — the business
-only replies by WhatsApp or e-mail, and offering a channel nobody answers is a
-promise broken at first contact.
+("WhatsApp" / "Ligação") from `types.ts::CONTACT_PREFERENCE_LABELS`, not the raw
+key (`whatsapp | call`), so the dashboard column is readable. Both channels use
+the phone number the form already asks for, so the preference adds no field.
 
-That form mounts its `email` input **only** when the preference is `email`, so
-`retorno-imovel` and `avaliacao-terreno` submissions carry the field
-inconsistently. Both declare it in `public/__forms.html` regardless — the
-static form is a field schema, not a snapshot of any one submission.
+That form no longer has an `email` input, so `retorno-imovel` and
+`avaliacao-terreno` submissions never carry one. `public/__forms.html` still
+declares `email` on both — harmless, since the static form is a field schema,
+not a snapshot of any one submission (`contato` does send it).
 
 ## Local development
 

@@ -8,7 +8,7 @@ Client boundaries, the admin gate, and where database rules live.
 | --- | --- | --- |
 | `src/lib/supabase/server.ts` | Server Components, route handlers, server actions | Respects RLS |
 | `src/lib/supabase/client.ts` | Client Components only | Respects RLS (anon/authenticated) |
-| `src/lib/supabase/static.ts` | Cached routes that must not touch cookies — today only `src/app/sitemap.ts` | Respects RLS (anon) |
+| `src/lib/supabase/static.ts` | Cached routes that must not touch cookies — `src/app/sitemap.ts` and the portal feed (`src/features/feed/queries.ts`) | Respects RLS (anon) |
 | `src/lib/supabase/admin.ts` | Trusted server-side admin mutations | **Bypasses RLS** |
 
 `createStaticClient()` exists because `server.ts` calls `cookies()`, and that call
