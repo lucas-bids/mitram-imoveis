@@ -17,9 +17,20 @@ constraint. The same is true of media writes (`media/mutations.ts`) and address
 `src/features/admin/properties/actions.ts` (`"use server"`) covers **only**
 lifecycle transitions: `movePropertyToTrash`, `restorePropertyFromTrash`,
 `deletePropertyPermanently`. These use the RLS-respecting server client and
-call `revalidatePath`.
+call `revalidatePath`. `deletePropertyPermanently` removes the property's
+storage objects **before** deleting the row — the `property_media` rows cascade
+with it, and they are the only record of which files belonged to the property
+(new-property uploads live under a provisional folder id, so the folder is not
+a reliable key). If reading paths or removing files fails, it aborts and the
+property stays in the trash. The bucket name is `PROPERTY_IMAGES_BUCKET`
+(`storage.ts`), importable from both server and client code.
 
-`queries.ts` exposes `getPropertyFormLookups()` for the form's select options.
+`queries.ts` exposes `getPropertyFormLookups()` for the form's select options
+and `getPropertyMediaStoragePaths(client, id)` for the permanent delete.
+
+`/admin/imoveis/[id]/duplicar` reuses `PropertyForm` as a create: it clears
+`id`, `slug`, `internal_code` and media, forces `status: "draft"`, and trims the
+title so the " (Cópia)" suffix fits `FEED_LIMITS.MAX_TITLE`.
 
 ## Validation
 
@@ -97,3 +108,34 @@ id is known. Cover selection goes through `updateCoverImage`.
 Deleting media must remove **both** the storage object
 (`deleteMediaFromStorage`) and the row (`deleteMediaRecord`) — dropping only
 one leaves an orphan.
+
+## Users
+
+`/admin/usuarios` (admin only) lives in `src/features/admin/users/`:
+
+- `roles.ts` — pure role helpers (`canAccessPanel`, `canManageUsers`), shared
+  by middleware, login and UI. UX only; RLS is the authority.
+- `schema.ts` — zod for create / update / set-password / ids. Password rule:
+  8–72 chars, at least one letter and one digit (`PASSWORD_RULE_HINT`); must
+  match Supabase's dashboard password requirements.
+- `server.ts` (`server-only`) — `getAdminActor()` / `requireAdminPage()`, reads
+  (`listUsers`, `getUser`, `getUserEvents`), Auth Admin API wrappers and
+  `recordEvent`. The only importer of `createAdminClient`.
+- `actions.ts` (`"use server"`) — `createUser`, `updateUser`,
+  `setUserPassword`, `deactivateUser`, `reactivateUser`, `deleteUser`. Each
+  re-authorizes, validates, writes `profiles` via RPC (admin's own session),
+  and audits.
+
+Rules: **no email in any flow.** The admin creates users with a password typed
+twice (`email_confirm: true`); the email is only a login identifier. The role
+is set by `admin_update_profile` after creation, never from user metadata
+(rollback deletes the auth user on failure). Password reset = admin types a new
+one; `admin_revoke_sessions` then cuts every existing session instantly (a
+self-reset signs the admin out). No forced change on next login. Deactivate =
+`deactivated_at` + session cutoff (same write) + Auth ban. Email change is
+immediate and sends nothing. The last active admin is protected by the DB
+trigger `enforce_last_admin`. Properties are never touched by user deletion.
+The audit log never stores passwords.
+
+Editors share every content capability with admins — the property flows above
+work unchanged for both, because content policies use `is_staff()`.

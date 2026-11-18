@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PropertyFormValues, PropertySchemaContext, buildPropertySchema } from "@/features/admin/properties/schema";
 import type { PropertyTypeOption } from "@/features/admin/properties/queries";
@@ -85,8 +85,13 @@ export default function PropertyForm({ initialData, isEdit = false, lookups }: P
   schemaContext.current.imageCount = media.length;
 
   const form = useForm<PropertyFormValues>({
-    resolver: (values, context, options) =>
-      zodResolver(buildPropertySchema(schemaContext.current))(values, context, options),
+    resolver: (values, context, options) => {
+      // O formulário é tipado pela saída do schema. No zod 4 a entrada de
+      // z.coerce é `unknown` e campos com .default() ficam opcionais, então o
+      // resolver (que valida e devolve a saída) é anotado com esse tipo.
+      const resolve = zodResolver(buildPropertySchema(schemaContext.current)) as unknown as Resolver<PropertyFormValues>;
+      return resolve(values, context, options);
+    },
     defaultValues: initialData ? { ...initialData, state: inferredState } : {
       status: "draft",
       purpose: "sale",

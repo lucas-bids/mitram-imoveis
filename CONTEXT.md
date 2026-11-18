@@ -9,11 +9,16 @@ lists.
 - `src/app/` — routes only (pages, layouts, route handlers). Thin; delegates
   to `src/features/`.
 - `src/features/` — domain modules (`properties`, `search`, `admin/properties`,
-  `contact`, `home`). Each exposes only the modules it needs — `queries.ts`,
-  `actions.ts`, `schema.ts`, `types.ts` where appropriate, **not uniformly**.
-  `search` is just `filters.ts`; `home` is just `content.ts` + components.
-- `src/components/` — cross-feature UI primitives and layout chrome.
-- `src/lib/supabase/` — the three Supabase client constructors.
+  `contact`, `home`, `feed`). Each exposes only the modules it needs —
+  `queries.ts`, `actions.ts`, `schema.ts`, `types.ts` where appropriate, **not
+  uniformly**. `search` is `filters.ts` + filter UI components; `home` is just
+  `content.ts` + components. `admin/components/` holds shared admin chrome.
+- `src/components/` — cross-feature UI primitives (`ui/`), layout chrome
+  (`layout/`) and SEO helpers (`seo/`).
+- `src/lib/supabase/` — the four Supabase client constructors plus the
+  middleware session helper.
+- `src/lib/*.ts` — cross-cutting helpers: `logger`, `site` (business
+  constants), `jsonLd`, `googleMaps`, `youtube`, `legacy-redirects.mjs`.
 - `supabase/` — SQL migrations, seed and setup scripts. DB source of truth.
 
 ## Task routing
@@ -23,9 +28,11 @@ lists.
 | Public listings, property detail, search & filters | `agent_docs/properties.md` |
 | Admin CRUD, status changes, trash, image management | `agent_docs/admin.md`, then `agent_docs/properties.md` and `agent_docs/supabase.md` as needed |
 | Auth, RLS, migrations, storage buckets | `agent_docs/supabase.md` (+ `security-reviewer` agent) |
+| User management, roles (admin/editor), passwords | `agent_docs/admin.md` → "Users", then `agent_docs/supabase.md` → "Roles" (+ `security-reviewer` agent) |
 | Contact / lead forms | `agent_docs/contact.md` (+ `security-reviewer` agent) |
 | UI, Tailwind, responsive layout, accessibility | `agent_docs/styling.md` (+ `ui-reviewer` agent) |
-| OLX / ZAP / VivaReal feed | `olx-zap-feed` skill, then `src/features/feed/` |
+| OLX / ZAP / VivaReal feed | `agent_docs/feed.md`, then the `olx-zap-feed` skill for portal rules |
+| SEO, sitemap, error logging | no doc — `src/app/sitemap.ts`, `robots.ts`, `src/components/seo/`, `src/lib/jsonLd.ts`, `src/app/api/log-error/` |
 | Local setup, deployment | `README.md`, `supabase/README.md` |
 
 Pick the row, load that file, stop. Path-scoped rules in `.claude/rules/`

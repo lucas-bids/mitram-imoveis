@@ -25,7 +25,7 @@ const basePropertySchema = z.object({
     .trim()
     .min(MIN_TITLE, `Título deve ter no mínimo ${MIN_TITLE} caracteres`)
     .max(MAX_TITLE, `Título deve ter no máximo ${MAX_TITLE} caracteres`),
-  purpose: z.enum(["sale", "rent"], { required_error: "Selecione a finalidade" }),
+  purpose: z.enum(["sale", "rent"], { error: "Selecione a finalidade" }),
   // A coluna é NOT NULL no banco; antes isto era opcional e o insert quebrava
   // no Postgres em vez de no formulário.
   property_type_id: z.string().min(1, "Selecione o tipo de imóvel"),
@@ -48,8 +48,8 @@ const basePropertySchema = z.object({
   city_id: z.string().min(1, "Selecione a cidade"),
   state: z.string().length(2, "Selecione o estado"),
   postal_code: z.string().trim().refine(isValidPostalCode, "Informe um CEP válido"),
-  latitude: z.coerce.number({ invalid_type_error: "Confirme o endereço no mapa" }).nullable(),
-  longitude: z.coerce.number({ invalid_type_error: "Confirme o endereço no mapa" }).nullable(),
+  latitude: z.coerce.number({ error: "Confirme o endereço no mapa" }).nullable(),
+  longitude: z.coerce.number({ error: "Confirme o endereço no mapa" }).nullable(),
   // O que o portal mostra publicamente do endereço.
   display_address: z.enum(["All", "Street", "Neighborhood"]).default("Street"),
   total_area: z.coerce.number().optional().nullable(),
@@ -102,7 +102,7 @@ const VALIDATED_AT_EVERY_STATUS: ReadonlySet<FeedIssueField> = new Set<FeedIssue
 export function buildPropertySchema(ctx: PropertySchemaContext) {
   return basePropertySchema.superRefine((data, context) => {
     const issue = (path: string, message: string) =>
-      context.addIssue({ code: z.ZodIssueCode.custom, path: [path], message });
+      context.addIssue({ code: "custom", path: [path], message });
 
     if (data.latitude === null) issue("latitude", "Confirme o endereço no mapa");
     if (data.longitude === null) issue("longitude", "Confirme o endereço no mapa");
