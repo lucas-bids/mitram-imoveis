@@ -15,9 +15,7 @@ const fullName = z
   .min(2, "Informe o nome (mínimo de 2 caracteres).")
   .max(100, "Nome muito longo (máximo de 100 caracteres).");
 
-const role = z.enum(USER_ROLES, {
-  errorMap: () => ({ message: "Selecione um papel válido." }),
-});
+const role = z.enum(USER_ROLES, { error: "Selecione um papel válido." });
 
 /**
  * Regra de senha do painel: mínimo de 8 caracteres, ao menos uma letra e um
@@ -38,14 +36,16 @@ const password = z
 function passwordsMatch(values: { password: string; passwordConfirmation: string }, ctx: z.RefinementCtx) {
   if (values.password !== values.passwordConfirmation) {
     ctx.addIssue({
-      code: z.ZodIssueCode.custom,
+      code: "custom",
       path: ["passwordConfirmation"],
       message: "As senhas não coincidem.",
     });
   }
 }
 
-export const userIdSchema = z.string().uuid("Usuário inválido.");
+// z.guid() aceita qualquer UUID no formato 8-4-4-4-12, como o .uuid() do zod 3;
+// o .uuid() do zod 4 exige os bits de versão/variante da RFC 9562.
+export const userIdSchema = z.guid("Usuário inválido.");
 
 export const createUserSchema = z
   .object({
@@ -69,7 +69,7 @@ export const updateUserSchema = z
   .superRefine((values, ctx) => {
     if (values.email !== values.emailConfirmation) {
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: "custom",
         path: ["emailConfirmation"],
         message: "Os e-mails não coincidem.",
       });
