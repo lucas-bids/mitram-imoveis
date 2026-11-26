@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
@@ -7,7 +7,16 @@ import CookieBanner from "@/components/layout/CookieBanner";
 import { OrganizationJsonLd } from "@/components/seo/OrganizationJsonLd";
 import { IS_PRODUCTION_DEPLOY, SITE, SITE_URL } from "@/lib/site";
 
-const font = Plus_Jakarta_Sans({ subsets: ["latin"], weight: ["400", "500", "600", "700", "800"] });
+// Self-hosted instead of next/font/google: fetching from Google at build time
+// broke Netlify builds intermittently when Google Fonts returned a font URL
+// next/font couldn't parse. Latin subset (covers pt-BR), variable weight
+// 200–800. Source: Google Fonts, Plus Jakarta Sans v12, SIL OFL 1.1.
+const font = localFont({
+  src: "./fonts/PlusJakartaSans-latin-variable.woff2",
+  weight: "200 800",
+  style: "normal",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
