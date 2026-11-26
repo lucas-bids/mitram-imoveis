@@ -85,7 +85,7 @@ export const SITE = {
   // e a página de contato um Gmail pessoal — nenhum dos dois no domínio do
   // site. Este endereço também é o canal de pedidos de LGPD anunciado na
   // política de privacidade, então precisa continuar monitorado.
-  email: "contato@mitramimoveis.com.br",
+  email: "bruno@mitramimoveis.com.br",
   creci: "J06908",
   legalName: "Mitram Soluções Imobiliárias",
   cnpj: "29.424.641/0001-55",
